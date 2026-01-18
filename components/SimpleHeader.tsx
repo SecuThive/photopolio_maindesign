@@ -24,7 +24,7 @@ export default function SimpleHeader() {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden text-white p-2"
+            className="lg:hidden text-white p-2 bg-gray-900 hover:bg-gray-800 rounded transition-colors"
             aria-label="Toggle menu"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -48,62 +48,45 @@ export default function SimpleHeader() {
         </div>
       </div>
 
-      {/* Mobile Sidebar Menu */}
+      {/* Mobile Dropdown Menu */}
       {mobileMenuOpen && (
         <>
-          {/* Backdrop */}
-          <div 
-            className="fixed inset-0 bg-black bg-opacity-70 z-40 lg:hidden"
-            onClick={() => setMobileMenuOpen(false)}
-          />
-          
-          {/* Sidebar - 완전 불투명하게 수정 */}
-          <div className="fixed top-0 right-0 h-full w-64 bg-black z-50 lg:hidden shadow-2xl">
-            <div className="p-6">
-              <button
-                onClick={() => setMobileMenuOpen(false)}
-                className="absolute top-4 right-4 text-white hover:text-gray-300"
-                aria-label="Close menu"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+          {/* Dropdown Menu - 아래로 펼쳐지는 효과 */}
+          <div className="lg:hidden bg-gray-950 border-t border-gray-800 shadow-lg animate-slideDown">
+            <div className="px-4 py-6 max-w-7xl mx-auto">
 
-              <h2 className="text-xl font-semibold text-white mb-8 mt-8">Menu</h2>
-
-              <nav className="space-y-4">
+              <nav className="space-y-1">
                 <Link 
                   href="/" 
-                  className="block text-gray-300 hover:text-white transition-colors py-2 text-base"
+                  className="block text-gray-300 hover:text-white hover:bg-gray-900 transition-colors py-3 px-4 rounded text-base"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Home
                 </Link>
                 <Link 
                   href="/about" 
-                  className="block text-gray-300 hover:text-white transition-colors py-2 text-base"
+                  className="block text-gray-300 hover:text-white hover:bg-gray-900 transition-colors py-3 px-4 rounded text-base"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   About
                 </Link>
                 <Link 
                   href="/contact" 
-                  className="block text-gray-300 hover:text-white transition-colors py-2 text-base"
+                  className="block text-gray-300 hover:text-white hover:bg-gray-900 transition-colors py-3 px-4 rounded text-base"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Contact
                 </Link>
                 <Link 
                   href="/privacy-policy" 
-                  className="block text-gray-300 hover:text-white transition-colors py-2 text-base"
+                  className="block text-gray-300 hover:text-white hover:bg-gray-900 transition-colors py-3 px-4 rounded text-base"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Privacy Policy
                 </Link>
                 <a 
                   href="/feed.xml" 
-                  className="block text-gray-300 hover:text-white transition-colors py-2 text-base"
+                  className="block text-gray-300 hover:text-white hover:bg-gray-900 transition-colors py-3 px-4 rounded text-base"
                   target="_blank"
                   rel="noopener noreferrer"
                 >

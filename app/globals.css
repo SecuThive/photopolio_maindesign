@@ -34,4 +34,19 @@ body {
   .luxury-shadow-lg {
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
   }
+  
+  .animate-slideDown {
+    animation: slideDown 0.3s ease-out;
+  }
+  
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 }
