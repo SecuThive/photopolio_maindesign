@@ -24,7 +24,7 @@ export default function Header({ selectedCategory, onCategoryChange }: HeaderPro
           <div className="flex items-center">
             <h1 className="text-2xl md:text-3xl font-display font-semibold text-white tracking-tight">
               <Link href="/" className="hover:opacity-80 transition-opacity">
-                PHOTOPOLIO
+                BASE SYNTAX
               </Link>
             </h1>
             <span className="ml-3 text-xs text-gray-500 font-light tracking-widest uppercase hidden sm:block">

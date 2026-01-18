@@ -1,8 +1,17 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy - Photopolio",
-  description: "Privacy Policy for Photopolio - AI Design Gallery",
+  title: "Privacy Policy",
+  description: "Read Base Syntax's Privacy Policy. Learn about how we collect, use, and protect your information when you visit our AI design gallery.",
+  openGraph: {
+    title: "Privacy Policy - Base Syntax",
+    description: "Read Base Syntax's Privacy Policy. Learn about how we collect, use, and protect your information.",
+    url: 'https://www.ui-syntax.com/privacy-policy',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function PrivacyPolicyPage() {

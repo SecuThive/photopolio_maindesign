@@ -9,7 +9,7 @@ export default function Footer() {
           {/* Brand Section */}
           <div>
             <h2 className="text-xl font-display font-semibold text-white mb-4">
-              PHOTOPOLIO
+              BASE SYNTAX
             </h2>
             <p className="text-gray-400 text-sm">
               AI-generated web design gallery showcasing creative and innovative designs.
@@ -28,8 +28,8 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/admin" className="text-gray-400 hover:text-white text-sm transition-colors">
-                  Admin
+                <Link href="/about" className="text-gray-400 hover:text-white text-sm transition-colors">
+                  About
                 </Link>
               </li>
             </ul>
@@ -51,6 +51,11 @@ export default function Footer() {
                   Contact
                 </Link>
               </li>
+              <li>
+                <a href="/feed.xml" className="text-gray-400 hover:text-white text-sm transition-colors">
+                  RSS Feed
+                </a>
+              </li>
             </ul>
           </div>
         </div>
@@ -58,7 +63,7 @@ export default function Footer() {
         {/* Copyright */}
         <div className="mt-8 pt-8 border-t border-gray-900">
           <p className="text-center text-gray-500 text-sm">
-            © {new Date().getFullYear()} Photopolio. All rights reserved.
+            © {new Date().getFullYear()} Base Syntax. All rights reserved.
           </p>
         </div>
       </div>

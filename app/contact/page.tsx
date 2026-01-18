@@ -1,8 +1,13 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Contact Us - Photopolio",
-  description: "Get in touch with Photopolio - AI Design Gallery",
+  title: "Contact Us",
+  description: "Get in touch with Base Syntax. Have questions, feedback, or want to contribute your AI-generated designs? Contact us at thive8564@gmail.com.",
+  openGraph: {
+    title: "Contact Base Syntax - AI Design Gallery",
+    description: "Get in touch with Base Syntax. Have questions, feedback, or want to contribute your AI-generated designs?",
+    url: 'https://www.ui-syntax.com/contact',
+  },
 };
 
 export default function ContactPage() {
@@ -26,8 +31,8 @@ export default function ContactPage() {
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">Email</h3>
                 <p className="text-gray-700">
-                  <a href="mailto:contact@ui-syntax.com" className="text-blue-600 hover:text-blue-800 underline">
-                    contact@ui-syntax.com
+                  <a href="mailto:thive8564@gmail.com" className="text-blue-600 hover:text-blue-800 underline">
+                    thive8564@gmail.com
                   </a>
                 </p>
               </div>
