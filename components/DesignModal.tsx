@@ -7,8 +7,22 @@ interface DesignModalProps {
   onClose: () => void;
 }
 
+const COLOR_THEMES = [
+  { name: "Purple Dream", primary: "#667eea", secondary: "#764ba2", accent: "#f093fb" },
+  { name: "Pink Sunset", primary: "#f093fb", secondary: "#f5576c", accent: "#fbbf24" },
+  { name: "Ocean Blue", primary: "#4facfe", secondary: "#00f2fe", accent: "#43e97b" },
+  { name: "Green Forest", primary: "#11998e", secondary: "#38ef7d", accent: "#7bed9f" },
+  { name: "Orange Fire", primary: "#fc4a1a", secondary: "#f7b733", accent: "#ee5a24" },
+  { name: "Violet Night", primary: "#8e2de2", secondary: "#4a00e0", accent: "#a55eea" },
+  { name: "Red Passion", primary: "#eb3349", secondary: "#f45c43", accent: "#fc5c65" },
+  { name: "Blue Steel", primary: "#2c3e50", secondary: "#3498db", accent: "#74b9ff" },
+];
+
 export default function DesignModal({ design, onClose }: DesignModalProps) {
   const [copied, setCopied] = useState(false);
+  const [selectedTheme, setSelectedTheme] = useState(0);
+  const [previewCode, setPreviewCode] = useState(design.code);
+  const [isLoadingPreview, setIsLoadingPreview] = useState(false);
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -24,10 +38,44 @@ export default function DesignModal({ design, onClose }: DesignModalProps) {
     };
   }, [onClose]);
 
+  // 원본 디자인에서 사용된 색상 찾기
+  const getOriginalColors = (code: string) => {
+    for (const theme of COLOR_THEMES) {
+      // 코드에서 해당 테마의 primary 색상이 있는지 확인
+      if (code.toLowerCase().includes(theme.primary.toLowerCase())) {
+        return theme;
+      }
+    }
+    return COLOR_THEMES[0]; // 기본값
+  };
+
+  // 색상 테마 변경 시 코드 업데이트
+  useEffect(() => {
+    if (!design.code) return;
+    
+    setIsLoadingPreview(true);
+    const originalTheme = getOriginalColors(design.code);
+    const newTheme = COLOR_THEMES[selectedTheme];
+    
+    let updatedCode = design.code;
+    
+    // 원본 테마의 색상을 새로운 테마의 색상으로 교체
+    // 대소문자 구분 없이 교체
+    updatedCode = updatedCode.replace(new RegExp(originalTheme.primary, 'gi'), newTheme.primary);
+    updatedCode = updatedCode.replace(new RegExp(originalTheme.secondary, 'gi'), newTheme.secondary);
+    updatedCode = updatedCode.replace(new RegExp(originalTheme.accent, 'gi'), newTheme.accent);
+    
+    setPreviewCode(updatedCode);
+    
+    // 프리뷰 로딩 완료
+    setTimeout(() => setIsLoadingPreview(false), 300);
+  }, [selectedTheme, design.code]);
+
   const handleCopyCode = async () => {
-    if (design.code) {
+    const codeToCopy = previewCode || design.code;
+    if (codeToCopy) {
       try {
-        await navigator.clipboard.writeText(design.code);
+        await navigator.clipboard.writeText(codeToCopy);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
       } catch (err) {
@@ -76,15 +124,22 @@ export default function DesignModal({ design, onClose }: DesignModalProps) {
           </svg>
         </button>
 
-        {/* Image */}
-        <div className="relative w-full aspect-[16/10] bg-gray-100">
-          <Image
-            src={design.image_url}
-            alt={design.title}
-            fill
-            className="object-contain"
-            sizes="(max-width: 1280px) 100vw, 1280px"
-            priority
+        {/* Image - Live Preview with iframe */}
+        <div className="relative w-full h-[500px] bg-gray-100 overflow-hidden">
+          {isLoadingPreview && (
+            <div className="absolute inset-0 bg-white bg-opacity-80 flex items-center justify-center z-10">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
+                <p className="text-sm text-gray-600">Updating preview...</p>
+              </div>
+            </div>
+          )}
+          <iframe
+            srcDoc={previewCode || design.code || ''}
+            className="w-full h-full border-0"
+            style={{ transform: 'scale(0.5)', transformOrigin: 'top left', width: '200%', height: '200%' }}
+            title="Design Preview"
+            sandbox="allow-scripts"
           />
         </div>
 
@@ -116,6 +171,36 @@ export default function DesignModal({ design, onClose }: DesignModalProps) {
             </div>
           )}
 
+          {/* Color Theme Selector */}
+          <div className="mb-8 pb-8 border-b border-gray-100">
+            <h3 className="text-xs uppercase tracking-widest text-gray-400 mb-4 font-light">Color Theme</h3>
+            <div className="flex gap-4 overflow-x-auto pb-2 scroll-smooth">
+              {COLOR_THEMES.map((theme, index) => (
+                <button
+                  key={index}
+                  onClick={() => setSelectedTheme(index)}
+                  className={`flex-shrink-0 min-w-[180px] p-4 border-2 transition-all ${
+                    selectedTheme === index 
+                      ? 'border-black bg-gray-50' 
+                      : 'border-gray-200 hover:border-gray-400'
+                  }`}
+                >
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-6 h-6 rounded-full" style={{ background: theme.primary }}></div>
+                    <div className="w-6 h-6 rounded-full" style={{ background: theme.secondary }}></div>
+                    <div className="w-6 h-6 rounded-full" style={{ background: theme.accent }}></div>
+                  </div>
+                  <div className="text-xs uppercase tracking-widest font-light">
+                    {theme.name}
+                  </div>
+                </button>
+              ))}
+            </div>
+            <p className="text-xs text-gray-500 mt-3">
+              Select a color theme to preview the design with different colors
+            </p>
+          </div>
+
           {design.prompt && (
             <div className="bg-gray-50 p-8 mb-8">
               <h3 className="text-xs uppercase tracking-widest text-gray-400 mb-4 font-light">AI Prompt</h3>
@@ -128,7 +213,9 @@ export default function DesignModal({ design, onClose }: DesignModalProps) {
           {design.code && (
             <div className="bg-black p-8 mb-8 relative group">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xs uppercase tracking-widest text-gray-400 font-light">Source Code</h3>
+                <h3 className="text-xs uppercase tracking-widest text-gray-400 font-light">
+                  Source Code {selectedTheme > 0 && `(${COLOR_THEMES[selectedTheme].name})`}
+                </h3>
                 <button
                   onClick={handleCopyCode}
                   className="px-4 py-2 bg-white text-black text-xs uppercase tracking-widest font-light hover:bg-gray-100 transition-colors flex items-center gap-2"
@@ -150,8 +237,8 @@ export default function DesignModal({ design, onClose }: DesignModalProps) {
                   )}
                 </button>
               </div>
-              <pre className="text-green-400 text-sm font-mono leading-relaxed overflow-x-auto">
-                <code>{design.code}</code>
+              <pre className="text-green-400 text-sm font-mono leading-relaxed overflow-x-auto max-h-96">
+                <code>{previewCode}</code>
               </pre>
             </div>
           )}

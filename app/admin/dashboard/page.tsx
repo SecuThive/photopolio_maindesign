@@ -101,15 +101,17 @@ export default function AdminDashboardPage() {
         .getPublicUrl(`designs/${fileName}`);
 
       // Insert into database
-      const { error: dbError } = await supabase
+      const designData = {
+        title,
+        description: description || null,
+        category,
+        code: code || null,
+        image_url: publicUrl,
+      };
+
+      const { error: dbError } = await (supabase as any)
         .from('designs')
-        .insert({
-          title,
-          description,
-          category,
-          code: code || null,
-          image_url: publicUrl,
-        });
+        .insert(designData);
 
       if (dbError) throw dbError;
 
