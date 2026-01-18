@@ -6,6 +6,7 @@ import { Design } from '@/types/database';
 import DesignCard from '@/components/DesignCard';
 import DesignModal from '@/components/DesignModal';
 import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 
 const ITEMS_PER_PAGE = 12;
 
@@ -125,6 +126,8 @@ export default function HomePage() {
           onClose={() => setSelectedDesign(null)}
         />
       )}
+      
+      <Footer />
     </div>
   );
 }
