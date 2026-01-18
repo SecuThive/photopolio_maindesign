@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: "Contact Us",
@@ -13,6 +14,24 @@ export const metadata: Metadata = {
 export default function ContactPage() {
   return (
     <div className="min-h-screen bg-white">
+      {/* Header */}
+      <header className="bg-black border-b border-gray-900 sticky top-0 z-40 backdrop-blur-sm bg-opacity-95">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-20">
+            <div className="flex items-center">
+              <h1 className="text-2xl md:text-3xl font-display font-semibold text-white tracking-tight">
+                <Link href="/" className="hover:opacity-80 transition-opacity">
+                  BASE SYNTAX
+                </Link>
+              </h1>
+              <span className="ml-3 text-xs text-gray-500 font-light tracking-widest uppercase hidden sm:block">
+                AI Design Gallery
+              </span>
+            </div>
+          </div>
+        </div>
+      </header>
+
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <h1 className="text-4xl font-bold text-gray-900 mb-8">Contact Us</h1>
         
@@ -78,6 +97,36 @@ export default function ContactPage() {
           </section>
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="bg-black border-t border-gray-900 mt-auto">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div>
+              <h2 className="text-xl font-display font-semibold text-white mb-4">BASE SYNTAX</h2>
+              <p className="text-gray-400 text-sm">AI-generated web design gallery showcasing creative and innovative designs.</p>
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-white mb-4 uppercase tracking-wider">Quick Links</h3>
+              <ul className="space-y-2">
+                <li><Link href="/" className="text-gray-400 hover:text-white text-sm transition-colors">Home</Link></li>
+                <li><Link href="/about" className="text-gray-400 hover:text-white text-sm transition-colors">About</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-white mb-4 uppercase tracking-wider">Legal</h3>
+              <ul className="space-y-2">
+                <li><Link href="/privacy-policy" className="text-gray-400 hover:text-white text-sm transition-colors">Privacy Policy</Link></li>
+                <li><Link href="/contact" className="text-gray-400 hover:text-white text-sm transition-colors">Contact</Link></li>
+                <li><a href="/feed.xml" className="text-gray-400 hover:text-white text-sm transition-colors">RSS Feed</a></li>
+              </ul>
+            </div>
+          </div>
+          <div className="mt-8 pt-8 border-t border-gray-900">
+            <p className="text-center text-gray-500 text-sm">© {new Date().getFullYear()} Base Syntax. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
