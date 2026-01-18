@@ -1,22 +1,9 @@
+'use client';
+
 import React, { useState } from 'react';
 import Link from 'next/link';
 
-interface HeaderProps {
-  selectedCategory: string | null;
-  onCategoryChange: (category: string | null) => void;
-}
-
-const categories = [
-  { value: null, label: 'All' },
-  { value: 'Landing Page', label: 'Landing Page' },
-  { value: 'Dashboard', label: 'Dashboard' },
-  { value: 'E-commerce', label: 'E-commerce' },
-  { value: 'Portfolio', label: 'Portfolio' },
-  { value: 'Blog', label: 'Blog' },
-  { value: 'Components', label: 'Components' },
-];
-
-export default function Header({ selectedCategory, onCategoryChange }: HeaderProps) {
+export default function SimpleHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -59,44 +46,6 @@ export default function Header({ selectedCategory, onCategoryChange }: HeaderPro
             </Link>
           </nav>
         </div>
-
-        {/* Desktop Category Filter */}
-        <div className="pb-6 overflow-x-auto scrollbar-hide hidden lg:block">
-          <div className="flex space-x-3">
-            {categories.map((category) => (
-              <button
-                key={category.value || 'all'}
-                onClick={() => onCategoryChange(category.value)}
-                className={`px-5 py-2 text-sm whitespace-nowrap transition-all duration-300 font-light tracking-wide ${
-                  selectedCategory === category.value
-                    ? 'bg-white text-black'
-                    : 'bg-transparent text-gray-400 hover:text-white border border-gray-800 hover:border-gray-600'
-                } rounded-sm`}
-              >
-                {category.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Mobile Category Filter - Always Visible on Mobile */}
-        <div className="pb-4 overflow-x-auto scrollbar-hide lg:hidden">
-          <div className="flex space-x-2">
-            {categories.map((category) => (
-              <button
-                key={category.value || 'all'}
-                onClick={() => onCategoryChange(category.value)}
-                className={`px-4 py-2 text-xs whitespace-nowrap transition-all duration-300 font-light tracking-wide ${
-                  selectedCategory === category.value
-                    ? 'bg-white text-black'
-                    : 'bg-transparent text-gray-400 hover:text-white border border-gray-800 hover:border-gray-600'
-                } rounded-sm`}
-              >
-                {category.label}
-              </button>
-            ))}
-          </div>
-        </div>
       </div>
 
       {/* Mobile Sidebar Menu */}
@@ -108,7 +57,7 @@ export default function Header({ selectedCategory, onCategoryChange }: HeaderPro
             onClick={() => setMobileMenuOpen(false)}
           />
           
-          {/* Sidebar - 완전 불투명 배경 */}
+          {/* Sidebar - 완전 불투명하게 수정 */}
           <div className="fixed top-0 right-0 h-full w-64 bg-black z-50 lg:hidden shadow-2xl">
             <div className="p-6">
               <button

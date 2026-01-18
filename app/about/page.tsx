@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from 'next/link';
+import SimpleHeader from '@/components/SimpleHeader';
 
 export const metadata: Metadata = {
   title: "About Us",
@@ -28,23 +28,7 @@ export default function AboutPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="bg-black border-b border-gray-900 sticky top-0 z-40 backdrop-blur-sm bg-opacity-95">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
-            <div className="flex items-center">
-              <h1 className="text-2xl md:text-3xl font-display font-semibold text-white tracking-tight">
-                <Link href="/" className="hover:opacity-80 transition-opacity">
-                  BASE SYNTAX
-                </Link>
-              </h1>
-              <span className="ml-3 text-xs text-gray-500 font-light tracking-widest uppercase hidden sm:block">
-                AI Design Gallery
-              </span>
-            </div>
-          </div>
-        </div>
-      </header>
+      <SimpleHeader />
 
       <script
         type="application/ld+json"
