@@ -4,6 +4,9 @@ import Link from 'next/link';
 export const metadata: Metadata = {
   title: "About Us",
   description: "Learn about Base Syntax, a curated gallery of AI-generated web designs featuring landing pages, dashboards, e-commerce platforms, and portfolios. Discover our mission and technology.",
+  alternates: {
+    canonical: 'https://www.ui-syntax.com/about',
+  },
   openGraph: {
     title: "About Base Syntax - AI Design Gallery",
     description: "Learn about Base Syntax, a curated gallery of AI-generated web designs featuring landing pages, dashboards, e-commerce platforms, and portfolios.",

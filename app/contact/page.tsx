@@ -4,6 +4,9 @@ import Link from 'next/link';
 export const metadata: Metadata = {
   title: "Contact Us",
   description: "Get in touch with Base Syntax. Have questions, feedback, or want to contribute your AI-generated designs? Contact us at thive8564@gmail.com.",
+  alternates: {
+    canonical: 'https://www.ui-syntax.com/contact',
+  },
   openGraph: {
     title: "Contact Base Syntax - AI Design Gallery",
     description: "Get in touch with Base Syntax. Have questions, feedback, or want to contribute your AI-generated designs?",

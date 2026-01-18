@@ -4,6 +4,9 @@ import Link from 'next/link';
 export const metadata: Metadata = {
   title: "Privacy Policy",
   description: "Read Base Syntax's Privacy Policy. Learn about how we collect, use, and protect your information when you visit our AI design gallery.",
+  alternates: {
+    canonical: 'https://www.ui-syntax.com/privacy-policy',
+  },
   openGraph: {
     title: "Privacy Policy - Base Syntax",
     description: "Read Base Syntax's Privacy Policy. Learn about how we collect, use, and protect your information.",

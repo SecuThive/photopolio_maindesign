@@ -13,6 +13,9 @@ export const metadata: Metadata = {
   authors: [{ name: "Base Syntax" }],
   creator: "Base Syntax",
   publisher: "Base Syntax",
+  alternates: {
+    canonical: 'https://www.ui-syntax.com',
+  },
   robots: {
     index: true,
     follow: true,
@@ -50,7 +53,6 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <head>
-        <link rel="canonical" href="https://www.ui-syntax.com" />
         <link 
           rel="alternate" 
           type="application/rss+xml" 
