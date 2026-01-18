@@ -8432,8 +8432,21 @@ tbody td:first-child {{text-align:left;font-weight:600;}}
         return public_url
     
     def save_to_database(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """Database 저장"""
+        """Database 저장 (중복 체크)"""
         print(f"💾 Saving: {data['title']}")
+        
+        # 중복 체크: 같은 title과 category 조합이 이미 존재하는지 확인
+        existing = supabase.table('designs')\
+            .select('id')\
+            .eq('title', data['title'])\
+            .eq('category', data['category'])\
+            .execute()
+        
+        if existing.data:
+            print(f"⚠️  Warning: Design with title '{data['title']}' and category '{data['category']}' already exists!")
+            print(f"   Existing ID: {existing.data[0]['id']}")
+            raise Exception(f"Duplicate design: {data['title']} ({data['category']})")
+        
         response = supabase.table('designs').insert(data).execute()
         print("✅ Saved to database")
         return response.data[0]
