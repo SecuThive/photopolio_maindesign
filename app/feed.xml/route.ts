@@ -43,10 +43,6 @@ export async function GET() {
         url: design.image_url,
         type: 'image/png',
       } : undefined,
-      custom_elements: [
-        { 'design:category': design.category },
-        { 'design:style': design.style || 'modern' },
-      ],
     });
   });
 
