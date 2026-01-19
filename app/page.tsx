@@ -1,5 +1,4 @@
-import { Database } from '@/types/database';
-import { supabaseAdmin } from '@/lib/supabase/server';
+import { supabaseServer } from '@/lib/supabase/server';
 import DesignGallery from '@/components/DesignGallery';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -11,7 +10,7 @@ export default async function HomePage({
 }) {
   const category = searchParams?.category;
 
-  let query = supabaseAdmin
+  let query = supabaseServer
     .from('designs')
     .select('*')
     .order('created_at', { ascending: false })

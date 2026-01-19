@@ -2,20 +2,20 @@ import { createClient } from '@supabase/supabase-js';
 import { Database } from '@/types/database';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-if (!supabaseUrl || !supabaseServiceRoleKey) {
+if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables for server');
 }
 
-// This client bypasses Row Level Security and should only be used on the server
-export const supabaseAdmin = createClient<Database>(
+export const supabaseServer = createClient<Database>(
   supabaseUrl,
-  supabaseServiceRoleKey,
+  supabaseAnonKey,
   {
     auth: {
       autoRefreshToken: false,
       persistSession: false,
+      detectSessionInUrl: false,
     },
   }
 );
