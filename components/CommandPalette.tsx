@@ -93,7 +93,6 @@ export default function CommandPalette() {
               autoFocus={open}
               value={searchValue}
               onValueChange={setSearchValue}
-              placeholder="빠르게 이동하거나 카테고리를 검색하세요..."
               placeholder="Jump to a page or search categories..."
               className="h-14 w-full bg-transparent text-base outline-none placeholder:text-gray-400"
             />
