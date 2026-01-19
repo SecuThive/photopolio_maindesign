@@ -51,6 +51,12 @@ export default function CommandPalette() {
   }, []);
 
   useEffect(() => {
+    const handleOpenEvent = () => setOpen(true);
+    window.addEventListener("open-command-palette", handleOpenEvent);
+    return () => window.removeEventListener("open-command-palette", handleOpenEvent);
+  }, []);
+
+  useEffect(() => {
     if (!open) {
       setSearchValue("");
     }
@@ -67,10 +73,12 @@ export default function CommandPalette() {
 
   return createPortal(
     <div
-      className={`fixed inset-0 z-50 transition-opacity duration-150 ${
+      className={`fixed inset-0 z-[9999] transition-opacity duration-150 ${
         open ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
       }`}
-      aria-hidden={!open}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Command palette"
     >
       <div
         className="absolute inset-0 bg-black/50"
@@ -82,7 +90,7 @@ export default function CommandPalette() {
         <Command className="w-full overflow-hidden rounded-2xl border border-gray-200 bg-white text-gray-900 shadow-2xl">
           <div className="flex items-center border-b border-gray-100 px-4">
             <Command.Input
-              autoFocus
+              autoFocus={open}
               value={searchValue}
               onValueChange={setSearchValue}
               placeholder="빠르게 이동하거나 카테고리를 검색하세요..."

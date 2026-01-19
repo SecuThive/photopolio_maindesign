@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState, useTransition } from 'react';
 import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 interface HeaderProps {
   selectedCategory: string | null;
@@ -18,66 +19,157 @@ const categories = [
 ];
 
 export default function Header({ selectedCategory }: HeaderProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const normalizedSelected = selectedCategory || null;
+  const categoryFromUrl = searchParams.get('category');
+  const normalizedFromUrl = useMemo(() => {
+    if (categoryFromUrl === null || categoryFromUrl === undefined || categoryFromUrl === '') {
+      return null;
+    }
+    return categoryFromUrl;
+  }, [categoryFromUrl]);
+  const effectiveCategory = normalizedFromUrl ?? normalizedSelected;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [optimisticCategory, setOptimisticCategory] = useState<string | null>(effectiveCategory);
+  const [isPending, startTransition] = useTransition();
+  const openCommandPalette = () => {
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('open-command-palette'));
+    }
+  };
+
+  useEffect(() => {
+    setOptimisticCategory(effectiveCategory);
+  }, [effectiveCategory]);
+
+  const navigateToCategory = (value: string | null) => {
+    const href = value ? `/?category=${encodeURIComponent(value)}` : '/';
+    setOptimisticCategory(value);
+    setMobileMenuOpen(false);
+    startTransition(() => {
+      router.push(href, { scroll: false });
+    });
+  };
 
   return (
-    <header className="bg-black border-b border-gray-900 sticky top-0 z-40 backdrop-blur-sm bg-opacity-95">
+    <header className="relative bg-black border-b border-gray-900 sticky top-0 z-40 backdrop-blur-sm bg-opacity-95">
+      {isPending && (
+        <div className="absolute inset-x-0 top-0 h-0.5 bg-white/70 animate-pulse" />
+      )}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
-          <div className="flex items-center">
+        <div className="flex flex-wrap items-center justify-between gap-4 py-6">
+          <div className="flex items-center gap-3">
             <h1 className="text-2xl md:text-3xl font-display font-semibold text-white tracking-tight">
               <Link href="/" className="hover:opacity-80 transition-opacity">
                 BASE SYNTAX
               </Link>
             </h1>
-            <span className="ml-3 text-xs text-gray-500 font-light tracking-widest uppercase hidden sm:block">
+            <span className="hidden sm:inline text-xs text-gray-500 font-light tracking-[0.3em] uppercase">
               AI Design Gallery
             </span>
           </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden text-white p-2 bg-gray-900 hover:bg-gray-800 rounded transition-colors"
-            aria-label="Toggle menu"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              {mobileMenuOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              )}
-            </svg>
-          </button>
-
-          {/* Desktop Navigation */}
-          <nav className="hidden lg:flex space-x-6">
-            <Link href="/about" className="text-gray-400 hover:text-white text-sm transition-colors">
+          <nav className="hidden lg:flex items-center gap-8 text-sm text-gray-400">
+            <Link href="/about" className="hover:text-white transition-colors">
               About
             </Link>
-            <Link href="/contact" className="text-gray-400 hover:text-white text-sm transition-colors">
+            <Link href="/contact" className="hover:text-white transition-colors">
               Contact
             </Link>
+            <button
+              type="button"
+              onClick={openCommandPalette}
+              className="group inline-flex items-center gap-2 rounded-full border border-gray-800 px-4 py-2 text-xs uppercase tracking-[0.3em] text-gray-300 transition-colors hover:border-gray-600 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+              aria-label="Open search"
+            >
+              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="7" />
+                <line x1="16.65" y1="16.65" x2="21" y2="21" />
+              </svg>
+              <span>Search</span>
+              <span className="rounded border border-gray-700 px-1 py-0.5 text-[10px] text-gray-400">⌘K</span>
+            </button>
           </nav>
+
+          <div className="flex items-center gap-3 lg:hidden">
+            <button
+              type="button"
+              onClick={openCommandPalette}
+              className="flex items-center justify-center rounded-full border border-gray-800 p-2 text-white hover:border-gray-600 hover:text-white"
+              aria-label="Open search"
+            >
+              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="7" />
+                <line x1="16.65" y1="16.65" x2="21" y2="21" />
+              </svg>
+            </button>
+
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="text-white p-2 bg-gray-900 hover:bg-gray-800 rounded transition-colors"
+              aria-label="Toggle menu"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {mobileMenuOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div className="lg:hidden border-t border-gray-900 pt-4 space-y-3">
+          <div className="flex flex-wrap gap-2">
+            <Link href="/about" className="flex-1 min-w-[120px] text-center rounded-full border border-gray-800 px-4 py-2 text-xs uppercase tracking-[0.2em] text-gray-300 hover:border-gray-600">
+              About
+            </Link>
+            <Link href="/contact" className="flex-1 min-w-[120px] text-center rounded-full border border-gray-800 px-4 py-2 text-xs uppercase tracking-[0.2em] text-gray-300 hover:border-gray-600">
+              Contact
+            </Link>
+          </div>
+
+          <button
+            type="button"
+            onClick={openCommandPalette}
+            className="flex w-full items-center justify-between rounded-2xl border border-gray-800 px-4 py-3 text-sm text-gray-200 shadow-inner shadow-black/20"
+          >
+            <div className="flex items-center gap-3">
+              <div className="rounded-full bg-white/10 p-2">
+                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="7" />
+                  <line x1="16.65" y1="16.65" x2="21" y2="21" />
+                </svg>
+              </div>
+              <div className="text-left">
+                <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Quick Search</p>
+                <p className="text-sm font-medium text-white">Find designs fast</p>
+              </div>
+            </div>
+            <span className="text-[10px] uppercase tracking-[0.3em] text-gray-500">Tap</span>
+          </button>
         </div>
 
         {/* Desktop Category Filter */}
         <div className="pb-6 overflow-x-auto scrollbar-hide hidden lg:block">
           <div className="flex space-x-3">
             {categories.map((category) => {
-              const href = category.value ? `/?category=${encodeURIComponent(category.value)}` : '/';
               return (
-                <Link
+                <button
                   key={category.value || 'all'}
-                  href={href}
+                  type="button"
+                  onClick={() => navigateToCategory(category.value)}
                   className={`px-5 py-2 text-sm whitespace-nowrap transition-all duration-300 font-light tracking-wide ${
-                    selectedCategory === category.value
+                    optimisticCategory === category.value
                       ? 'bg-white text-black'
                       : 'bg-transparent text-gray-400 hover:text-white border border-gray-800 hover:border-gray-600'
-                  } rounded-sm`}
+                  } rounded-sm ${isPending && optimisticCategory === category.value ? 'opacity-80' : ''}`}
+                  disabled={isPending && optimisticCategory === category.value}
                 >
                   {category.label}
-                </Link>
+                </button>
               );
             })}
           </div>
@@ -87,20 +179,20 @@ export default function Header({ selectedCategory }: HeaderProps) {
         <div className="pb-4 overflow-x-auto scrollbar-hide lg:hidden">
           <div className="flex space-x-2">
             {categories.map((category) => {
-              const href = category.value ? `/?category=${encodeURIComponent(category.value)}` : '/';
               return (
-                <Link
+                <button
                   key={category.value || 'all'}
-                  href={href}
-                  onClick={() => setMobileMenuOpen(false)}
+                  type="button"
+                  onClick={() => navigateToCategory(category.value)}
                   className={`px-4 py-2 text-xs whitespace-nowrap transition-all duration-300 font-light tracking-wide ${
-                    selectedCategory === category.value
+                    optimisticCategory === category.value
                       ? 'bg-white text-black'
                       : 'bg-transparent text-gray-400 hover:text-white border border-gray-800 hover:border-gray-600'
-                  } rounded-sm`}
+                  } rounded-sm ${isPending && optimisticCategory === category.value ? 'opacity-80' : ''}`}
+                  disabled={isPending && optimisticCategory === category.value}
                 >
                   {category.label}
-                </Link>
+                </button>
               );
             })}
           </div>
