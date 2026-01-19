@@ -26,6 +26,8 @@ from supabase import create_client, Client
 import requests
 from playwright.async_api import async_playwright
 
+from indexnow_helper import notify_indexnow_for_design
+
 # Load environment variables
 load_dotenv()
 
@@ -246,6 +248,8 @@ Rules:
         }
 
         result = self.save_to_database(design_data)
+
+        notify_indexnow_for_design(result.get('id'), category)
         print("\n🎉 Design created successfully!")
         print(f"ID: {result['id']}")
         print(f"Title: {result['title']}")

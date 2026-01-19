@@ -106,6 +106,11 @@ SUPABASE_SERVICE_ROLE_KEY=service-role-key (server only)
 SUPABASE_URL=https://xxxx.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=service-role-key
 OPENAI_API_KEY=sk-xxxx
+SITE_BASE_URL=https://www.ui-syntax.com
+INDEXNOW_KEY=your-indexnow-key
+INDEXNOW_KEY_LOCATION=https://www.ui-syntax.com/your-indexnow-key.txt
+# Optional override
+# INDEXNOW_ENDPOINT=https://indexnow.bing.com/indexnow
 ```
 
 ## 📦 Deployment

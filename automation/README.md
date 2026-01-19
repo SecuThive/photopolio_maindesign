@@ -91,6 +91,19 @@ automation/
 2. Upload the screenshot to the `designs-bucket` storage bucket
 3. Store metadata + image URL inside the `designs` table
 
+## IndexNow automation
+
+Set up once and every script run will ping participating search engines:
+
+1. Create an IndexNow key at [indexnow.org](https://www.indexnow.org/keys) and place the `.txt` file in `public/` so it ships with your Next.js app (e.g., `public/your-key.txt`).
+2. Add these variables to `automation/.env` (see `.env.example`):
+  - `SITE_BASE_URL=https://www.ui-syntax.com`
+  - `INDEXNOW_KEY=your-key`
+  - `INDEXNOW_KEY_LOCATION=https://www.ui-syntax.com/your-key.txt`
+3. Optional: override `INDEXNOW_ENDPOINT` if you need a different region.
+
+When configured, both `design_generator_final.py` and `upload_design.py` automatically call IndexNow with the homepage, the design permalink (`/?design=<id>`), and the relevant category filter URL.
+
 ## Troubleshooting
 
 - **ImportError: No module named 'supabase'** → run `pip install -r requirements.txt`

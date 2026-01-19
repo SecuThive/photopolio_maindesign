@@ -21,6 +21,8 @@ from dotenv import load_dotenv
 from supabase import create_client, Client
 from playwright.async_api import async_playwright
 
+from indexnow_helper import notify_indexnow_for_design
+
 load_dotenv()
 
 SUPABASE_URL = os.getenv('SUPABASE_URL')
@@ -1122,6 +1124,8 @@ class UniversalDesignGenerator:
         }
         
         result = self.save_to_database(design_data)
+
+        notify_indexnow_for_design(result.get('id'), category)
         
         print(f"\n🎉 Design created!")
         print(f"ID: {result['id']}")
