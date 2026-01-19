@@ -102,17 +102,30 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        {/* Preconnect to Google Fonts - 성능 향상 */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        
+        {/* Google Fonts with display=swap - CLS 방지 */}
+        <link 
+          href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" 
+          rel="stylesheet"
+        />
+        
+        {/* AdSense - async로 차단 방지 */}
         <script 
           async 
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2091277631590195"
           crossOrigin="anonymous"
         />
+        
         <link 
           rel="alternate" 
           type="application/rss+xml" 
           title="UI Syntax RSS Feed" 
           href="https://www.ui-syntax.com/feed.xml" 
         />
+        
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
