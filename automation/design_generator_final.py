@@ -50,6 +50,132 @@ class UniversalDesignGenerator:
     def __init__(self):
         self.used_hashes: Set[str] = set()
         self.design_count = 0
+        self.last_layout_type = None  # 마지막 생성 레이아웃 타입 추적
+    
+    def get_description_by_layout(self, category: str, layout_type: str) -> str:
+        """레이아웃 타입별 고유한 설명 생성 (3줄) - 여러 변형 중 랜덤 선택"""
+        descriptions = {
+            # Landing Page descriptions (각 타입별 5개 변형)
+            "landing_hero_centered": [
+                "Bold hero-centered landing page with gradient backgrounds and powerful CTAs. Features centered typography, dual-action buttons, and feature grid showcasing key benefits. Perfect for SaaS products and digital services launching to market.",
+                "Conversion-focused hero layout with immersive gradient design and clear value proposition. Centered messaging drives attention to primary CTA while feature cards build credibility. Ideal for tech startups and B2B software launches.",
+                "Modern centered hero design emphasizing brand messaging and user action. Large typography paired with contrasting button styles creates visual hierarchy. Feature section highlights core benefits for maximum conversion impact.",
+                "Full-height hero section with gradient overlay and strategic CTA placement. Typography-first approach ensures message clarity across all devices. Bottom feature grid provides social proof and key differentiators.",
+                "Centered landing design with bold headlines and prominent call-to-action buttons. Gradient backgrounds create visual depth while maintaining readability. Feature showcase demonstrates value through icon-based benefits.",
+            ],
+            "landing_split_screen": [
+                "Modern split-screen layout dividing content and conversion form. Left side highlights social proof with user metrics and compelling copy. Right side contains streamlined signup form for maximum lead generation.",
+                "Asymmetric split design separating storytelling from lead capture. Compelling statistics and benefit statements occupy primary column. Dedicated form area minimizes friction in conversion funnel.",
+                "Dual-column landing page balancing brand narrative with signup functionality. Left panel builds trust through testimonials and key metrics. Right-aligned form keeps conversion goal visible throughout scroll.",
+                "Split-screen approach dividing persuasion from action seamlessly. Main content area features bold copy and credibility indicators. Form section remains persistently visible for instant conversion.",
+                "Two-column layout optimizing both information delivery and lead capture. Primary side communicates unique value through concise messaging. Secondary column provides frictionless signup experience.",
+            ],
+            "landing_fullscreen_video": [
+                "Immersive fullscreen video-style landing with fixed navigation overlay. Emphasizes storytelling through minimal text and strong visual hierarchy. Includes scroll-to-explore interaction for modern digital experiences.",
+                "Cinematic fullscreen hero with translucent navigation and atmospheric design. Minimal copy focuses attention on key message and exploration prompt. Scroll interaction reveals additional content layers progressively.",
+                "Video-inspired landing page featuring edge-to-edge visuals and subtle UI. Fixed header maintains brand presence without competing for attention. Downward scroll indicator encourages content discovery.",
+                "Full-viewport hero layout with cinematic presentation and clean navigation. Strategic use of whitespace and typography creates premium feel. Bounce animation guides users deeper into experience.",
+                "Immersive landing design maximizing visual impact through fullscreen approach. Translucent navigation preserves brand identity without distraction. Scroll prompt invites exploration of complete story.",
+            ],
+            "landing_asymmetric": [
+                "Asymmetric grid layout with 2:1 content ratio and sticky sidebar. Main content features gradient text effects and large typography. Sidebar cards highlight different customer segments for targeted messaging.",
+                "Unconventional layout breaking traditional symmetry with 2:1 column split. Primary area showcases gradient headlines and persuasive copy. Sidebar tiles segment audience types for personalized appeal.",
+                "Modern asymmetric design balancing content weight with visual interest. Wide column emphasizes core message through color-shifting text. Narrow sidebar provides quick navigation to target personas.",
+                "Grid-based asymmetry creating dynamic visual flow and hierarchy. Main section features oversized typography with gradient effects. Sticky sidebar maintains segment options during scroll journey.",
+                "Off-center layout driving attention through intentional imbalance. Primary column uses animated gradients for headline impact. Sidebar cards enable audience self-selection for better targeting.",
+            ],
+            "landing_minimal": [
+                "Ultra-minimal design focusing on typography and whitespace. Single centered message with large heading and simple grid showcasing numbered features. Ideal for design-forward brands emphasizing clarity and focus.",
+                "Brutalist-inspired minimal landing with extreme restraint and intentional spacing. Oversized heading dominates viewport with stark simplicity. Numbered grid tiles communicate features through pure geometry.",
+                "Minimalist approach stripping away all non-essential elements. Typography becomes the hero with dramatic scale and spacing. Simple card grid lets content breathe while maintaining structure.",
+                "Clean minimal design celebrating negative space and typographic hierarchy. Centered message commands attention through size and placement. Geometric grid system organizes features with mathematical precision.",
+                "Scandinavian-minimal landing prioritizing clarity over decoration. Massive heading establishes immediate understanding of offering. Ordered feature cards provide context without visual complexity.",
+            ],
+            "landing_mobile_first": [
+                "Mobile app landing page with app store buttons and phone mockup. Features download CTAs, app icon, and feature list optimized for mobile conversion. Includes star ratings and social proof for app credibility.",
+                "App-focused landing showcasing mobile experience through device mockup. Store badges prominently placed for immediate download action. Feature cards highlight core functionality with user ratings.",
+                "Mobile application landing emphasizing app store presence and reviews. Phone frame displays interface preview for visual context. Download buttons and rating metrics build trust quickly.",
+                "App download page featuring device preview and store integration. Social proof through star ratings establishes quality perception. Feature list demonstrates value before install commitment.",
+                "Mobile-first landing designed for app acquisition and conversion. Mockup visualization helps users imagine product experience. Multiple download paths and testimonials reduce friction to install.",
+            ],
+            
+            # Dashboard descriptions (각 타입별 3-4개 변형)
+            "dashboard_sidebar": [
+                "Classic sidebar navigation dashboard with organized menu structure. Left sidebar contains categorized navigation links with icons. Main content area displays charts, tables, and real-time data widgets.",
+                "Traditional sidebar layout separating navigation from workspace efficiently. Icon-labeled menu items enable quick access to key sections. Dashboard canvas showcases metrics through varied visualization types.",
+                "Sidebar-driven admin panel with hierarchical navigation system. Fixed left column maintains context across different views. Primary area features KPI cards and interactive data displays.",
+                "Conventional dashboard design with persistent sidebar navigation. Menu organization follows common admin patterns for familiarity. Content zone presents analytics through charts and summary cards.",
+            ],
+            "dashboard_top_nav": [
+                "Modern top navigation dashboard with horizontal menu and workspace switcher. Features KPI cards in grid layout with charts and trend indicators. Optimized for data-driven decision making and analytics.",
+                "Horizontal nav dashboard maximizing vertical space for data visualization. Top bar includes filters and view controls for customization. Metric cards and graphs fill viewport for comprehensive overview.",
+                "Top-aligned navigation system freeing vertical real estate for metrics. Header contains workspace selector and global actions. Dashboard grid displays performance indicators with comparison data.",
+            ],
+            "dashboard_cards": [
+                "Card-based dashboard layout with modular information architecture. Each card represents distinct data category with visual hierarchy. Perfect for customizable admin panels and multi-tenant applications.",
+                "Modular card grid organizing dashboard into digestible information chunks. Individual cards contain focused metrics or specific data views. Flexible layout adapts to various screen sizes seamlessly.",
+                "Widget-style dashboard using card components for data presentation. Each module operates independently with its own context. Grid system allows rearrangement for personalized workflows.",
+                "Card-driven interface breaking complex data into manageable units. Self-contained widgets display metrics, charts, or tables individually. Responsive grid adjusts card placement across devices.",
+            ],
+            
+            # E-commerce descriptions
+            "ecommerce_product_grid": [
+                "Clean product grid layout with hover effects and quick-view functionality. Features responsive card design, pricing display, and add-to-cart actions. Perfect for fashion, electronics, and retail storefronts.",
+                "Product catalog grid optimized for browsing and discovery. Card hover reveals additional product details and purchase options. Consistent spacing and imagery create professional shopping experience.",
+                "Grid-based product display with uniform card structure and interactions. Hover states provide visual feedback and action buttons. Pricing and product names maintain hierarchy for easy scanning.",
+                "Responsive product grid adapting columns based on viewport size. Each card features image, title, price, and cart integration. Hover animations enhance interactivity without overwhelming users.",
+            ],
+            "ecommerce_hero_featured": [
+                "Hero-driven e-commerce layout highlighting featured products and seasonal campaigns. Large banner with promotional messaging and category navigation. Designed for conversion-focused online retail experiences.",
+                "Featured product showcase with prominent hero imagery and promotional copy. Main banner drives attention to current offers or collections. Category links provide quick paths to specific product types.",
+                "Campaign-focused e-commerce design with oversized hero promotion. Seasonal messaging occupies prime viewport real estate. Product highlights and category cards follow for continued engagement.",
+            ],
+            
+            # Portfolio descriptions
+            "portfolio_masonry": [
+                "Masonry grid portfolio with varying image heights creating dynamic visual rhythm. Hover effects reveal project titles and descriptions. Perfect for photographers, designers, and creative professionals.",
+                "Pinterest-style masonry layout showcasing projects in organic grid pattern. Varied aspect ratios create visual interest and flow. Overlay interactions provide context without cluttering presentation.",
+                "Dynamic masonry portfolio breaking traditional grid constraints. Mixed heights prevent monotony while maintaining alignment. Project details emerge on hover for clean default state.",
+                "Asymmetric portfolio grid using masonry algorithm for natural flow. Different image proportions create engaging visual landscape. Subtle hover reveals add interactivity to project browsing.",
+            ],
+            "portfolio_minimal": [
+                "Minimal portfolio combining about section with curated project selection. Clean typography, generous spacing, and focus on personal branding. Great for individual creatives building their personal brand.",
+                "Stripped-down portfolio emphasizing work over decoration. About section establishes designer identity concisely. Project showcase uses restraint to let imagery speak loudly.",
+                "Minimalist creative portfolio balancing personality with professionalism. Brief bio introduction sets context for work samples. Simple grid or list maintains focus on portfolio pieces.",
+            ],
+            
+            # Blog descriptions
+            "blog_grid": [
+                "Magazine-style blog grid with editorial layout and visual hierarchy. Featured posts receive larger placement while recent articles fill grid. Perfect for news sites, lifestyle blogs, and digital publications.",
+                "Editorial grid layout prioritizing featured content through size variation. Lead article dominates with supporting posts in smaller cards. Publication-quality design for content-heavy platforms.",
+                "News-inspired blog grid balancing featured and regular posts. Primary article gets hero treatment while grid fills remaining space. Category tags and metadata aid content navigation.",
+            ],
+            "blog_magazine": [
+                "Modern card-based blog with consistent spacing and hover animations. Each post card includes thumbnail, title, excerpt, and metadata. Great for tech blogs, business publications, and multi-author platforms.",
+                "Uniform card grid presenting blog posts with equal visual weight. Consistent card structure includes image, headline, and preview text. Hover effects enhance interactivity across post collection.",
+                "Contemporary blog layout using card components for post display. Standardized modules maintain clean, organized appearance. Metadata like dates and authors provide helpful context.",
+            ],
+            
+            # Components descriptions
+            "components_showcase": [
+                "Button component library showcasing various styles, sizes, and states. Includes primary, secondary, outline, and icon button variations. Essential UI kit for design systems and component libraries.",
+                "Comprehensive button showcase demonstrating style range and use cases. Multiple variants cover common interaction patterns. Documentation-ready presentation for design system reference.",
+                "Button collection displaying full spectrum of available styles. State variations show default, hover, active, and disabled appearances. Critical foundation for consistent interface design.",
+            ],
+            "components_library": [
+                "Comprehensive component library featuring cards, buttons, and UI elements. Demonstrates different component variations and use cases in organized sections. Critical for building consistent design systems.",
+                "Full UI component collection organized by element type. Each section shows variations, states, and implementation examples. Foundation for scalable design system development.",
+                "Complete component showcase spanning multiple UI element categories. Sectioned layout groups related components logically. Essential reference for maintaining interface consistency.",
+            ],
+        }
+        
+        # 레이아웃 타입에 해당하는 설명 변형 가져오기
+        variations = descriptions.get(layout_type, [
+            f"Modern {category.lower()} design with clean aesthetics and professional layout. Features responsive structure with attention to typography and visual hierarchy. Built with contemporary UI patterns for optimal user experience."
+        ])
+        
+        # 변형 중 랜덤 선택
+        return random.choice(variations)
     
     def get_structure_hash(self, html: str) -> str:
         """구조 해시 (색상 제외)"""
@@ -73,14 +199,16 @@ class UniversalDesignGenerator:
     def generate_landing_page(self, colors: dict) -> str:
         """랜딩 페이지 생성"""
         layouts = [
-            self._landing_hero_centered,
-            self._landing_split_screen,
-            self._landing_fullscreen_video,
-            self._landing_asymmetric,
-            self._landing_minimal,
-            self._landing_mobile_first,
+            ("landing_hero_centered", self._landing_hero_centered),
+            ("landing_split_screen", self._landing_split_screen),
+            ("landing_fullscreen_video", self._landing_fullscreen_video),
+            ("landing_asymmetric", self._landing_asymmetric),
+            ("landing_minimal", self._landing_minimal),
+            ("landing_mobile_first", self._landing_mobile_first),
         ]
-        return random.choice(layouts)(colors)
+        layout_type, layout_func = random.choice(layouts)
+        self.last_layout_type = layout_type
+        return layout_func(colors)
     
     def _landing_hero_centered(self, colors: dict) -> str:
         return f"""<!DOCTYPE html>
@@ -431,11 +559,13 @@ class UniversalDesignGenerator:
     # ===== Dashboard =====
     def generate_dashboard(self, colors: dict) -> str:
         layouts = [
-            self._dashboard_sidebar,
-            self._dashboard_top_nav,
-            self._dashboard_cards,
+            ("dashboard_sidebar", self._dashboard_sidebar),
+            ("dashboard_top_nav", self._dashboard_top_nav),
+            ("dashboard_cards", self._dashboard_cards),
         ]
-        return random.choice(layouts)(colors)
+        layout_type, layout_func = random.choice(layouts)
+        self.last_layout_type = layout_type
+        return layout_func(colors)
     
     def _dashboard_sidebar(self, colors: dict) -> str:
         return f"""<!DOCTYPE html>
@@ -593,10 +723,12 @@ class UniversalDesignGenerator:
     # ===== E-commerce =====
     def generate_ecommerce(self, colors: dict) -> str:
         layouts = [
-            self._ecommerce_product_grid,
-            self._ecommerce_product_detail,
+            ("ecommerce_product_grid", self._ecommerce_product_grid),
+            ("ecommerce_hero_featured", self._ecommerce_product_detail),
         ]
-        return random.choice(layouts)(colors)
+        layout_type, layout_func = random.choice(layouts)
+        self.last_layout_type = layout_type
+        return layout_func(colors)
     
     def _ecommerce_product_grid(self, colors: dict) -> str:
         return f"""<!DOCTYPE html>
@@ -708,10 +840,12 @@ class UniversalDesignGenerator:
     # ===== Portfolio =====
     def generate_portfolio(self, colors: dict) -> str:
         layouts = [
-            self._portfolio_masonry,
-            self._portfolio_minimal,
+            ("portfolio_grid_masonry", self._portfolio_masonry),
+            ("portfolio_minimal_about", self._portfolio_minimal),
         ]
-        return random.choice(layouts)(colors)
+        layout_type, layout_func = random.choice(layouts)
+        self.last_layout_type = layout_type
+        return layout_func(colors)
     
     def _portfolio_masonry(self, colors: dict) -> str:
         return f"""<!DOCTYPE html>
@@ -812,10 +946,12 @@ class UniversalDesignGenerator:
     # ===== Blog =====
     def generate_blog(self, colors: dict) -> str:
         layouts = [
-            self._blog_grid,
-            self._blog_magazine,
+            ("blog_magazine_grid", self._blog_grid),
+            ("blog_card_modern", self._blog_magazine),
         ]
-        return random.choice(layouts)(colors)
+        layout_type, layout_func = random.choice(layouts)
+        self.last_layout_type = layout_type
+        return layout_func(colors)
     
     def _blog_grid(self, colors: dict) -> str:
         return f"""<!DOCTYPE html>
@@ -927,10 +1063,12 @@ class UniversalDesignGenerator:
     # ===== Components =====
     def generate_components(self, colors: dict) -> str:
         layouts = [
-            self._components_showcase,
-            self._components_library,
+            ("components_buttons", self._components_showcase),
+            ("components_cards", self._components_library),
         ]
-        return random.choice(layouts)(colors)
+        layout_type, layout_func = random.choice(layouts)
+        self.last_layout_type = layout_type
+        return layout_func(colors)
     
     def _components_showcase(self, colors: dict) -> str:
         return f"""<!DOCTYPE html>
@@ -1112,14 +1250,17 @@ class UniversalDesignGenerator:
             for palette in COLOR_PALETTES
         ])
         
+        # 레이아웃 타입에 따른 고유한 설명 생성
+        unique_description = self.get_description_by_layout(category, self.last_layout_type)
+        
         # DB 저장
         design_data = {
             "title": f"{category} Design #{self.design_count + 1}",
-            "description": f"Unique {category.lower()} design with multiple color themes",
+            "description": unique_description,
             "image_url": image_url,
             "category": category,
             "code": html_code,
-            "prompt": f"Structure #{self.design_count} | Hash: {self.get_structure_hash(html_code)[:12]}",
+            "prompt": f"Structure #{self.design_count} | Hash: {self.get_structure_hash(html_code)[:12]} | Layout: {self.last_layout_type}",
             # color_variations를 metadata나 별도 필드로 저장할 수 있음
         }
         

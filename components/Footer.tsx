@@ -9,7 +9,7 @@ export default function Footer() {
           {/* Brand Section */}
           <div>
             <h2 className="text-xl font-display font-semibold text-white mb-4">
-              BASE SYNTAX
+              UI SYNTAX
             </h2>
             <p className="text-gray-400 text-sm">
               U.S.-focused AI web design inspiration for SaaS founders, product designers, and front-end engineers.
@@ -63,7 +63,7 @@ export default function Footer() {
         {/* Copyright */}
         <div className="mt-8 pt-8 border-t border-gray-900">
           <p className="text-center text-gray-500 text-sm">
-            © {new Date().getFullYear()} Base Syntax. All rights reserved.
+            © {new Date().getFullYear()} UI Syntax. All rights reserved.
           </p>
         </div>
       </div>

@@ -20,11 +20,11 @@ export async function GET() {
   }
 
   const feed = new RSS({
-    title: 'Base Syntax - AI Design Gallery',
+    title: 'UI Syntax - AI Design Gallery',
     description: 'Latest AI-generated web designs including landing pages, dashboards, e-commerce sites, portfolios, and more.',
     site_url: 'https://www.ui-syntax.com',
     feed_url: 'https://www.ui-syntax.com/feed.xml',
-    copyright: `${new Date().getFullYear()} Base Syntax`,
+    copyright: `${new Date().getFullYear()} UI Syntax`,
     language: 'ko',
     pubDate: new Date(),
     ttl: 60, // Cache for 60 minutes

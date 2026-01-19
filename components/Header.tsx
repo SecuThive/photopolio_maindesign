@@ -53,7 +53,7 @@ export default function Header({ selectedCategory }: HeaderProps) {
           <div className="flex items-center gap-3">
             <h1 className="text-2xl md:text-3xl font-display font-semibold text-white tracking-tight">
               <Link href="/" className="hover:opacity-80 transition-opacity">
-                BASE SYNTAX
+                UI SYNTAX
               </Link>
             </h1>
             <span className="hidden sm:inline text-xs text-gray-500 font-light tracking-[0.3em] uppercase">

@@ -4,13 +4,13 @@ import SimpleHeader from '@/components/SimpleHeader';
 
 export const metadata: Metadata = {
   title: "About Us",
-  description: "Learn how Base Syntax curates U.S.-ready AI web designs for SaaS, developer tools, and commerce teams with annotated inspiration and launch support.",
+  description: "Learn how UI Syntax curates production-ready AI web designs for SaaS, developer tools, and commerce teams with annotated inspiration and launch support.",
   alternates: {
     canonical: 'https://www.ui-syntax.com/about',
   },
   openGraph: {
-    title: "About Base Syntax - AI Design Gallery",
-    description: "See how Base Syntax curates annotated AI web designs aligned to U.S. SaaS, fintech, and commerce standards.",
+    title: "About UI Syntax - AI Design Gallery",
+    description: "See how UI Syntax curates annotated AI web designs aligned to modern SaaS, fintech, and commerce standards.",
     url: 'https://www.ui-syntax.com/about',
   },
 };
@@ -19,10 +19,10 @@ export default function AboutPage() {
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
-    name: 'Base Syntax',
+    name: 'UI Syntax',
     url: 'https://www.ui-syntax.com',
     logo: 'https://www.ui-syntax.com/logo.png',
-    description: 'U.S.-ready AI web design gallery curated for SaaS, fintech, and commerce teams',
+    description: 'Production-ready AI web design gallery curated for SaaS, fintech, and commerce teams',
     email: 'thive8564@gmail.com',
     sameAs: [],
   };
@@ -36,13 +36,13 @@ export default function AboutPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <h1 className="text-4xl font-bold text-gray-900 mb-8">About Base Syntax</h1>
+        <h1 className="text-4xl font-bold text-gray-900 mb-8">About UI Syntax</h1>
         
         <div className="prose prose-lg text-gray-700 space-y-6">
           <section>
             <p className="text-xl leading-relaxed">
-              Welcome to <strong>Base Syntax</strong>, a U.S.-based gallery of AI-generated web designs built for
-              SaaS founders, developer tools, and agencies shipping products for the American market.
+              Welcome to <strong>UI Syntax</strong>, a Silicon Valley standard gallery of AI-generated web designs built for
+              SaaS founders, developer tools, and agencies shipping products to modern markets.
             </p>
           </section>
 
@@ -50,7 +50,7 @@ export default function AboutPage() {
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">Our Mission</h2>
             <p>
               We believe AI accelerates high-quality shipping when it is curated with intent. Our gallery highlights
-              landing pages, dashboards, commerce flows, and marketing systems that reflect U.S. accessibility and
+              landing pages, dashboards, commerce flows, and marketing systems that reflect modern accessibility and
               conversion best practices.
             </p>
           </section>
@@ -76,9 +76,9 @@ export default function AboutPage() {
           <section className="mt-12">
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">The Technology</h2>
             <p>
-              Our concepts originate from state-of-the-art diffusion and language models trained on North American
+              Our concepts originate from state-of-the-art diffusion and language models trained on modern
               SaaS, fintech, and commerce references. Human curators annotate the layouts so teams understand why each
-              section resonates with U.S. buyers.
+              section resonates with global buyers.
             </p>
           </section>
 
@@ -94,7 +94,7 @@ export default function AboutPage() {
 
           <section className="mt-12 pt-8 border-t border-gray-200">
             <p className="text-center text-gray-600 italic">
-              &ldquo;Empowering U.S. product teams with AI-driven design systems&rdquo;
+              &ldquo;Empowering modern product teams with AI-driven design systems&rdquo;
             </p>
           </section>
         </div>
@@ -105,7 +105,7 @@ export default function AboutPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
-              <h2 className="text-xl font-display font-semibold text-white mb-4">BASE SYNTAX</h2>
+              <h2 className="text-xl font-display font-semibold text-white mb-4">UI SYNTAX</h2>
               <p className="text-gray-400 text-sm">AI-generated web design gallery showcasing creative and innovative designs.</p>
             </div>
             <div>
@@ -125,7 +125,7 @@ export default function AboutPage() {
             </div>
           </div>
           <div className="mt-8 pt-8 border-t border-gray-900">
-            <p className="text-center text-gray-500 text-sm">© {new Date().getFullYear()} Base Syntax. All rights reserved.</p>
+            <p className="text-center text-gray-500 text-sm">© {new Date().getFullYear()} UI Syntax. All rights reserved.</p>
           </div>
         </div>
       </footer>

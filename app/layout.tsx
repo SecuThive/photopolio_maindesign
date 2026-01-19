@@ -6,15 +6,15 @@ import CommandPalette from '@/components/CommandPalette';
 import "./globals.css";
 
 const siteUrl = 'https://www.ui-syntax.com';
-const siteDescription = 'Base Syntax is a U.S.-based AI web design gallery for SaaS founders, product designers, and front-end engineers who need production-ready inspiration.';
+const siteDescription = 'UI Syntax is a Silicon Valley standard AI web design gallery for SaaS founders, product designers, and front-end engineers who need production-ready inspiration.';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  applicationName: 'Base Syntax',
+  applicationName: 'UI Syntax',
   category: 'technology',
   title: {
-    default: 'Base Syntax - AI Web Design Inspiration for U.S. Product Teams',
-    template: '%s | Base Syntax',
+    default: 'UI Syntax - Production-Ready AI Web Design Inspiration for Modern Teams',
+    template: '%s | UI Syntax',
   },
   description: siteDescription,
   keywords: [
@@ -25,9 +25,9 @@ export const metadata: Metadata = {
     'dashboard UI inspiration',
     'product design gallery',
   ],
-  authors: [{ name: 'Base Syntax' }],
-  creator: 'Base Syntax',
-  publisher: 'Base Syntax',
+  authors: [{ name: 'UI Syntax' }],
+  creator: 'UI Syntax',
+  publisher: 'UI Syntax',
   alternates: {
     canonical: siteUrl,
     languages: {
@@ -49,21 +49,21 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: siteUrl,
-    title: 'Base Syntax - AI Web Design Inspiration for U.S. Product Teams',
+    title: 'UI Syntax - Production-Ready AI Web Design Inspiration for Modern Teams',
     description: siteDescription,
-    siteName: 'Base Syntax',
+    siteName: 'UI Syntax',
     images: [
       {
         url: `${siteUrl}/opengraph-image.png`,
         width: 1200,
         height: 630,
-        alt: 'Base Syntax - AI Web Design Inspiration',
+        alt: 'UI Syntax - AI Web Design Inspiration',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Base Syntax - AI Web Design Inspiration for U.S. Product Teams',
+    title: 'UI Syntax - Production-Ready AI Web Design Inspiration for Modern Teams',
     description: siteDescription,
   },
 };
@@ -76,13 +76,13 @@ export default function RootLayout({
   const structuredData = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: 'Base Syntax',
+    name: 'UI Syntax',
     url: siteUrl,
     description: siteDescription,
     inLanguage: 'en-US',
     publisher: {
       '@type': 'Organization',
-      name: 'Base Syntax',
+      name: 'UI Syntax',
       logo: {
         '@type': 'ImageObject',
         url: `${siteUrl}/opengraph-image.png`,
@@ -110,7 +110,7 @@ export default function RootLayout({
         <link 
           rel="alternate" 
           type="application/rss+xml" 
-          title="Base Syntax RSS Feed" 
+          title="UI Syntax RSS Feed" 
           href="https://www.ui-syntax.com/feed.xml" 
         />
         <script

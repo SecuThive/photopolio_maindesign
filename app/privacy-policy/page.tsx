@@ -4,13 +4,13 @@ import SimpleHeader from '@/components/SimpleHeader';
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
-  description: "Read Base Syntax's Privacy Policy. Learn about how we collect, use, and protect your information when you visit our AI design gallery.",
+  description: "Read UI Syntax's Privacy Policy. Learn about how we collect, use, and protect your information when you visit our AI design gallery.",
   alternates: {
     canonical: 'https://www.ui-syntax.com/privacy-policy',
   },
   openGraph: {
-    title: "Privacy Policy - Base Syntax",
-    description: "Read Base Syntax's Privacy Policy. Learn about how we collect, use, and protect your information.",
+    title: "Privacy Policy - UI Syntax",
+    description: "Read UI Syntax's Privacy Policy. Learn about how we collect, use, and protect your information.",
     url: 'https://www.ui-syntax.com/privacy-policy',
   },
   robots: {
@@ -96,7 +96,7 @@ export default function PrivacyPolicyPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
-              <h2 className="text-xl font-display font-semibold text-white mb-4">BASE SYNTAX</h2>
+              <h2 className="text-xl font-display font-semibold text-white mb-4">UI SYNTAX</h2>
               <p className="text-gray-400 text-sm">AI-generated web design gallery showcasing creative and innovative designs.</p>
             </div>
             <div>
@@ -116,7 +116,7 @@ export default function PrivacyPolicyPage() {
             </div>
           </div>
           <div className="mt-8 pt-8 border-t border-gray-900">
-            <p className="text-center text-gray-500 text-sm">© {new Date().getFullYear()} Base Syntax. All rights reserved.</p>
+            <p className="text-center text-gray-500 text-sm">© {new Date().getFullYear()} UI Syntax. All rights reserved.</p>
           </div>
         </div>
       </footer>

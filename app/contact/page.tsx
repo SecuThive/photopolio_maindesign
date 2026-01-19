@@ -4,13 +4,13 @@ import SimpleHeader from '@/components/SimpleHeader';
 
 export const metadata: Metadata = {
   title: "Contact Us",
-  description: "Get in touch with Base Syntax. Have questions, feedback, or want to contribute your AI-generated designs? Contact us at thive8564@gmail.com.",
+  description: "Get in touch with UI Syntax. Have questions, feedback, or want to contribute your AI-generated designs? Contact us at thive8564@gmail.com.",
   alternates: {
     canonical: 'https://www.ui-syntax.com/contact',
   },
   openGraph: {
-    title: "Contact Base Syntax - AI Design Gallery",
-    description: "Get in touch with Base Syntax. Have questions, feedback, or want to contribute your AI-generated designs?",
+    title: "Contact UI Syntax - AI Design Gallery",
+    description: "Get in touch with UI Syntax. Have questions, feedback, or want to contribute your AI-generated designs?",
     url: 'https://www.ui-syntax.com/contact',
   },
 };
@@ -21,12 +21,12 @@ export default function ContactPage() {
       <SimpleHeader />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <h1 className="text-4xl font-bold text-gray-900 mb-8">Contact Base Syntax</h1>
+        <h1 className="text-4xl font-bold text-gray-900 mb-8">Contact UI Syntax</h1>
         
         <div className="prose prose-lg text-gray-700 space-y-6">
           <section>
             <p className="text-lg">
-              We partner with U.S.-based SaaS teams, developer tool startups, and agencies. If you have a
+              We partner with modern SaaS teams, developer tool startups, and agencies. If you have a
               product question, feedback on the gallery, or ideas for new templates, we would love to hear from you.
             </p>
           </section>
@@ -91,7 +91,7 @@ export default function ContactPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
-              <h2 className="text-xl font-display font-semibold text-white mb-4">BASE SYNTAX</h2>
+              <h2 className="text-xl font-display font-semibold text-white mb-4">UI SYNTAX</h2>
               <p className="text-gray-400 text-sm">AI-generated web design gallery showcasing creative and innovative designs.</p>
             </div>
             <div>
@@ -111,7 +111,7 @@ export default function ContactPage() {
             </div>
           </div>
           <div className="mt-8 pt-8 border-t border-gray-900">
-            <p className="text-center text-gray-500 text-sm">© {new Date().getFullYear()} Base Syntax. All rights reserved.</p>
+            <p className="text-center text-gray-500 text-sm">© {new Date().getFullYear()} UI Syntax. All rights reserved.</p>
           </div>
         </div>
       </footer>
