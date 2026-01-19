@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { GoogleAnalytics } from '@next/third-parties/google';
+import { Analytics } from '@vercel/analytics/next';
 import CommandPalette from '@/components/CommandPalette';
 import "./globals.css";
 
@@ -119,6 +120,7 @@ export default function RootLayout({
       <body>
         {children}
         <CommandPalette />
+        <Analytics />
       </body>
       <GoogleAnalytics gaId="G-VPZWQWHW6Y" />
     </html>
