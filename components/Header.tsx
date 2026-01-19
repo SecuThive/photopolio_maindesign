@@ -1,9 +1,10 @@
+"use client";
+
 import React, { useState } from 'react';
 import Link from 'next/link';
 
 interface HeaderProps {
   selectedCategory: string | null;
-  onCategoryChange: (category: string | null) => void;
 }
 
 const categories = [
@@ -16,7 +17,7 @@ const categories = [
   { value: 'Components', label: 'Components' },
 ];
 
-export default function Header({ selectedCategory, onCategoryChange }: HeaderProps) {
+export default function Header({ selectedCategory }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -63,38 +64,45 @@ export default function Header({ selectedCategory, onCategoryChange }: HeaderPro
         {/* Desktop Category Filter */}
         <div className="pb-6 overflow-x-auto scrollbar-hide hidden lg:block">
           <div className="flex space-x-3">
-            {categories.map((category) => (
-              <button
-                key={category.value || 'all'}
-                onClick={() => onCategoryChange(category.value)}
-                className={`px-5 py-2 text-sm whitespace-nowrap transition-all duration-300 font-light tracking-wide ${
-                  selectedCategory === category.value
-                    ? 'bg-white text-black'
-                    : 'bg-transparent text-gray-400 hover:text-white border border-gray-800 hover:border-gray-600'
-                } rounded-sm`}
-              >
-                {category.label}
-              </button>
-            ))}
+            {categories.map((category) => {
+              const href = category.value ? `/?category=${encodeURIComponent(category.value)}` : '/';
+              return (
+                <Link
+                  key={category.value || 'all'}
+                  href={href}
+                  className={`px-5 py-2 text-sm whitespace-nowrap transition-all duration-300 font-light tracking-wide ${
+                    selectedCategory === category.value
+                      ? 'bg-white text-black'
+                      : 'bg-transparent text-gray-400 hover:text-white border border-gray-800 hover:border-gray-600'
+                  } rounded-sm`}
+                >
+                  {category.label}
+                </Link>
+              );
+            })}
           </div>
         </div>
 
         {/* Mobile Category Filter - Always Visible on Mobile */}
         <div className="pb-4 overflow-x-auto scrollbar-hide lg:hidden">
           <div className="flex space-x-2">
-            {categories.map((category) => (
-              <button
-                key={category.value || 'all'}
-                onClick={() => onCategoryChange(category.value)}
-                className={`px-4 py-2 text-xs whitespace-nowrap transition-all duration-300 font-light tracking-wide ${
-                  selectedCategory === category.value
-                    ? 'bg-white text-black'
-                    : 'bg-transparent text-gray-400 hover:text-white border border-gray-800 hover:border-gray-600'
-                } rounded-sm`}
-              >
-                {category.label}
-              </button>
-            ))}
+            {categories.map((category) => {
+              const href = category.value ? `/?category=${encodeURIComponent(category.value)}` : '/';
+              return (
+                <Link
+                  key={category.value || 'all'}
+                  href={href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`px-4 py-2 text-xs whitespace-nowrap transition-all duration-300 font-light tracking-wide ${
+                    selectedCategory === category.value
+                      ? 'bg-white text-black'
+                      : 'bg-transparent text-gray-400 hover:text-white border border-gray-800 hover:border-gray-600'
+                  } rounded-sm`}
+                >
+                  {category.label}
+                </Link>
+              );
+            })}
           </div>
         </div>
       </div>

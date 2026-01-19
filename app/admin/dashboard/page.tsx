@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase/client';
 import { Design } from '@/types/database';
@@ -12,12 +12,7 @@ export default function AdminDashboardPage() {
   const [uploading, setUploading] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    checkAuth();
-    loadDesigns();
-  }, []);
-
-  const checkAuth = async () => {
+  const checkAuth = useCallback(async () => {
     try {
       const response = await fetch('/api/admin/verify');
       if (!response.ok) {
@@ -26,9 +21,9 @@ export default function AdminDashboardPage() {
     } catch (err) {
       router.push('/admin');
     }
-  };
+  }, [router]);
 
-  const loadDesigns = async () => {
+  const loadDesigns = useCallback(async () => {
     setLoading(true);
     try {
       const { data, error } = await supabase
@@ -43,7 +38,12 @@ export default function AdminDashboardPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    checkAuth();
+    loadDesigns();
+  }, [checkAuth, loadDesigns]);
 
   const handleDelete = async (id: string, imageUrl: string) => {
     if (!confirm('정말 이 디자인을 삭제하시겠습니까?')) return;

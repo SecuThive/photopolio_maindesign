@@ -26,7 +26,7 @@ export default function ContactPage() {
         <div className="prose prose-lg text-gray-700 space-y-6">
           <section>
             <p className="text-lg">
-              We'd love to hear from you! Whether you have a question, feedback, or just want to say hello, 
+              We&rsquo;d love to hear from you! Whether you have a question, feedback, or just want to say hello, 
               feel free to reach out.
             </p>
           </section>
@@ -65,7 +65,7 @@ export default function ContactPage() {
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">Feedback & Suggestions</h2>
             <p>
               Your feedback helps us improve! If you have any suggestions for new features, 
-              design categories, or improvements to our gallery, we'd love to hear them.
+              design categories, or improvements to our gallery, we&rsquo;d love to hear them.
             </p>
           </section>
 
@@ -73,7 +73,7 @@ export default function ContactPage() {
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">For Designers</h2>
             <p>
               Interested in contributing your AI-generated designs to our gallery? 
-              Please reach out to us via email with your portfolio and we'll get back to you.
+              Please reach out to us via email with your portfolio and we&rsquo;ll get back to you.
             </p>
           </section>
 

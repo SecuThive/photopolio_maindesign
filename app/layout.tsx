@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { GoogleAnalytics } from '@next/third-parties/google';
+import CommandPalette from '@/components/CommandPalette';
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -65,7 +66,10 @@ export default function RootLayout({
           href="https://www.ui-syntax.com/feed.xml" 
         />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <CommandPalette />
+      </body>
       <GoogleAnalytics gaId="G-VPZWQWHW6Y" />
     </html>
   );

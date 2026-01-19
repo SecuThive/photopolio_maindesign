@@ -85,7 +85,7 @@ export default function AboutPage() {
           <section className="mt-12">
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">Get in Touch</h2>
             <p>
-              Have questions or feedback? We'd love to hear from you! 
+              Have questions or feedback? We&rsquo;d love to hear from you! 
               Reach out to us at{" "}
               <a href="mailto:thive8564@gmail.com" className="text-blue-600 hover:text-blue-800 underline">
                 thive8564@gmail.com
@@ -95,7 +95,7 @@ export default function AboutPage() {
 
           <section className="mt-12 pt-8 border-t border-gray-200">
             <p className="text-center text-gray-600 italic">
-              "Empowering creativity through AI-driven design innovation"
+              &ldquo;Empowering creativity through AI-driven design innovation&rdquo;
             </p>
           </section>
         </div>
