@@ -1,175 +1,125 @@
+automation/
 # AI Design Gallery Automation
 
-Python 스크립트를 사용하여 AI 이미지를 생성하고 자동으로 Supabase에 업로드합니다.
+Python scripts generate AI-powered layouts, take screenshots, and push everything to Supabase.
 
-## 설치
+## Installation
 
-1. Python 가상환경 생성 (권장):
+1. Create a virtual environment (recommended):
 ```bash
 cd automation
 python -m venv venv
-
-# Windows
-venv\Scripts\activate
-
-# Linux/Mac
-source venv/bin/activate
+venv\\Scripts\\activate      # Windows
+# source venv/bin/activate     # macOS/Linux
 ```
 
-2. 필요한 패키지 설치:
+2. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-3. 환경변수 설정:
+3. Configure environment variables:
 ```bash
-# .env.example을 .env로 복사
 cp .env.example .env
-
-# .env 파일을 열어서 실제 값으로 수정
-# - SUPABASE_URL
-# - SUPABASE_SERVICE_ROLE_KEY
-# - OPENAI_API_KEY
+# then edit .env with SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, OPENAI_API_KEY
 ```
 
-## 사용법
+## Usage
 
-### 수동 실행
+### Manual runs
 
-1. 기본 실행 (랜덤 프롬프트):
 ```bash
+# Generate a landing page with default prompt pool
 python upload_design.py --category "Landing Page"
-```
 
-2. 커스텀 프롬프트로 실행:
-```bash
+# Provide a custom prompt
 python upload_design.py --category "Dashboard" --prompt "Modern analytics dashboard with dark theme"
-```
 
-3. 모든 옵션 지정:
-```bash
+# Specify every field
 python upload_design.py \
   --category "E-commerce" \
   --title "Fashion Store Homepage" \
-  --description "Elegant e-commerce design for fashion brand" \
-  --prompt "Luxury fashion e-commerce homepage with minimalist design"
+  --description "Elegant e-commerce layout for a luxury brand" \
+  --prompt "Luxury fashion storefront with minimalist hero and featured products"
 ```
 
-### 카테고리 옵션
+Supported categories: `Landing Page`, `Dashboard`, `E-commerce`, `Portfolio`, `Blog`.
 
-- `Landing Page`
-- `Dashboard`
-- `E-commerce`
-- `Portfolio`
-- `Blog`
+## Scheduling
 
-## 자동화 (Cron Job)
+### Linux / macOS
 
-### Linux/Mac
-
-1. 크론탭 편집:
 ```bash
 crontab -e
-```
 
-2. 크론잡 추가 (매일 오전 9시 실행):
-```
+# Run every day at 9am
 0 9 * * * /path/to/photopolio/maindesign/automation/run_automation.sh
-```
 
-3. 크론잡 추가 (3시간마다 실행):
-```
+# Run every 3 hours
 0 */3 * * * /path/to/photopolio/maindesign/automation/run_automation.sh
 ```
 
-### Windows
+### Windows Task Scheduler
 
-1. 작업 스케줄러 열기
-2. "기본 작업 만들기" 클릭
-3. 트리거: 원하는 시간 설정
-4. 작업: `run_automation.bat` 파일 실행
-5. 완료
+1. Open **Task Scheduler**
+2. Create Basic Task → choose name/time
+3. Action: run `run_automation.bat`
+4. Finish
 
-또는 PowerShell로 작업 스케줄러 등록:
+PowerShell alternative:
 ```powershell
-$action = New-ScheduledTaskAction -Execute "C:\Users\PC\photopolio\maindesign\automation\run_automation.bat"
+$action = New-ScheduledTaskAction -Execute "C:\\Projects\\photopolio\\maindesign\\automation\\run_automation.bat"
 $trigger = New-ScheduledTaskTrigger -Daily -At 9am
-Register-ScheduledTask -Action $action -Trigger $trigger -TaskName "AI Design Upload" -Description "Daily AI design generation and upload"
+Register-ScheduledTask -Action $action -Trigger $trigger -TaskName "AI Design Upload" -Description "Daily AI design generation"
 ```
 
-## 스크립트 구조
+## Directory layout
 
 ```
 automation/
-├── upload_design.py      # 메인 스크립트
-├── requirements.txt      # Python 패키지 의존성
-├── .env.example         # 환경변수 템플릿
-├── .env                 # 실제 환경변수 (생성 필요, git에서 제외됨)
-├── run_automation.sh    # Linux/Mac 자동화 스크립트
-├── run_automation.bat   # Windows 자동화 스크립트
-└── automation.log       # 실행 로그 (자동 생성)
+├── upload_design.py      # Main script
+├── requirements.txt      # Python dependencies
+├── .env.example          # Template env file
+├── run_automation.sh     # Cron helper
+├── run_automation.bat    # Windows helper
+└── automation.log        # Generated log file
 ```
 
-## 동작 방식
+## How it works
 
-1. **이미지 생성**: OpenAI DALL-E 3 API를 사용하여 웹 디자인 이미지 생성
-2. **스토리지 업로드**: 생성된 이미지를 Supabase Storage의 `designs-bucket`에 업로드
-3. **데이터베이스 저장**: 이미지 URL과 메타데이터를 `designs` 테이블에 저장
+1. Prompt OpenAI DALL·E (or Ollama) for a layout image
+2. Upload the screenshot to the `designs-bucket` storage bucket
+3. Store metadata + image URL inside the `designs` table
 
-## 문제 해결
+## Troubleshooting
 
-### ImportError: No module named 'supabase'
-```bash
-pip install -r requirements.txt
-```
+- **ImportError: No module named 'supabase'** → run `pip install -r requirements.txt`
+- **OpenAI API errors** → confirm the key, available credits, and region at [OpenAI API Keys](https://platform.openai.com/api-keys)
+- **Supabase connection errors** → double-check `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and that the bucket/table exist
 
-### OpenAI API Error
-- API 키가 올바른지 확인
-- OpenAI 계정에 충분한 크레딧이 있는지 확인
-- [OpenAI API Keys](https://platform.openai.com/api-keys)에서 키 확인
+## Cost notes
 
-### Supabase Connection Error
-- SUPABASE_URL과 SUPABASE_SERVICE_ROLE_KEY가 올바른지 확인
-- Supabase 프로젝트가 활성화되어 있는지 확인
-- Storage bucket과 테이블이 생성되었는지 확인
+- DALL·E 3 (1024×1024) ≈ $0.04 per image; 1792×1024 ≈ $0.08
+- Daily run (1792×1024) ≈ $2.40/month; three runs per day ≈ $7.20/month
+- Supabase free tier includes 500 MB storage + 2 GB bandwidth; upgrade to Pro ($25/mo) if you exceed limits
 
-## 비용 안내
+## Advanced tweaks
 
-### OpenAI DALL-E 3 비용 (2024년 기준)
-- Standard quality (1024x1024): $0.040 per image
-- Standard quality (1792x1024 or 1024x1792): $0.080 per image
-
-### 예상 비용
-- 하루 1회 자동 실행: 월 약 $2.40 (1792x1024 기준)
-- 하루 3회 자동 실행: 월 약 $7.20
-
-### Supabase
-- Free tier: 500MB storage, 2GB bandwidth/month
-- 초과 시 Pro plan ($25/month) 필요
-
-## 고급 설정
-
-### 다양한 크기로 생성
-
-스크립트 수정:
 ```python
-# upload_design.py에서
-image_data = self.generate_image(prompt, size="1024x1024")  # 정사각형
+# Change image size in upload_design.py
+image_data = self.generate_image(prompt, size="1024x1024")
 ```
 
-### 여러 디자인 한 번에 생성
-
 ```bash
-# 여러 카테고리 순차 실행
+# Batch-generate multiple categories
 for category in "Landing Page" "Dashboard" "Portfolio"; do
   python upload_design.py --category "$category"
   sleep 5
 done
 ```
 
-## 로그 확인
+## Logs
 
 ```bash
-# 최근 실행 로그 확인
 tail -f automation.log
 ```

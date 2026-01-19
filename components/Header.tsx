@@ -193,7 +193,7 @@ export default function Header({ selectedCategory }: HeaderProps) {
       {/* Mobile Dropdown Menu */}
       {mobileMenuOpen && (
         <>
-          {/* Dropdown Menu - 아래로 펼쳐지는 효과 */}
+          {/* Dropdown Menu - slide-down animation */}
           <div className="lg:hidden bg-gray-950 border-t border-gray-800 shadow-lg animate-slideDown">
             <div className="px-4 py-6 max-w-7xl mx-auto">
 

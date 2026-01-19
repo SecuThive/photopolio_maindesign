@@ -21,9 +21,9 @@ export default function AdminDashboardPage() {
   const [metrics, setMetrics] = useState<MetricsSummary | null>(null);
   const [metricsLoading, setMetricsLoading] = useState(true);
   const router = useRouter();
-  const formatNumber = (value: number) => new Intl.NumberFormat('ko-KR').format(value);
+  const formatNumber = (value: number) => new Intl.NumberFormat('en-US').format(value);
   const formatDayLabel = (date: string) =>
-    new Date(date).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' });
+    new Date(date).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
   const dailyViews = metrics?.dailyViews ?? [];
   const maxDailyValue = dailyViews.reduce((max, day) => Math.max(max, day.count), 0);
   const normalizedDailyMax = Math.max(maxDailyValue, 1);
@@ -79,7 +79,7 @@ export default function AdminDashboardPage() {
   }, [checkAuth, loadDesigns, loadMetrics]);
 
   const handleDelete = async (id: string, imageUrl: string) => {
-    if (!confirm('정말 이 디자인을 삭제하시겠습니까?')) return;
+    if (!confirm('Are you sure you want to delete this design?')) return;
 
     try {
       // Delete from database
@@ -105,7 +105,7 @@ export default function AdminDashboardPage() {
       loadMetrics();
     } catch (error) {
       console.error('Error deleting design:', error);
-      alert('삭제 중 오류가 발생했습니다.');
+      alert('An error occurred while deleting.');
     }
   };
 
@@ -153,10 +153,10 @@ export default function AdminDashboardPage() {
       (e.target as HTMLFormElement).reset();
       loadDesigns();
       loadMetrics();
-      alert('업로드가 완료되었습니다!');
+      alert('Upload complete!');
     } catch (error) {
       console.error('Error uploading:', error);
-      alert('업로드 중 오류가 발생했습니다.');
+      alert('An error occurred during upload.');
     } finally {
       setUploading(false);
     }
@@ -174,10 +174,10 @@ export default function AdminDashboardPage() {
           <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
           <div className="flex gap-4">
             <a href="/" className="text-blue-600 hover:text-blue-700">
-              메인 페이지
+              Main Site
             </a>
             <button onClick={handleLogout} className="text-red-600 hover:text-red-700">
-              로그아웃
+              Log out
             </button>
           </div>
         </div>
@@ -185,12 +185,12 @@ export default function AdminDashboardPage() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">사이트 인사이트</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Site Insights</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
-              { label: '오늘 방문자', value: metrics?.todayViews ?? 0 },
-              { label: '총 방문자', value: metrics?.totalViews ?? 0 },
-              { label: '등록된 디자인', value: metrics?.totalDesigns ?? designs.length },
+              { label: "Today's visitors", value: metrics?.todayViews ?? 0 },
+              { label: 'Total visitors', value: metrics?.totalViews ?? 0 },
+              { label: 'Published designs', value: metrics?.totalDesigns ?? designs.length },
             ].map(({ label, value }) => (
               <div key={label} className="bg-white rounded-lg shadow p-6 border border-gray-100">
                 <p className="text-sm text-gray-500">{label}</p>
@@ -207,8 +207,8 @@ export default function AdminDashboardPage() {
             <div className="bg-white rounded-lg shadow p-6 border border-gray-100 lg:col-span-2">
               <div className="flex justify-between items-center mb-4">
                 <div>
-                  <p className="text-sm text-gray-500">최근 7일 방문 추이</p>
-                  <p className="text-lg font-semibold text-gray-900">일일 페이지 뷰</p>
+                  <p className="text-sm text-gray-500">Last 7 days trend</p>
+                  <p className="text-lg font-semibold text-gray-900">Daily page views</p>
                 </div>
               </div>
               {metricsLoading ? (
@@ -235,7 +235,7 @@ export default function AdminDashboardPage() {
             </div>
 
             <div className="bg-white rounded-lg shadow p-6 border border-gray-100">
-              <p className="text-sm text-gray-500">카테고리별 디자인 수</p>
+              <p className="text-sm text-gray-500">Designs per category</p>
               {metricsLoading ? (
                 <div className="mt-4 space-y-3">
                   {Array.from({ length: 5 }).map((_, idx) => (
@@ -260,12 +260,12 @@ export default function AdminDashboardPage() {
 
         {/* Upload Form */}
         <div className="bg-white rounded-lg shadow p-6 mb-8">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">새 디자인 업로드</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Upload a new design</h2>
           <form onSubmit={handleUpload} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  이미지 파일
+                  Image file
                 </label>
                 <input
                   type="file"
@@ -278,7 +278,7 @@ export default function AdminDashboardPage() {
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  제목
+                  Title
                 </label>
                 <input
                   type="text"
@@ -290,13 +290,13 @@ export default function AdminDashboardPage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  카테고리
+                  Category
                 </label>
                 <select
                   name="category"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 >
-                  <option value="">선택 안 함</option>
+                  <option value="">No selection</option>
                   <option value="Landing Page">Landing Page</option>
                   <option value="Dashboard">Dashboard</option>
                   <option value="E-commerce">E-commerce</option>
@@ -308,7 +308,7 @@ export default function AdminDashboardPage() {
 
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  설명
+                  Description
                 </label>
                 <textarea
                   name="description"
@@ -319,7 +319,7 @@ export default function AdminDashboardPage() {
 
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  소스 코드 (HTML/CSS/JavaScript)
+                  Source code (HTML/CSS/JavaScript)
                 </label>
                 <textarea
                   name="code"
@@ -335,7 +335,7 @@ export default function AdminDashboardPage() {
               disabled={uploading}
               className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
             >
-              {uploading ? '업로드 중...' : '업로드'}
+              {uploading ? 'Uploading...' : 'Upload'}
             </button>
           </form>
         </div>
@@ -344,7 +344,7 @@ export default function AdminDashboardPage() {
         <div className="bg-white rounded-lg shadow">
           <div className="px-6 py-4 border-b border-gray-200">
             <h2 className="text-xl font-bold text-gray-900">
-              등록된 디자인 ({designs.length})
+              Published designs ({designs.length})
             </h2>
           </div>
           
@@ -358,19 +358,19 @@ export default function AdminDashboardPage() {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      이미지
+                      Image
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      제목
+                      Title
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      카테고리
+                      Category
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      생성일
+                      Created
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      작업
+                      Actions
                     </th>
                   </tr>
                 </thead>
@@ -399,14 +399,14 @@ export default function AdminDashboardPage() {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {new Date(design.created_at).toLocaleDateString('ko-KR')}
+                        {new Date(design.created_at).toLocaleDateString('en-US')}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
                         <button
                           onClick={() => handleDelete(design.id, design.image_url)}
                           className="text-red-600 hover:text-red-900"
                         >
-                          삭제
+                          Delete
                         </button>
                       </td>
                     </tr>

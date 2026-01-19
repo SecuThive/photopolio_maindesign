@@ -1,13 +1,13 @@
-# Supabase 설정 가이드
+# Supabase Setup Guide
 
-## 1. Supabase 프로젝트 생성
-1. [Supabase](https://supabase.com)에 로그인
-2. 새 프로젝트 생성
-3. 프로젝트 이름, 데이터베이스 비밀번호, 리전 설정
+## 1. Create a Supabase project
+1. Sign in to [Supabase](https://supabase.com)
+2. Create a new project
+3. Choose a name, strong database password, and preferred region
 
-## 2. 데이터베이스 테이블 생성
+## 2. Create the database tables
 
-Supabase Dashboard → SQL Editor에서 다음 SQL을 실행하세요:
+Run the following SQL inside the Supabase Dashboard → SQL Editor:
 
 ```sql
 -- Enable UUID extension
@@ -79,14 +79,14 @@ ALTER TABLE page_views ENABLE ROW LEVEL SECURITY;
 -- No public policies are created so only the service role can write/read
 ```
 
-## 3. Storage Bucket 생성
+## 3. Create the storage bucket
 
 1. Supabase Dashboard → Storage
-2. "Create a new bucket" 클릭
-3. 버킷 설정:
-   - **Name**: `designs-bucket`
-   - **Public bucket**: ✅ 체크 (공개 액세스 허용)
-4. 생성 후 Policies 설정:
+2. Click **Create a new bucket**
+3. Use the settings below:
+  - **Name**: `designs-bucket`
+  - **Public bucket**: ✅ enabled (public access)
+4. After creating the bucket, add these policies:
 
 ### Storage Policies SQL
 
@@ -113,15 +113,15 @@ CREATE POLICY "Authenticated users can delete"
   );
 ```
 
-## 4. API Keys 확인
+## 4. Collect API keys
 
-Supabase Dashboard → Settings → API에서 다음 정보를 확인하세요:
+Supabase Dashboard → Settings → API:
 
 - **Project URL**: `https://xxxxxxxxxxxxx.supabase.co`
-- **anon/public key**: 프론트엔드에서 사용
-- **service_role key**: Python 스크립트에서 사용 (보안 주의!)
+- **anon/public key**: used by the frontend
+- **service_role key**: used by automation/server scripts (keep secret)
 
-## 5. 환경변수 설정
+## 5. Configure environment variables
 
 ### Next.js (.env.local)
 ```env
@@ -137,9 +137,9 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
 OPENAI_API_KEY=your-openai-api-key-here
 ```
 
-## 6. 테스트
+## 6. Smoke test
 
-SQL Editor에서 테스트 데이터 삽입:
+Insert sample data via the SQL Editor:
 
 ```sql
 INSERT INTO designs (title, description, image_url, category, prompt)
@@ -152,7 +152,7 @@ VALUES (
 );
 ```
 
-데이터 확인:
+Verify the records:
 ```sql
 SELECT * FROM designs ORDER BY created_at DESC;
 ```

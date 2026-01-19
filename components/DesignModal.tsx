@@ -39,18 +39,18 @@ export default function DesignModal({ design, onClose }: DesignModalProps) {
     };
   }, [onClose]);
 
-  // 원본 디자인에서 사용된 색상 찾기
+  // Detect which theme the original design used
   const getOriginalColors = (code: string) => {
     for (const theme of COLOR_THEMES) {
-      // 코드에서 해당 테마의 primary 색상이 있는지 확인
+      // Check if the code includes the theme's primary color
       if (code.toLowerCase().includes(theme.primary.toLowerCase())) {
         return theme;
       }
     }
-    return COLOR_THEMES[0]; // 기본값
+    return COLOR_THEMES[0]; // Fallback theme
   };
 
-  // 색상 테마 변경 시 코드 업데이트
+  // Update the rendered code when the color theme changes
   useEffect(() => {
     if (!design.code) return;
     
@@ -60,15 +60,15 @@ export default function DesignModal({ design, onClose }: DesignModalProps) {
     
     let updatedCode = design.code;
     
-    // 원본 테마의 색상을 새로운 테마의 색상으로 교체
-    // 대소문자 구분 없이 교체
+    // Replace the original theme colors with the newly selected theme
+    // Match colors without case sensitivity
     updatedCode = updatedCode.replace(new RegExp(originalTheme.primary, 'gi'), newTheme.primary);
     updatedCode = updatedCode.replace(new RegExp(originalTheme.secondary, 'gi'), newTheme.secondary);
     updatedCode = updatedCode.replace(new RegExp(originalTheme.accent, 'gi'), newTheme.accent);
     
     setPreviewCode(updatedCode);
     
-    // 프리뷰 로딩 완료
+    // Finish the preview loading state
     setTimeout(() => setIsLoadingPreview(false), 300);
   }, [selectedTheme, design.code]);
 
