@@ -64,6 +64,19 @@ CREATE TRIGGER update_designs_updated_at
   BEFORE UPDATE ON designs
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
+
+-- Track landing page visits for admin analytics
+CREATE TABLE page_views (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW()),
+  page TEXT,
+  referer TEXT,
+  user_agent TEXT
+);
+
+CREATE INDEX idx_page_views_created_at ON page_views(created_at DESC);
+ALTER TABLE page_views ENABLE ROW LEVEL SECURITY;
+-- No public policies are created so only the service role can write/read
 ```
 
 ## 3. Storage Bucket 생성

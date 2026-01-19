@@ -6,11 +6,27 @@ import { supabase } from '@/lib/supabase/client';
 import { Design } from '@/types/database';
 import Image from 'next/image';
 
+interface MetricsSummary {
+  totalDesigns: number;
+  totalViews: number;
+  todayViews: number;
+  categoryCounts: { category: string; count: number }[];
+  dailyViews: { date: string; count: number }[];
+}
+
 export default function AdminDashboardPage() {
   const [designs, setDesigns] = useState<Design[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [metrics, setMetrics] = useState<MetricsSummary | null>(null);
+  const [metricsLoading, setMetricsLoading] = useState(true);
   const router = useRouter();
+  const formatNumber = (value: number) => new Intl.NumberFormat('ko-KR').format(value);
+  const formatDayLabel = (date: string) =>
+    new Date(date).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' });
+  const dailyViews = metrics?.dailyViews ?? [];
+  const maxDailyValue = dailyViews.reduce((max, day) => Math.max(max, day.count), 0);
+  const normalizedDailyMax = Math.max(maxDailyValue, 1);
 
   const checkAuth = useCallback(async () => {
     try {
@@ -40,10 +56,27 @@ export default function AdminDashboardPage() {
     }
   }, []);
 
+  const loadMetrics = useCallback(async () => {
+    setMetricsLoading(true);
+    try {
+      const response = await fetch('/api/admin/metrics');
+      if (!response.ok) {
+        throw new Error('Failed to load metrics');
+      }
+      const data = await response.json();
+      setMetrics(data);
+    } catch (error) {
+      console.error('Error loading metrics:', error);
+    } finally {
+      setMetricsLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     checkAuth();
     loadDesigns();
-  }, [checkAuth, loadDesigns]);
+    loadMetrics();
+  }, [checkAuth, loadDesigns, loadMetrics]);
 
   const handleDelete = async (id: string, imageUrl: string) => {
     if (!confirm('정말 이 디자인을 삭제하시겠습니까?')) return;
@@ -69,6 +102,7 @@ export default function AdminDashboardPage() {
 
       // Reload designs
       loadDesigns();
+      loadMetrics();
     } catch (error) {
       console.error('Error deleting design:', error);
       alert('삭제 중 오류가 발생했습니다.');
@@ -118,6 +152,7 @@ export default function AdminDashboardPage() {
       // Reset form and reload
       (e.target as HTMLFormElement).reset();
       loadDesigns();
+      loadMetrics();
       alert('업로드가 완료되었습니다!');
     } catch (error) {
       console.error('Error uploading:', error);
@@ -149,6 +184,80 @@ export default function AdminDashboardPage() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">사이트 인사이트</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[
+              { label: '오늘 방문자', value: metrics?.todayViews ?? 0 },
+              { label: '총 방문자', value: metrics?.totalViews ?? 0 },
+              { label: '등록된 디자인', value: metrics?.totalDesigns ?? designs.length },
+            ].map(({ label, value }) => (
+              <div key={label} className="bg-white rounded-lg shadow p-6 border border-gray-100">
+                <p className="text-sm text-gray-500">{label}</p>
+                {metricsLoading ? (
+                  <div className="mt-4 h-8 bg-gray-100 animate-pulse rounded" />
+                ) : (
+                  <p className="mt-2 text-3xl font-bold text-gray-900">{formatNumber(value)}</p>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+            <div className="bg-white rounded-lg shadow p-6 border border-gray-100 lg:col-span-2">
+              <div className="flex justify-between items-center mb-4">
+                <div>
+                  <p className="text-sm text-gray-500">최근 7일 방문 추이</p>
+                  <p className="text-lg font-semibold text-gray-900">일일 페이지 뷰</p>
+                </div>
+              </div>
+              {metricsLoading ? (
+                <div className="h-48 bg-gray-50 rounded animate-pulse" />
+              ) : (
+                <div className="h-48 flex items-end gap-4">
+                  {dailyViews.map((day) => {
+                    const height = (day.count / normalizedDailyMax) * 100;
+                    return (
+                      <div key={day.date} className="flex-1">
+                        <div
+                          className="bg-blue-500 rounded-t"
+                          style={{ height: `${height}%` }}
+                        ></div>
+                        <div className="mt-2 text-xs text-gray-500 text-center">
+                          <div>{formatDayLabel(day.date)}</div>
+                          <div className="font-semibold text-gray-900">{day.count}</div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            <div className="bg-white rounded-lg shadow p-6 border border-gray-100">
+              <p className="text-sm text-gray-500">카테고리별 디자인 수</p>
+              {metricsLoading ? (
+                <div className="mt-4 space-y-3">
+                  {Array.from({ length: 5 }).map((_, idx) => (
+                    <div key={idx} className="h-6 bg-gray-100 rounded animate-pulse" />
+                  ))}
+                </div>
+              ) : (
+                <div className="mt-4 space-y-3">
+                  {(metrics?.categoryCounts ?? []).map((item) => (
+                    <div key={item.category} className="flex items-center justify-between">
+                      <span className="text-sm text-gray-700">{item.category}</span>
+                      <span className="text-sm font-semibold text-gray-900">
+                        {formatNumber(item.count)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
         {/* Upload Form */}
         <div className="bg-white rounded-lg shadow p-6 mb-8">
           <h2 className="text-xl font-bold text-gray-900 mb-4">새 디자인 업로드</h2>

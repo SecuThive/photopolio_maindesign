@@ -10,6 +10,14 @@ export type Design = {
   updated_at: string;
 };
 
+export type PageView = {
+  id: string;
+  created_at: string;
+  page: string | null;
+  referer: string | null;
+  user_agent: string | null;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -36,6 +44,23 @@ export type Database = {
           code?: string | null;
           created_at?: string;
           updated_at?: string;
+        };
+      };
+      page_views: {
+        Row: PageView;
+        Insert: {
+          id?: string;
+          created_at?: string;
+          page?: string | null;
+          referer?: string | null;
+          user_agent?: string | null;
+        };
+        Update: {
+          id?: string;
+          created_at?: string;
+          page?: string | null;
+          referer?: string | null;
+          user_agent?: string | null;
         };
       };
     };
