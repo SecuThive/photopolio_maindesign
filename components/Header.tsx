@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useEffect, useMemo, useState, useTransition } from 'react';
+import React, { useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 interface HeaderProps {
   selectedCategory: string | null;
@@ -20,18 +20,9 @@ const categories = [
 
 export default function Header({ selectedCategory }: HeaderProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const normalizedSelected = selectedCategory || null;
-  const categoryFromUrl = searchParams.get('category');
-  const normalizedFromUrl = useMemo(() => {
-    if (categoryFromUrl === null || categoryFromUrl === undefined || categoryFromUrl === '') {
-      return null;
-    }
-    return categoryFromUrl;
-  }, [categoryFromUrl]);
-  const effectiveCategory = normalizedFromUrl ?? normalizedSelected;
+  const normalizedSelected = selectedCategory ?? null;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [optimisticCategory, setOptimisticCategory] = useState<string | null>(effectiveCategory);
+  const [optimisticCategory, setOptimisticCategory] = useState<string | null>(normalizedSelected);
   const [isPending, startTransition] = useTransition();
   const openCommandPalette = () => {
     if (typeof window !== 'undefined') {
@@ -40,8 +31,8 @@ export default function Header({ selectedCategory }: HeaderProps) {
   };
 
   useEffect(() => {
-    setOptimisticCategory(effectiveCategory);
-  }, [effectiveCategory]);
+    setOptimisticCategory(normalizedSelected);
+  }, [normalizedSelected]);
 
   const navigateToCategory = (value: string | null) => {
     const href = value ? `/?category=${encodeURIComponent(value)}` : '/';
