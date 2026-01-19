@@ -76,6 +76,7 @@ class UniversalDesignGenerator:
             self._landing_fullscreen_video,
             self._landing_asymmetric,
             self._landing_minimal,
+            self._landing_mobile_first,
         ]
         return random.choice(layouts)(colors)
     
@@ -315,6 +316,113 @@ class UniversalDesignGenerator:
         <div class="card">3</div>
         <div class="card">4</div>
     </div>
+</body>
+</html>"""
+
+    def _landing_mobile_first(self, colors: dict) -> str:
+        return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile App Landing</title>
+    <style>
+        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+        body {{ font-family: 'Inter', sans-serif; }}
+        .mobile-hero {{ min-height: 100vh; display: flex; align-items: center;
+                       background: linear-gradient(180deg, {colors['primary']}, {colors['secondary']});
+                       color: white; padding: 60px 20px; }}
+        .hero-content {{ max-width: 500px; margin: 0 auto; text-align: center; }}
+        .app-icon {{ width: 100px; height: 100px; background: white; border-radius: 24px;
+                    margin: 0 auto 24px; }}
+        .hero-content h1 {{ font-size: 48px; font-weight: 900; margin-bottom: 16px; }}
+        .hero-content p {{ font-size: 20px; opacity: 0.95; margin-bottom: 32px; }}
+        .download-buttons {{ display: flex; gap: 16px; justify-content: center; margin-bottom: 40px; flex-wrap: wrap; }}
+        .store-btn {{ display: flex; align-items: center; gap: 12px; padding: 16px 24px;
+                     background: rgba(255,255,255,0.2); backdrop-filter: blur(10px);
+                     border-radius: 12px; color: white; text-decoration: none; transition: all 0.3s; }}
+        .store-btn:hover {{ background: rgba(255,255,255,0.3); transform: translateY(-3px); }}
+        .store-icon {{ font-size: 32px; }}
+        .store-text {{ text-align: left; }}
+        .store-label {{ font-size: 11px; opacity: 0.9; }}
+        .store-name {{ font-size: 18px; font-weight: 700; }}
+        .phone-mockup {{ width: 280px; height: 560px; background: white; border-radius: 40px;
+                        margin: 40px auto 0; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                        padding: 16px; }}
+        .phone-screen {{ width: 100%; height: 100%; background: linear-gradient(180deg, #f8f9fa, white);
+                        border-radius: 32px; }}
+        .features-mobile {{ padding: 80px 20px; background: white; }}
+        .features-mobile h2 {{ font-size: 36px; font-weight: 900; text-align: center; margin-bottom: 48px; }}
+        .feature-list {{ max-width: 500px; margin: 0 auto; }}
+        .feature-item {{ display: flex; gap: 20px; padding: 24px; margin-bottom: 16px;
+                        background: #f8f9fa; border-radius: 16px; }}
+        .feature-icon {{ font-size: 40px; }}
+        .feature-item h3 {{ font-size: 20px; font-weight: 700; margin-bottom: 8px; }}
+        .feature-item p {{ color: #666; font-size: 16px; }}
+        .ratings {{ padding: 60px 20px; background: {colors['primary']}10; text-align: center; }}
+        .rating-stars {{ font-size: 48px; margin-bottom: 16px; }}
+        .rating-text {{ font-size: 24px; font-weight: 700; color: {colors['primary']}; }}
+        .rating-count {{ color: #666; margin-top: 8px; }}
+    </style>
+</head>
+<body>
+    <section class="mobile-hero">
+        <div class="hero-content">
+            <div class="app-icon"></div>
+            <h1>Your Life, Organized</h1>
+            <p>The #1 productivity app for getting things done on the go</p>
+            <div class="download-buttons">
+                <a href="#" class="store-btn">
+                    <span class="store-icon">🍎</span>
+                    <div class="store-text">
+                        <div class="store-label">Download on the</div>
+                        <div class="store-name">App Store</div>
+                    </div>
+                </a>
+                <a href="#" class="store-btn">
+                    <span class="store-icon">📱</span>
+                    <div class="store-text">
+                        <div class="store-label">Get it on</div>
+                        <div class="store-name">Google Play</div>
+                    </div>
+                </a>
+            </div>
+            <div class="phone-mockup">
+                <div class="phone-screen"></div>
+            </div>
+        </div>
+    </section>
+    <section class="features-mobile">
+        <h2>Why You'll Love It</h2>
+        <div class="feature-list">
+            <div class="feature-item">
+                <span class="feature-icon">⚡</span>
+                <div>
+                    <h3>Lightning Fast</h3>
+                    <p>Built with performance in mind. Everything loads instantly.</p>
+                </div>
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon">🔄</span>
+                <div>
+                    <h3>Auto Sync</h3>
+                    <p>All your data syncs across devices automatically.</p>
+                </div>
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon">🔔</span>
+                <div>
+                    <h3>Smart Reminders</h3>
+                    <p>Never miss a deadline with intelligent notifications.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="ratings">
+        <div class="rating-stars">⭐⭐⭐⭐⭐</div>
+        <div class="rating-text">4.9 out of 5</div>
+        <div class="rating-count">Based on 50,000+ reviews</div>
+    </section>
 </body>
 </html>"""
     

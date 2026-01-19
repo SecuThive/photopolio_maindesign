@@ -3,6 +3,8 @@ import DesignGallery from '@/components/DesignGallery';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
+export const revalidate = 0;
+
 export default async function HomePage({
   searchParams,
 }: {

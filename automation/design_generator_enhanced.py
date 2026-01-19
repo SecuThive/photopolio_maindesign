@@ -14,7 +14,7 @@ import hashlib
 import random
 import json
 from datetime import datetime
-from typing import Dict, Any, Set, List
+from typing import Dict, Any, Set, List, Callable
 
 from dotenv import load_dotenv
 from supabase import create_client, Client
@@ -53,6 +53,7 @@ class EnhancedDesignGenerator:
         self.used_hashes: Set[str] = set()
         self.design_count = 0
         self.current_method_name = ""  # 현재 생성 중인 메서드 이름
+        self.missing_layouts_reported: Set[str] = set()
     
     def get_design_name(self, method_name: str) -> str:
         """구조별로 의미있는 디자인 이름 반환"""
@@ -266,6 +267,51 @@ class EnhancedDesignGenerator:
             return False
         self.used_hashes.add(hash_val)
         return True
+
+    def _get_layout_methods(self, method_names: List[str], category: str) -> List[Callable[[dict], str]]:
+        """정의된 레이아웃 메서드만 필터링"""
+        available: List[Callable[[dict], str]] = []
+        for name in method_names:
+            method = getattr(self, name, None)
+            if callable(method):
+                available.append(method)
+            elif name not in self.missing_layouts_reported:
+                print(f"⚠️  Skipping missing {category} layout: {name}")
+                self.missing_layouts_reported.add(name)
+        if not available:
+            raise ValueError(f"No available layouts for {category}")
+        return available
+
+    def build_unique_title(self, base_name: str, category: str) -> str:
+        """카테고리별 고유 타이틀 생성"""
+        moods = [
+            "Neon",
+            "Velvet",
+            "Solar",
+            "Crystal",
+            "Quantum",
+            "Pixel",
+            "Atlas",
+            "Nova",
+            "Aero",
+            "Iris",
+        ]
+        focus = [
+            "Flow",
+            "Pulse",
+            "Canvas",
+            "Harbor",
+            "Beacon",
+            "Orbit",
+            "Signal",
+            "Circuit",
+            "Studio",
+            "Sphere",
+        ]
+        timestamp = datetime.now().strftime('%y%m%d%H%M%S')
+        suffix = ''.join(random.choices('23456789ABCDEFGHJKLMNPQRSTUVWXYZ', k=2))
+        descriptor = f"{random.choice(moods)} {random.choice(focus)}"
+        return f"{base_name} - {descriptor} {timestamp[-4:]}{suffix}"
     
     # ===== Landing Page (30가지 구조) =====
     def generate_landing_page(self, colors: dict) -> str:
@@ -273,38 +319,39 @@ class EnhancedDesignGenerator:
         랜딩 페이지 생성
         필수 요소: Hero, CTA, Features, Social Proof
         """
-        layouts = [
-            self._landing_hero_with_features,
-            self._landing_split_with_form,
-            self._landing_video_background,
-            self._landing_product_showcase,
-            self._landing_saas_minimal,
-            self._landing_app_download,
-            self._landing_event_conference,
-            self._landing_agency_creative,
-            self._landing_newsletter_subscription,
-            self._landing_waitlist_launch,
-            self._landing_startup_pitch,
-            self._landing_mobile_first,
-            self._landing_pricing_focus,
-            self._landing_testimonial_heavy,
-            self._landing_feature_comparison,
-            self._landing_animation_hero,
-            self._landing_two_column_benefits,
-            self._landing_video_testimonials,
-            self._landing_trusted_by_logos,
-            self._landing_countdown_launch,
-            self._landing_free_trial_emphasis,
-            self._landing_integration_showcase,
-            self._landing_security_focused,
-            self._landing_case_study_proof,
-            self._landing_calculator_tool,
-            self._landing_comparison_table,
-            self._landing_demo_request,
-            self._landing_resource_download,
-            self._landing_webinar_registration,
-            self._landing_partner_program,
+        layout_names = [
+            '_landing_hero_with_features',
+            '_landing_split_with_form',
+            '_landing_video_background',
+            '_landing_product_showcase',
+            '_landing_saas_minimal',
+            '_landing_app_download',
+            '_landing_event_conference',
+            '_landing_agency_creative',
+            '_landing_newsletter_subscription',
+            '_landing_waitlist_launch',
+            '_landing_startup_pitch',
+            '_landing_mobile_first',
+            '_landing_pricing_focus',
+            '_landing_testimonial_heavy',
+            '_landing_feature_comparison',
+            '_landing_animation_hero',
+            '_landing_two_column_benefits',
+            '_landing_video_testimonials',
+            '_landing_trusted_by_logos',
+            '_landing_countdown_launch',
+            '_landing_free_trial_emphasis',
+            '_landing_integration_showcase',
+            '_landing_security_focused',
+            '_landing_case_study_proof',
+            '_landing_calculator_tool',
+            '_landing_comparison_table',
+            '_landing_demo_request',
+            '_landing_resource_download',
+            '_landing_webinar_registration',
+            '_landing_partner_program',
         ]
+        layouts = self._get_layout_methods(layout_names, "Landing Page")
         chosen_method = random.choice(layouts)
         self.current_method_name = chosen_method.__name__
         return chosen_method(colors)
@@ -2774,38 +2821,39 @@ tbody td:first-child {{text-align:left;font-weight:600;}}
         대시보드 생성
         필수 요소: Stats Cards, Charts, Navigation, Tables, Activity Feed
         """
-        layouts = [
-            self._dashboard_analytics_sidebar,
-            self._dashboard_metrics_top_nav,
-            self._dashboard_crm,
-            self._dashboard_ecommerce_stats,
-            self._dashboard_project_management,
-            self._dashboard_sales_analytics,
-            self._dashboard_user_admin,
-            self._dashboard_financial_overview,
-            self._dashboard_social_media_metrics,
-            self._dashboard_inventory_management,
-            self._dashboard_realtime_monitoring,
-            self._dashboard_team_collaboration,
-            self._dashboard_sales_funnel,
-            self._dashboard_marketing_campaign,
-            self._dashboard_customer_support,
-            self._dashboard_email_analytics,
-            self._dashboard_appointment_scheduling,
-            self._dashboard_task_management,
-            self._dashboard_goal_tracking,
-            self._dashboard_performance_review,
-            self._dashboard_lead_management,
-            self._dashboard_content_calendar,
-            self._dashboard_bug_tracking,
-            self._dashboard_time_tracking,
-            self._dashboard_resource_allocation,
-            self._dashboard_budget_planning,
-            self._dashboard_survey_results,
-            self._dashboard_network_monitoring,
-            self._dashboard_server_status,
-            self._dashboard_api_analytics,
+        layout_names = [
+            '_dashboard_analytics_sidebar',
+            '_dashboard_metrics_top_nav',
+            '_dashboard_crm',
+            '_dashboard_ecommerce_stats',
+            '_dashboard_project_management',
+            '_dashboard_sales_analytics',
+            '_dashboard_user_admin',
+            '_dashboard_financial_overview',
+            '_dashboard_social_media_metrics',
+            '_dashboard_inventory_management',
+            '_dashboard_realtime_monitoring',
+            '_dashboard_team_collaboration',
+            '_dashboard_sales_funnel',
+            '_dashboard_marketing_campaign',
+            '_dashboard_customer_support',
+            '_dashboard_email_analytics',
+            '_dashboard_appointment_scheduling',
+            '_dashboard_task_management',
+            '_dashboard_goal_tracking',
+            '_dashboard_performance_review',
+            '_dashboard_lead_management',
+            '_dashboard_content_calendar',
+            '_dashboard_bug_tracking',
+            '_dashboard_time_tracking',
+            '_dashboard_resource_allocation',
+            '_dashboard_budget_planning',
+            '_dashboard_survey_results',
+            '_dashboard_network_monitoring',
+            '_dashboard_server_status',
+            '_dashboard_api_analytics',
         ]
+        layouts = self._get_layout_methods(layout_names, "Dashboard")
         chosen_method = random.choice(layouts)
         self.current_method_name = chosen_method.__name__
         return chosen_method(colors)
@@ -4318,21 +4366,858 @@ tbody td:first-child {{text-align:left;font-weight:600;}}
     </div>
 </body>
 </html>"""
+
+    def _dashboard_realtime_monitoring(self, colors: dict) -> str:
+        return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Realtime Monitoring</title>
+    <style>
+        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+        body {{ font-family: 'Inter', sans-serif; background: #0f172a; color: white; }}
+        .monitor-grid {{ display: grid; grid-template-columns: 2fr 1fr; gap: 24px; padding: 60px; }}
+        .panel {{ background: #1e293b; border-radius: 20px; padding: 32px; box-shadow: 0 20px 60px rgba(0,0,0,0.4); }}
+        .panel h3 {{ font-size: 20px; margin-bottom: 20px; color: {colors['accent']}; }}
+        .live-chart {{ height: 320px; border-radius: 16px; background: linear-gradient(180deg, {colors['primary']}30, transparent); position: relative; overflow: hidden; }}
+        .pulse {{ position: absolute; bottom: 0; width: 12px; background: {colors['primary']}; opacity: 0.8; animation: pulse 2s infinite; }}
+        .pulse:nth-child(2) {{ left: 15%; animation-delay: 0.2s; }}
+        .pulse:nth-child(3) {{ left: 30%; animation-delay: 0.4s; }}
+        .pulse:nth-child(4) {{ left: 45%; animation-delay: 0.6s; }}
+        .pulse:nth-child(5) {{ left: 60%; animation-delay: 0.8s; }}
+        .pulse:nth-child(6) {{ left: 75%; animation-delay: 1s; }}
+        @keyframes pulse {{
+            0% {{ height: 20%; }}
+            50% {{ height: 90%; }}
+            100% {{ height: 30%; }}
+        }}
+        .status-grid {{ display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 24px; }}
+        .status-card {{ background: #0f172a; border-radius: 16px; padding: 20px; border: 1px solid rgba(255,255,255,0.1); }}
+        .status-title {{ font-size: 14px; color: #94a3b8; margin-bottom: 8px; }}
+        .status-value {{ font-size: 28px; font-weight: 900; }}
+        .live-feed {{ max-height: 400px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }}
+        .feed-item {{ background: rgba(15,23,42,0.8); border-radius: 14px; padding: 18px; border: 1px solid rgba(255,255,255,0.1); }}
+        .feed-title {{ font-weight: 700; margin-bottom: 6px; }}
+        .feed-meta {{ font-size: 13px; color: #94a3b8; }}
+    </style>
+</head>
+<body>
+    <div class="monitor-grid">
+        <div class="panel">
+            <h3>Latency Monitor</h3>
+            <div class="live-chart">
+                <div class="pulse" style="left: 0;"></div>
+                <div class="pulse"></div>
+                <div class="pulse"></div>
+                <div class="pulse"></div>
+                <div class="pulse"></div>
+                <div class="pulse"></div>
+            </div>
+            <div class="status-grid">
+                <div class="status-card">
+                    <div class="status-title">Global Avg</div>
+                    <div class="status-value">183 ms</div>
+                </div>
+                <div class="status-card">
+                    <div class="status-title">Peak Load</div>
+                    <div class="status-value">71%</div>
+                </div>
+                <div class="status-card">
+                    <div class="status-title">Incidents</div>
+                    <div class="status-value" style="color:#fbbf24;">2 Open</div>
+                </div>
+                <div class="status-card">
+                    <div class="status-title">Throughput</div>
+                    <div class="status-value">42k req/s</div>
+                </div>
+            </div>
+        </div>
+        <div class="panel">
+            <h3>Live Events</h3>
+            <div class="live-feed">
+                <div class="feed-item">
+                    <div class="feed-title">API Response Spike</div>
+                    <div class="feed-meta">asia-east • 2 minutes ago</div>
+                </div>
+                <div class="feed-item">
+                    <div class="feed-title">Deploy Completed</div>
+                    <div class="feed-meta">version 4.8.1 • 6 minutes ago</div>
+                </div>
+                <div class="feed-item">
+                    <div class="feed-title">New Alert</div>
+                    <div class="feed-meta">Timeout threshold exceeded</div>
+                </div>
+                <div class="feed-item">
+                    <div class="feed-title">Autoscaling Event</div>
+                    <div class="feed-meta">3 nodes added in us-central</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>"""
+
+    def _dashboard_team_collaboration(self, colors: dict) -> str:
+        return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Collaboration</title>
+    <style>
+        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+        body {{ font-family: 'Inter', sans-serif; background: #f4f6fb; }}
+        .collab-board {{ padding: 60px; display: grid; grid-template-columns: 280px 1fr; gap: 30px; }}
+        .sidebar {{ background: white; border-radius: 24px; padding: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.08); }}
+        .sidebar h3 {{ font-size: 20px; margin-bottom: 20px; }}
+        .channel {{ padding: 14px 18px; border-radius: 12px; margin-bottom: 12px; font-weight: 600; cursor: pointer; }}
+        .channel.active {{ background: {colors['primary']}10; color: {colors['primary']}; }}
+        .team-card {{ display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }}
+        .avatar {{ width: 48px; height: 48px; border-radius: 16px; background: {colors['primary']}20; }}
+        .main {{ background: white; border-radius: 32px; padding: 40px; box-shadow: 0 30px 80px rgba(0,0,0,0.1); }}
+        .main h1 {{ font-size: 40px; margin-bottom: 30px; }}
+        .kanban {{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }}
+        .column {{ background: #f9fafb; border-radius: 20px; padding: 20px; border: 1px solid #e5e7eb; min-height: 460px; }}
+        .column h4 {{ font-size: 16px; letter-spacing: 0.08em; color: #6b7280; margin-bottom: 18px; }}
+        .task-card {{ background: white; border-radius: 16px; padding: 18px; margin-bottom: 14px; border: 1px solid #eef2ff; }}
+        .task-title {{ font-weight: 700; margin-bottom: 6px; }}
+        .task-meta {{ font-size: 13px; color: #6b7280; }}
+    </style>
+</head>
+<body>
+    <section class="collab-board">
+        <aside class="sidebar">
+            <h3>Channels</h3>
+            <div class="channel active">🚀 Sprint Planning</div>
+            <div class="channel">🎨 Design Reviews</div>
+            <div class="channel">🧪 QA Standup</div>
+            <div class="channel">💬 Team Updates</div>
+            <h3 style="margin-top:40px;">Team</h3>
+            <div class="team-card">
+                <div class="avatar"></div>
+                <div>
+                    <div style="font-weight:700;">Ariana</div>
+                    <div style="color:#6b7280; font-size:13px;">Product Lead</div>
+                </div>
+            </div>
+            <div class="team-card">
+                <div class="avatar" style="background:{colors['secondary']}20;"></div>
+                <div>
+                    <div style="font-weight:700;">Noah</div>
+                    <div style="color:#6b7280; font-size:13px;">Design Lead</div>
+                </div>
+            </div>
+            <div class="team-card">
+                <div class="avatar" style="background:{colors['accent']}20;"></div>
+                <div>
+                    <div style="font-weight:700;">Evelyn</div>
+                    <div style="color:#6b7280; font-size:13px;">Engineering</div>
+                </div>
+            </div>
+        </aside>
+        <main class="main">
+            <h1>Team Collaboration Hub</h1>
+            <div class="kanban">
+                <div class="column">
+                    <h4>BACKLOG</h4>
+                    <div class="task-card">
+                        <div class="task-title">Research onboarding friction</div>
+                        <div class="task-meta">Owner: Hana • Due Thu</div>
+                    </div>
+                    <div class="task-card">
+                        <div class="task-title">Prep Q1 roadmap deck</div>
+                        <div class="task-meta">Owner: Liam • Due Fri</div>
+                    </div>
+                </div>
+                <div class="column">
+                    <h4>IN PROGRESS</h4>
+                    <div class="task-card">
+                        <div class="task-title">Mobile dashboard revamp</div>
+                        <div class="task-meta">Owner: Zoe • 65% complete</div>
+                    </div>
+                    <div class="task-card">
+                        <div class="task-title">Marketing site refresh</div>
+                        <div class="task-meta">Owner: Milo • Review pending</div>
+                    </div>
+                </div>
+                <div class="column">
+                    <h4>READY TO SHIP</h4>
+                    <div class="task-card">
+                        <div class="task-title">Billing automation</div>
+                        <div class="task-meta">Owner: Ava • QA passed</div>
+                    </div>
+                    <div class="task-card">
+                        <div class="task-title">Guided setup flow</div>
+                        <div class="task-meta">Owner: Leo • Waiting launch</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </section>
+</body>
+</html>"""
+
+    def _dashboard_sales_funnel(self, colors: dict) -> str:
+        return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Funnel</title>
+    <style>
+        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+        body {{ font-family: 'Inter', sans-serif; background: #0b1120; color: white; }}
+        .wrapper {{ padding: 70px; }}
+        .title {{ font-size: 48px; font-weight: 900; margin-bottom: 12px; }}
+        .subtitle {{ color: #94a3b8; margin-bottom: 40px; }}
+        .funnel {{ display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 40px; }}
+        .stage {{ background: linear-gradient(180deg, {colors['primary']}50, {colors['secondary']}20); border-radius: 20px; padding: 24px; border: 1px solid rgba(255,255,255,0.1); }}
+        .stage h4 {{ font-size: 16px; letter-spacing: 0.08em; opacity: 0.7; margin-bottom: 12px; }}
+        .stage-value {{ font-size: 34px; font-weight: 900; }}
+        .stage-conv {{ font-size: 14px; color: #94a3b8; margin-top: 10px; }}
+        .split {{ display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }}
+        .pipeline {{ background: rgba(15,18,32,0.8); border-radius: 24px; padding: 30px; border: 1px solid rgba(255,255,255,0.1); }}
+        .pipeline h3 {{ font-size: 20px; margin-bottom: 20px; }}
+        .pipeline-row {{ display: grid; grid-template-columns: 2fr 1fr 1fr; padding: 16px 0; border-bottom: 1px solid rgba(255,255,255,0.08); }}
+        .pipeline-row:last-child {{ border-bottom: none; }}
+        .pipeline-row span {{ font-size: 15px; }}
+        .targets {{ background: rgba(15,18,32,0.8); border-radius: 24px; padding: 30px; border: 1px solid rgba(255,255,255,0.1); }}
+        .target-card {{ margin-bottom: 18px; padding-bottom: 18px; border-bottom: 1px solid rgba(255,255,255,0.08); }}
+        .target-card:last-child {{ border-bottom: none; }}
+        .progress {{ height: 12px; border-radius: 999px; background: rgba(148,163,184,0.3); margin-top: 10px; overflow: hidden; }}
+        .progress-bar {{ height: 100%; border-radius: inherit; background: {colors['primary']}; }}
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="title">Revenue Funnel</div>
+        <div class="subtitle">Week 7 performance overview</div>
+        <div class="funnel">
+            <div class="stage">
+                <h4>VISITS</h4>
+                <div class="stage-value">142,890</div>
+                <div class="stage-conv">Baseline</div>
+            </div>
+            <div class="stage">
+                <h4>LEADS</h4>
+                <div class="stage-value">28,410</div>
+                <div class="stage-conv">19.9% conversion</div>
+            </div>
+            <div class="stage">
+                <h4>MQL</h4>
+                <div class="stage-value">7,542</div>
+                <div class="stage-conv">26.5% conversion</div>
+            </div>
+            <div class="stage">
+                <h4>OPPORTUNITIES</h4>
+                <div class="stage-value">1,284</div>
+                <div class="stage-conv">17.0% conversion</div>
+            </div>
+        </div>
+        <div class="split">
+            <div class="pipeline">
+                <h3>Pipeline Quality</h3>
+                <div class="pipeline-row">
+                    <span>Enterprise Expansion</span>
+                    <span>$620K</span>
+                    <span>Close rate 42%</span>
+                </div>
+                <div class="pipeline-row">
+                    <span>Self-serve Upsell</span>
+                    <span>$180K</span>
+                    <span>Close rate 31%</span>
+                </div>
+                <div class="pipeline-row">
+                    <span>Channel Partners</span>
+                    <span>$94K</span>
+                    <span>Close rate 22%</span>
+                </div>
+                <div class="pipeline-row">
+                    <span>Prospecting</span>
+                    <span>$312K</span>
+                    <span>Close rate 12%</span>
+                </div>
+            </div>
+            <div class="targets">
+                <h3>KPIs</h3>
+                <div class="target-card">
+                    <div>Quarter to date</div>
+                    <strong>$1.92M</strong>
+                    <div class="progress"><div class="progress-bar" style="width:78%;"></div></div>
+                </div>
+                <div class="target-card">
+                    <div>New ARR</div>
+                    <strong>$420K</strong>
+                    <div class="progress"><div class="progress-bar" style="width:65%;"></div></div>
+                </div>
+                <div class="target-card">
+                    <div>Active Deals</div>
+                    <strong>46</strong>
+                    <div class="progress"><div class="progress-bar" style="width:54%;"></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>"""
+
+    def _dashboard_marketing_campaign(self, colors: dict) -> str:
+        return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campaign Performance</title>
+    <style>
+        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+        body {{ font-family: 'Inter', sans-serif; background: #fef9f5; color: #1f2933; }}
+        .campaign {{ padding: 50px; max-width: 1440px; margin: 0 auto; }}
+        .campaign-header {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }}
+        .campaign-header h1 {{ font-size: 44px; }}
+        .channel-grid {{ display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 40px; }}
+        .channel {{ background: white; border-radius: 20px; padding: 22px; border: 1px solid #fde6d3; }}
+        .channel h4 {{ font-size: 13px; color: #f97316; letter-spacing: 0.08em; margin-bottom: 8px; }}
+        .channel strong {{ font-size: 28px; }}
+        .split-panels {{ display: grid; grid-template-columns: 1.4fr 1fr; gap: 24px; }}
+        .timeline {{ background: white; border-radius: 30px; padding: 30px; border: 1px solid #fde6d3; }}
+        .timeline-item {{ display: grid; grid-template-columns: 140px 1fr; gap: 16px; padding: 16px 0; border-bottom: 1px solid #f1f5f9; }}
+        .timeline-item:last-child {{ border-bottom: none; }}
+        .timeline-badge {{ font-weight: 700; color: {colors['primary']}; }}
+        .result-panel {{ background: {colors['primary']}10; border-radius: 30px; padding: 32px; border: 1px solid {colors['primary']}30; }}
+        .result-card {{ background: white; border-radius: 18px; padding: 20px; margin-bottom: 18px; border: 1px solid rgba(0,0,0,0.04); }}
+        .result-card:last-child {{ margin-bottom: 0; }}
+    </style>
+</head>
+<body>
+    <section class="campaign">
+        <div class="campaign-header">
+            <div>
+                <h1>Spring Launch Campaign</h1>
+                <p style="color:#64748b;">Channels, pacing, and cost per acquisition overview</p>
+            </div>
+            <button style="padding:14px 34px; border-radius:999px; border:none; background:{colors['primary']}; color:white; font-weight:700;">Share Report</button>
+        </div>
+        <div class="channel-grid">
+            <div class="channel">
+                <h4>PAID SOCIAL</h4>
+                <strong>$82K</strong>
+                <p>CAC $32</p>
+            </div>
+            <div class="channel">
+                <h4>EMAIL</h4>
+                <strong>$18K</strong>
+                <p>CAC $11</p>
+            </div>
+            <div class="channel">
+                <h4>SEARCH</h4>
+                <strong>$44K</strong>
+                <p>CAC $27</p>
+            </div>
+            <div class="channel">
+                <h4>PARTNERS</h4>
+                <strong>$24K</strong>
+                <p>CAC $19</p>
+            </div>
+        </div>
+        <div class="split-panels">
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-badge">Week 1</div>
+                    <div>Creative refresh for paid social, launched hero video variants.</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-badge">Week 2</div>
+                    <div>Influencer co-marketing sequence and product webinar.</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-badge">Week 3</div>
+                    <div>Remarketing nurture flow and case study drop.</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-badge">Week 4</div>
+                    <div>Live demo tour + partner bundles.</div>
+                </div>
+            </div>
+            <div class="result-panel">
+                <div class="result-card">
+                    <div style="font-size:13px; color:#475569;">ROI</div>
+                    <div style="font-size:34px; font-weight:900;">312%</div>
+                    <p style="color:#475569;">Lift vs prior launch</p>
+                </div>
+                <div class="result-card">
+                    <div style="font-size:13px; color:#475569;">Generated Pipeline</div>
+                    <div style="font-size:32px; font-weight:900;">$1.4M</div>
+                </div>
+                <div class="result-card">
+                    <div style="font-size:13px; color:#475569;">Top CTA</div>
+                    <div style="font-size:18px; font-weight:700;">"Book live demo" (37% CTR)</div>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>"""
+
+    def _dashboard_customer_support(self, colors: dict) -> str:
+        return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support Ops</title>
+    <style>
+        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+        body {{ font-family: 'Inter', sans-serif; background: #f8fafc; color: #0f172a; }}
+        .support {{ padding: 50px; display: grid; grid-template-columns: 320px 1fr; gap: 24px; }}
+        .queue {{ background: white; border-radius: 24px; padding: 28px; border: 1px solid #e2e8f0; }}
+        .queue h3 {{ margin-bottom: 18px; }}
+        .ticket {{ padding: 16px; border-radius: 18px; border: 1px solid #e2e8f0; margin-bottom: 12px; }}
+        .ticket span {{ display: block; }}
+        .priority {{ font-size: 12px; letter-spacing: 0.12em; color: #94a3b8; margin-bottom: 6px; }}
+        .ticket-title {{ font-weight: 700; margin-bottom: 6px; }}
+        .sla {{ font-size: 13px; color: #475569; }}
+        .workspace {{ background: white; border-radius: 32px; padding: 36px; border: 1px solid #e2e8f0; }}
+        .workspace h1 {{ font-size: 38px; margin-bottom: 12px; }}
+        .metric-strip {{ display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 24px; }}
+        .metric {{ background: #f1f5f9; border-radius: 18px; padding: 20px; }}
+        .metric label {{ display: block; font-size: 12px; letter-spacing: 0.12em; color: #94a3b8; margin-bottom: 8px; }}
+        .metric strong {{ font-size: 28px; }}
+        .threads {{ display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 20px; }}
+        .thread-card {{ border: 1px solid #e2e8f0; border-radius: 20px; padding: 24px; }}
+        .messages {{ display: flex; flex-direction: column; gap: 12px; margin-top: 16px; }}
+        .message {{ background: #f8fafc; border-radius: 14px; padding: 14px; }}
+    </style>
+</head>
+<body>
+    <section class="support">
+        <aside class="queue">
+            <h3>Priority Queue</h3>
+            <div class="ticket">
+                <span class="priority">P1 OUTAGE</span>
+                <span class="ticket-title">Payments failing for EU</span>
+                <span class="sla">SLA: 22 minutes</span>
+            </div>
+            <div class="ticket">
+                <span class="priority">P2 VIP</span>
+                <span class="ticket-title">Need custom billing export</span>
+                <span class="sla">SLA: 58 minutes</span>
+            </div>
+            <div class="ticket">
+                <span class="priority">P2</span>
+                <span class="ticket-title">Cannot reset admin MFA</span>
+                <span class="sla">SLA: 1 hour</span>
+            </div>
+        </aside>
+        <main class="workspace">
+            <h1>Support Operations</h1>
+            <p style="color:#475569; margin-bottom:24px;">Live SLA tracking and agent workload</p>
+            <div class="metric-strip">
+                <div class="metric"><label>CSAT</label><strong>4.82</strong></div>
+                <div class="metric"><label>RESOLUTION</label><strong>1h 12m</strong></div>
+                <div class="metric"><label>BACKLOG</label><strong>36</strong></div>
+                <div class="metric"><label>ACTIVE AGENTS</label><strong>14</strong></div>
+            </div>
+            <div class="threads">
+                <div class="thread-card">
+                    <h4>Live Conversations</h4>
+                    <div class="messages">
+                        <div class="message">"We are still seeing 502 errors" • RetailCo</div>
+                        <div class="message">"Need invoice with PO" • ByteLabs</div>
+                        <div class="message">"Can we pause account?" • Indie Apps</div>
+                    </div>
+                </div>
+                <div class="thread-card">
+                    <h4>Agent Status</h4>
+                    <div class="messages">
+                        <div class="message">Sophie · Resolving P1</div>
+                        <div class="message">Taylor · On call</div>
+                        <div class="message">Marcus · Reviewing macros</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </section>
+</body>
+</html>"""
+
+    def _dashboard_email_analytics(self, colors: dict) -> str:
+        return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Analytics</title>
+    <style>
+        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+        body {{ font-family: 'Space Grotesk', sans-serif; background: #0a0f1f; color: white; }}
+        .grid {{ padding: 70px; display: grid; grid-template-columns: 1.2fr 1fr; gap: 28px; }}
+        .panel {{ background: #11172d; border-radius: 28px; padding: 32px; border: 1px solid rgba(255,255,255,0.08); }}
+        .panel h2 {{ font-size: 32px; margin-bottom: 12px; }}
+        .heatmap {{ margin-top: 24px; display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }}
+        .slot {{ height: 60px; border-radius: 12px; background: rgba(255,255,255,0.08); }}
+        .slot.hot {{ background: {colors['primary']}; }}
+        .slot.warm {{ background: {colors['secondary']}; }}
+        .stat-grid {{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 28px; }}
+        .stat {{ background: #0b1120; border-radius: 18px; padding: 18px; }}
+        .stat label {{ font-size: 12px; color: #94a3b8; letter-spacing: 0.12em; }}
+        .stat strong {{ font-size: 30px; }}
+        .flows {{ display: flex; flex-direction: column; gap: 16px; margin-top: 12px; }}
+        .flow {{ display: flex; justify-content: space-between; align-items: center; padding: 18px; border-radius: 14px; background: #0b1120; }}
+        .flow-progress {{ width: 120px; height: 8px; border-radius: 999px; background: rgba(255,255,255,0.08); overflow: hidden; }}
+        .flow-progress span {{ display: block; height: 100%; background: {colors['secondary']}; }}
+    </style>
+</head>
+<body>
+    <div class="grid">
+        <section class="panel">
+            <h2>Audience Heatmap</h2>
+            <p style="color:#94a3b8;">Hourly engagement by weekday</p>
+            <div class="heatmap">
+                <div class="slot hot"></div>
+                <div class="slot"></div>
+                <div class="slot warm"></div>
+                <div class="slot"></div>
+                <div class="slot hot"></div>
+                <div class="slot"></div>
+                <div class="slot warm"></div>
+                <div class="slot"></div>
+                <div class="slot warm"></div>
+                <div class="slot"></div>
+                <div class="slot hot"></div>
+                <div class="slot"></div>
+                <div class="slot"></div>
+                <div class="slot hot"></div>
+            </div>
+            <div class="stat-grid">
+                <div class="stat"><label>OPEN RATE</label><strong>48%</strong></div>
+                <div class="stat"><label>CLICK RATE</label><strong>12%</strong></div>
+                <div class="stat"><label>UNSUB</label><strong>0.4%</strong></div>
+            </div>
+        </section>
+        <section class="panel">
+            <h2>Automations</h2>
+            <div class="flows">
+                <div class="flow">
+                    <div>
+                        <strong>Welcome Journey</strong>
+                        <p style="color:#94a3b8; font-size:13px;">4 emails • 72h</p>
+                    </div>
+                    <div class="flow-progress"><span style="width:82%;"></span></div>
+                    <div style="font-weight:700;">82%</div>
+                </div>
+                <div class="flow">
+                    <div>
+                        <strong>Upsell Campaign</strong>
+                        <p style="color:#94a3b8; font-size:13px;">3 emails • 96h</p>
+                    </div>
+                    <div class="flow-progress"><span style="width:64%;"></span></div>
+                    <div style="font-weight:700;">64%</div>
+                </div>
+                <div class="flow">
+                    <div>
+                        <strong>Renewal Reminder</strong>
+                        <p style="color:#94a3b8; font-size:13px;">2 emails • 48h</p>
+                    </div>
+                    <div class="flow-progress"><span style="width:71%;"></span></div>
+                    <div style="font-weight:700;">71%</div>
+                </div>
+            </div>
+        </section>
+    </div>
+</body>
+</html>"""
+
+    def _dashboard_task_management(self, colors: dict) -> str:
+        return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Management</title>
+    <style>
+        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+        body {{ font-family: 'Sora', sans-serif; background: #fdfdfc; color: #1c1917; }}
+        .planner {{ padding: 60px; }}
+        .planner-header {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }}
+        .timeline {{ display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; margin-bottom: 32px; }}
+        .day {{ background: white; border-radius: 18px; padding: 18px; border: 1px solid #f5ebe0; min-height: 180px; }}
+        .day h4 {{ font-size: 13px; color: #a16207; letter-spacing: 0.08em; margin-bottom: 12px; }}
+        .slot {{ padding: 12px; border-radius: 14px; background: #fff7ed; margin-bottom: 10px; font-weight: 600; border: 1px dashed #fed7aa; }}
+        .slot.focus {{ background: #ecfccb; border-color: #bef264; }}
+        .board {{ display: grid; grid-template-columns: 1.3fr 1fr; gap: 24px; }}
+        .milestones {{ background: white; border-radius: 28px; padding: 30px; border: 1px solid #f5ebe0; }}
+        .milestone {{ display: flex; justify-content: space-between; padding: 16px 0; border-bottom: 1px solid #f1f5f9; }}
+        .milestone:last-child {{ border-bottom: none; }}
+        .notes {{ background: {colors['primary']}10; border-radius: 28px; padding: 30px; border: 1px solid {colors['primary']}30; }}
+        .note {{ padding: 18px; border-radius: 16px; background: white; margin-bottom: 12px; }}
+        .note:last-child {{ margin-bottom: 0; }}
+    </style>
+</head>
+<body>
+    <div class="planner">
+        <div class="planner-header">
+            <div>
+                <h1 style="font-size:40px;">Execution Planner</h1>
+                <p style="color:#78716c;">Sprint 14 · February 16 - 22</p>
+            </div>
+            <button style="padding:14px 32px; border-radius: 999px; border:none; background:{colors['primary']}; color:white; font-weight:700;">Add task</button>
+        </div>
+        <div class="timeline">
+            <div class="day"><h4>MON</h4><div class="slot">Kickoff call</div><div class="slot focus">Deep work</div></div>
+            <div class="day"><h4>TUE</h4><div class="slot">Design review</div><div class="slot focus">Prototype</div></div>
+            <div class="day"><h4>WED</h4><div class="slot">Content sprint</div><div class="slot">Sync</div></div>
+            <div class="day"><h4>THU</h4><div class="slot focus">QA push</div><div class="slot">Partner call</div></div>
+            <div class="day"><h4>FRI</h4><div class="slot">Metrics readout</div><div class="slot focus">Plan next sprint</div></div>
+            <div class="day"><h4>SAT</h4><div class="slot">Buffer block</div><div class="slot">1:1s</div></div>
+        </div>
+        <div class="board">
+            <div class="milestones">
+                <h3>Milestones</h3>
+                <div class="milestone"><span>Ship onboarding flow</span><strong>Due Thu</strong></div>
+                <div class="milestone"><span>Complete billing QA</span><strong>Due Fri</strong></div>
+                <div class="milestone"><span>Prep leadership review</span><strong>Due Mon</strong></div>
+            </div>
+            <div class="notes">
+                <h3>Notes</h3>
+                <div class="note">Schedule sync with infra on deployment window.</div>
+                <div class="note">Get approvals for hero illustration concept.</div>
+                <div class="note">Draft rollout comms for beta users.</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>"""
+
+    def _dashboard_content_calendar(self, colors: dict) -> str:
+        return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Calendar</title>
+    <style>
+        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+        body {{ font-family: 'Inter', sans-serif; background: #f0f4ff; }}
+        .calendar {{ padding: 50px; }}
+        .month-header {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }}
+        .grid {{ display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px; }}
+        .weekday {{ text-align: center; font-size: 12px; letter-spacing: 0.16em; color: #64748b; }}
+        .cell {{ background: white; border-radius: 20px; padding: 14px; min-height: 140px; border: 1px solid #dbeafe; position: relative; }}
+        .cell strong {{ display: block; font-size: 14px; color: #0f172a; }}
+        .tag {{ margin-top: 8px; display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; color: white; }}
+        .tag.video {{ background: {colors['primary']}; }}
+        .tag.article {{ background: {colors['secondary']}; }}
+        .tag.social {{ background: {colors['accent']}; }}
+    </style>
+</head>
+<body>
+    <section class="calendar">
+        <div class="month-header">
+            <div>
+                <h1 style="font-size:38px;">March Editorial Plan</h1>
+                <p style="color:#64748b;">Weekly cadence and deliverables</p>
+            </div>
+            <div style="display:flex; gap:12px;">
+                <button style="padding:12px 20px; border-radius:14px; border:1px solid #c7d2fe; background:white;">Duplicate</button>
+                <button style="padding:12px 20px; border-radius:14px; border:none; background:{colors['primary']}; color:white;">Share</button>
+            </div>
+        </div>
+        <div class="grid">
+            <div class="weekday">MON</div>
+            <div class="weekday">TUE</div>
+            <div class="weekday">WED</div>
+            <div class="weekday">THU</div>
+            <div class="weekday">FRI</div>
+            <div class="weekday">SAT</div>
+            <div class="weekday">SUN</div>
+            <div class="cell"><strong>1</strong><span class="tag video">Video</span></div>
+            <div class="cell"><strong>2</strong><span class="tag article">Article</span></div>
+            <div class="cell"><strong>3</strong><span class="tag social">Social</span></div>
+            <div class="cell"><strong>4</strong><span class="tag video">Video</span></div>
+            <div class="cell"><strong>5</strong><span class="tag article">Article</span></div>
+            <div class="cell"><strong>6</strong><span class="tag social">Social</span></div>
+            <div class="cell"><strong>7</strong><span class="tag article">Article</span></div>
+            <div class="cell"><strong>8</strong><span class="tag social">Social</span></div>
+            <div class="cell"><strong>9</strong><span class="tag video">Video</span></div>
+            <div class="cell"><strong>10</strong><span class="tag article">Article</span></div>
+            <div class="cell"><strong>11</strong><span class="tag social">Social</span></div>
+            <div class="cell"><strong>12</strong><span class="tag video">Video</span></div>
+            <div class="cell"><strong>13</strong><span class="tag article">Article</span></div>
+            <div class="cell"><strong>14</strong><span class="tag social">Social</span></div>
+        </div>
+    </section>
+</body>
+</html>"""
+
+    def _dashboard_server_status(self, colors: dict) -> str:
+        return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Status</title>
+    <style>
+        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+        body {{ font-family: 'IBM Plex Mono', monospace; background: #050505; color: #cbd5f5; }}
+        .status {{ padding: 50px; display: grid; grid-template-columns: 280px 1fr; gap: 20px; }}
+        .shell {{ background: #0d0d0d; border-radius: 16px; padding: 20px; border: 1px solid #1f2937; }}
+        .shell-title {{ color: {colors['accent']}; font-size: 14px; margin-bottom: 16px; }}
+        .shell-line {{ font-size: 13px; margin-bottom: 8px; }}
+        .overview {{ background: #0d0d0d; border-radius: 24px; padding: 30px; border: 1px solid #1f2937; }}
+        .cards {{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }}
+        .card {{ background: #111; border-radius: 20px; padding: 20px; border: 1px solid #1f2937; }}
+        .card label {{ display:block; font-size:12px; color:#94a3b8; margin-bottom:6px; }}
+        .card strong {{ font-size: 28px; color: white; }}
+        .instances {{ display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }}
+        .instance {{ border: 1px solid #1f2937; border-radius: 18px; padding: 18px; }}
+        .instance h4 {{ margin-bottom: 8px; color: {colors['primary']}; }}
+        .badge {{ display:inline-flex; align-items:center; padding:4px 10px; border-radius:12px; font-size:11px; background: #16a34a20; color:#22c55e; margin-left:8px; }}
+    </style>
+</head>
+<body>
+    <div class="status">
+        <aside class="shell">
+            <div class="shell-title">Realtime logs</div>
+            <div class="shell-line">[09:24:12] us-east-1 scaled up 2 nodes</div>
+            <div class="shell-line">[09:24:45] background job completed</div>
+            <div class="shell-line">[09:25:01] latency warning resolved</div>
+            <div class="shell-line">[09:25:32] eu-central-1 health check passed</div>
+        </aside>
+        <section class="overview">
+            <div class="cards">
+                <div class="card"><label>LATENCY</label><strong>123 ms</strong></div>
+                <div class="card"><label>ERROR RATE</label><strong>0.04%</strong></div>
+                <div class="card"><label>THROUGHPUT</label><strong>54k req/s</strong></div>
+            </div>
+            <div class="instances">
+                <div class="instance">
+                    <h4>us-east-1<span class="badge">Healthy</span></h4>
+                    <p>12 nodes active · 68% cpu</p>
+                </div>
+                <div class="instance">
+                    <h4>eu-central-1<span class="badge" style="background:#eab30820; color:#fcd34d;">Warning</span></h4>
+                    <p>9 nodes active · packet loss 0.8%</p>
+                </div>
+                <div class="instance">
+                    <h4>ap-southeast-1<span class="badge">Healthy</span></h4>
+                    <p>8 nodes active · 52% cpu</p>
+                </div>
+                <div class="instance">
+                    <h4>sa-east-1<span class="badge" style="background:#dc262620; color:#f87171;">Incident</span></h4>
+                    <p>4 nodes active · failover engaged</p>
+                </div>
+            </div>
+        </section>
+    </div>
+</body>
+</html>"""
+
+    def _dashboard_api_analytics(self, colors: dict) -> str:
+        return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Analytics</title>
+    <style>
+        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+        body {{ font-family: 'Inter', sans-serif; background: #f9fafb; }}
+        .api {{ padding: 60px; }}
+        .header {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }}
+        .meta {{ color: #6b7280; }}
+        .charts {{ display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-bottom: 24px; }}
+        .panel {{ background: white; border-radius: 24px; padding: 30px; box-shadow: 0 20px 60px rgba(15,23,42,0.08); border: 1px solid #e5e7eb; }}
+        .panel h3 {{ margin-bottom: 18px; }}
+        .area {{ height: 260px; border-radius: 18px; background: linear-gradient(180deg, {colors['primary']}40, transparent); }}
+        .latency {{ background: white; border-radius: 24px; padding: 30px; box-shadow: 0 20px 60px rgba(15,23,42,0.08); border: 1px solid #e5e7eb; }}
+        .latency-row {{ display: grid; grid-template-columns: 1.5fr repeat(3, 1fr); padding: 14px 0; border-bottom: 1px solid #f1f5f9; font-size: 15px; }}
+        .latency-row:first-child {{ font-weight: 700; color: #0f172a; }}
+        .latency-row:last-child {{ border-bottom: none; }}
+        .breakdown {{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }}
+        .breakdown-card {{ background: white; border-radius: 18px; padding: 20px; border: 1px solid #e5e7eb; }}
+        .breakdown-card label {{ font-size: 12px; letter-spacing: 0.12em; color: #94a3b8; }}
+        .breakdown-card strong {{ font-size: 28px; }}
+    </style>
+</head>
+<body>
+    <section class="api">
+        <div class="header">
+            <div>
+                <h1 style="font-size:42px;">API Analytics</h1>
+                <p class="meta">Requests per minute, latency, and quota usage</p>
+            </div>
+            <button style="padding:12px 30px; border-radius:12px; border:1px solid #dbeafe; background:white;">Export</button>
+        </div>
+        <div class="charts">
+            <div class="panel">
+                <h3>Requests per minute</h3>
+                <div class="area"></div>
+            </div>
+            <div class="panel">
+                <h3>Error breakdown</h3>
+                <ul style="list-style:none; display:flex; flex-direction:column; gap:12px;">
+                    <li>429 rate limited · 1.2%</li>
+                    <li>401 auth failed · 0.7%</li>
+                    <li>500 internal · 0.3%</li>
+                </ul>
+            </div>
+        </div>
+        <div class="latency">
+            <div class="latency-row">
+                <div>Endpoint</div>
+                <div>P50</div>
+                <div>P95</div>
+                <div>P99</div>
+            </div>
+            <div class="latency-row">
+                <div>/v1/payments</div>
+                <div>134 ms</div>
+                <div>294 ms</div>
+                <div>421 ms</div>
+            </div>
+            <div class="latency-row">
+                <div>/v1/customers</div>
+                <div>98 ms</div>
+                <div>164 ms</div>
+                <div>294 ms</div>
+            </div>
+            <div class="latency-row">
+                <div>/v1/subscriptions</div>
+                <div>212 ms</div>
+                <div>388 ms</div>
+                <div>510 ms</div>
+            </div>
+        </div>
+        <div class="breakdown" style="margin-top:24px;">
+            <div class="breakdown-card"><label>QUOTA USED</label><strong>63%</strong></div>
+            <div class="breakdown-card"><label>UNIQUE TOKENS</label><strong>1,284</strong></div>
+            <div class="breakdown-card"><label>SDK SPLIT</label><strong>58% JS</strong></div>
+        </div>
+    </section>
+</body>
+</html>"""
     
-    # ===== E-commerce (5가지 구조) =====
+    # ===== E-commerce (다양한 구조) =====
     def generate_ecommerce(self, colors: dict) -> str:
         """E-commerce 디자인 생성"""
-        layouts = [
-            self._ecommerce_product_grid,
-            self._ecommerce_product_detail,
-            self._ecommerce_cart,
-            self._ecommerce_checkout,
-            self._ecommerce_category,
-            self._ecommerce_wishlist,
-            self._ecommerce_order_tracking,
-            self._ecommerce_search_results,
-            self._ecommerce_customer_reviews,
+        layout_names = [
+            '_ecommerce_product_grid',
+            '_ecommerce_product_detail',
+            '_ecommerce_cart',
+            '_ecommerce_checkout',
+            '_ecommerce_category',
+            '_ecommerce_wishlist',
+            '_ecommerce_order_tracking',
+            '_ecommerce_search_results',
+            '_ecommerce_customer_reviews',
+            '_ecommerce_product_comparison',
+            '_ecommerce_flash_sale',
+            '_ecommerce_brand_story',
+            '_ecommerce_loyalty_program',
+            '_ecommerce_customer_account',
         ]
+        layouts = self._get_layout_methods(layout_names, "E-commerce")
         chosen_method = random.choice(layouts)
         self.current_method_name = chosen_method.__name__
         return chosen_method(colors)
@@ -5264,21 +6149,415 @@ tbody td:first-child {{text-align:left;font-weight:600;}}
 </body>
 </html>"""
     
-    # ===== Portfolio (5가지 구조) =====
+    def _ecommerce_product_comparison(self, colors: dict) -> str:
+        return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Comparison</title>
+    <style>
+        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+        body {{ font-family: 'Inter', sans-serif; background: #f8fafc; padding: 60px 40px; }}
+        .container {{ max-width: 1200px; margin: 0 auto; }}
+        .comparison-header {{ text-align: center; margin-bottom: 40px; }}
+        .comparison-header h1 {{ font-size: 48px; font-weight: 900; margin-bottom: 16px; }}
+        .comparison-description {{ color: #64748b; font-size: 18px; }}
+        table {{ width: 100%; border-collapse: collapse; background: white; border-radius: 20px; overflow: hidden; }}
+        thead {{ background: {colors['primary']}; color: white; }}
+        th {{ padding: 24px; font-size: 18px; font-weight: 700; text-align: left; }}
+        td {{ padding: 20px 24px; border-bottom: 1px solid #e2e8f0; font-size: 16px; }}
+        tr:last-child td {{ border-bottom: none; }}
+        .feature-label {{ font-weight: 700; color: #475569; }}
+        .price {{ font-size: 28px; font-weight: 900; color: {colors['secondary']}; }}
+        .badge {{ display: inline-block; padding: 6px 16px; border-radius: 20px; background: rgba(15,118,110,0.15); color: #0f766e; font-weight: 700; font-size: 13px; }}
+        .cta {{ padding: 14px 24px; border-radius: 12px; border: none; cursor: pointer; font-weight: 700; }}
+        .cta.primary {{ background: {colors['primary']}; color: white; }}
+        .cta.secondary {{ background: transparent; color: {colors['primary']}; border: 2px solid {colors['primary']}; }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="comparison-header">
+            <div class="badge">New Collection</div>
+            <h1>Compare Smart Speaker Bundles</h1>
+            <p class="comparison-description">Pick the setup that matches your space, sound preferences, and budget.</p>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Features</th>
+                    <th>Starter Duo</th>
+                    <th>Studio Set</th>
+                    <th>Immersive Pro</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="feature-label">Included Devices</td>
+                    <td>Soundbar + Mini Sub</td>
+                    <td>Soundbar + Sub + Rear</td>
+                    <td>Soundbar + Dual Subs + 4 Rear</td>
+                </tr>
+                <tr>
+                    <td class="feature-label">Spatial Audio</td>
+                    <td>Standard Dolby</td>
+                    <td>Dolby Atmos</td>
+                    <td>Atmos + Beamforming</td>
+                </tr>
+                <tr>
+                    <td class="feature-label">Voice Assistants</td>
+                    <td>Alexa</td>
+                    <td>Alexa · Google</td>
+                    <td>Alexa · Google · Siri</td>
+                </tr>
+                <tr>
+                    <td class="feature-label">Multi-room Sync</td>
+                    <td>2 Rooms</td>
+                    <td>4 Rooms</td>
+                    <td>6 Rooms</td>
+                </tr>
+                <tr>
+                    <td class="feature-label">Price</td>
+                    <td class="price">$699</td>
+                    <td class="price">$1,199</td>
+                    <td class="price">$1,899</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><button class="cta secondary">View Details</button></td>
+                    <td><button class="cta primary">Add to Cart</button></td>
+                    <td><button class="cta secondary">Schedule Demo</button></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>"""
+
+    def _ecommerce_flash_sale(self, colors: dict) -> str:
+        return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flash Sale</title>
+    <style>
+        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+        body {{ font-family: 'Inter', sans-serif; background: radial-gradient(circle at top, #111827, #030712); color: white; min-height: 100vh; padding: 80px 40px; }}
+        .container {{ max-width: 1400px; margin: 0 auto; }}
+        .hero {{ text-align: center; margin-bottom: 60px; }}
+        .hero h1 {{ font-size: 68px; font-weight: 900; letter-spacing: 4px; }}
+        .hero span {{ display: inline-block; padding: 10px 20px; border-radius: 999px; background: rgba(255,255,255,0.1); margin-bottom: 20px; font-weight: 700; }}
+        .countdown {{ display: inline-flex; gap: 16px; margin-top: 24px; }}
+        .countdown div {{ padding: 16px 28px; background: rgba(0,0,0,0.4); border-radius: 16px; font-size: 32px; font-weight: 900; }}
+        .product-grid {{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }}
+        .product-card {{ background: rgba(255,255,255,0.08); border-radius: 24px; padding: 28px; display: flex; flex-direction: column; gap: 16px; border: 1px solid rgba(255,255,255,0.15); }}
+        .product-image {{ height: 180px; border-radius: 20px; background: linear-gradient(135deg, {colors['primary']}, {colors['secondary']}); }}
+        .discount {{ color: #fbbf24; font-weight: 800; font-size: 32px; }}
+        .cta {{ padding: 16px 0; text-align: center; border-radius: 16px; background: {colors['secondary']}; color: #030712; font-weight: 800; cursor: pointer; }}
+        .stock {{ font-size: 14px; text-transform: uppercase; letter-spacing: 2px; color: rgba(255,255,255,0.6); }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="hero">
+            <span>48H CYBER DEAL</span>
+            <h1>Midnight Flash Sale</h1>
+            <div class="countdown">
+                <div>18h</div>
+                <div>42m</div>
+                <div>08s</div>
+            </div>
+        </div>
+        <div class="product-grid">
+            <div class="product-card">
+                <div class="product-image"></div>
+                <div class="discount">-45%</div>
+                <h3>Noise Canceling Headphones</h3>
+                <p class="stock">34 units left</p>
+                <div class="cta">Grab Deal</div>
+            </div>
+            <div class="product-card">
+                <div class="product-image"></div>
+                <div class="discount">-60%</div>
+                <h3>Smart Home Bundle</h3>
+                <p class="stock">Only 12 left</p>
+                <div class="cta">Grab Deal</div>
+            </div>
+            <div class="product-card">
+                <div class="product-image"></div>
+                <div class="discount">-35%</div>
+                <h3>Portable Projector</h3>
+                <p class="stock">51 units left</p>
+                <div class="cta">Grab Deal</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>"""
+
+    def _ecommerce_brand_story(self, colors: dict) -> str:
+        return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Story</title>
+    <style>
+        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+        body {{ font-family: 'Inter', sans-serif; background: #fffdf5; color: #1f2933; padding: 80px 40px; }}
+        .container {{ max-width: 1200px; margin: 0 auto; }}
+        .hero {{ text-align: center; margin-bottom: 60px; }}
+        .hero h1 {{ font-size: 58px; font-weight: 900; margin-bottom: 20px; }}
+        .hero p {{ font-size: 20px; color: #6b7280; }}
+        .story-grid {{ display: grid; grid-template-columns: repeat(2, 1fr); gap: 40px; }}
+        .story-card {{ background: white; border-radius: 32px; padding: 40px; box-shadow: 0 20px 80px rgba(0,0,0,0.05); }}
+        .story-card h3 {{ font-size: 24px; margin-bottom: 16px; color: {colors['primary']}; }}
+        .timeline {{ margin-top: 40px; border-left: 3px solid rgba(0,0,0,0.1); padding-left: 40px; }}
+        .timeline-item {{ position: relative; margin-bottom: 40px; }}
+        .timeline-item::before {{ content: ''; position: absolute; left: -52px; top: 6px; width: 20px; height: 20px; border-radius: 50%; background: {colors['secondary']}; box-shadow: 0 0 0 8px rgba(250,204,21,0.25); }}
+        .values {{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 50px; }}
+        .value-card {{ padding: 24px; border-radius: 20px; background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.05); }}
+        .value-card h4 {{ margin-bottom: 10px; font-size: 18px; color: {colors['primary']}; }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="hero">
+            <h1>Crafted for Slow Living</h1>
+            <p>From a small studio in Copenhagen to homes across 40+ countries, our ceramics celebrate ritual and intentional spaces.</p>
+        </div>
+        <div class="story-grid">
+            <div class="story-card">
+                <h3>Designed by Artists</h3>
+                <p>Each vessel begins as a graphite sketch and evolves through dozens of glaze experiments. We source clay from regenerative farms inside the EU.</p>
+            </div>
+            <div class="story-card">
+                <h3>Fired With Purpose</h3>
+                <p>Our kilns run on 100% renewable energy and every batch is tracked for color harmony, texture, and tactility.</p>
+            </div>
+        </div>
+        <div class="timeline">
+            <div class="timeline-item">
+                <h3>2016 · Atelier Opens</h3>
+                <p>We started with limited runs of 200 pieces, each numbered by hand.</p>
+            </div>
+            <div class="timeline-item">
+                <h3>2019 · Hotel Collaborations</h3>
+                <p>Custom teaware collections for boutique stays across Europe.</p>
+            </div>
+            <div class="timeline-item">
+                <h3>2023 · Circular Studio</h3>
+                <p>Launched our re-glaze program that keeps imperfect vessels in circulation.</p>
+            </div>
+        </div>
+        <div class="values">
+            <div class="value-card">
+                <h4>Small Batch</h4>
+                <p>Limited releases every quarter to avoid overproduction.</p>
+            </div>
+            <div class="value-card">
+                <h4>Natural Pigments</h4>
+                <p>Mineral-rich glazes mixed in-house for soft earth tones.</p>
+            </div>
+            <div class="value-card">
+                <h4>Lifetime Care</h4>
+                <p>Repair kits and glaze refills shipped with every order.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>"""
+
+    def _ecommerce_loyalty_program(self, colors: dict) -> str:
+        return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loyalty Program</title>
+    <style>
+        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+        body {{ font-family: 'Space Grotesk', sans-serif; background: #050e1f; color: white; padding: 80px 40px; }}
+        .container {{ max-width: 1200px; margin: 0 auto; }}
+        .header {{ text-align: center; margin-bottom: 60px; }}
+        .header h1 {{ font-size: 56px; font-weight: 900; }}
+        .tiers {{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }}
+        .tier-card {{ padding: 32px; border-radius: 28px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.03); position: relative; overflow: hidden; }}
+        .tier-name {{ font-size: 24px; font-weight: 700; margin-bottom: 16px; }}
+        .tier-points {{ font-size: 48px; font-weight: 900; color: {colors['secondary']}; }}
+        .benefits {{ margin-top: 24px; display: flex; flex-direction: column; gap: 12px; color: rgba(255,255,255,0.8); }}
+        .progress {{ margin: 60px auto 0; width: 70%; height: 18px; border-radius: 999px; background: rgba(255,255,255,0.1); overflow: hidden; }}
+        .progress-bar {{ height: 100%; width: 62%; background: linear-gradient(90deg, {colors['primary']}, {colors['secondary']}); border-radius: inherit; }}
+        .cta {{ margin-top: 40px; text-align: center; }}
+        .cta button {{ padding: 18px 32px; border: none; border-radius: 16px; background: {colors['secondary']}; color: #050e1f; font-weight: 800; cursor: pointer; }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <p style="letter-spacing: 4px; font-size: 14px; color: rgba(255,255,255,0.6);">ARC STUDIO REWARDS</p>
+            <h1>Collect Miles. Unlock Experiences.</h1>
+            <p style="color: rgba(255,255,255,0.7); margin-top: 12px;">Get early drops, concierge tailoring, and atelier access as you climb tiers.</p>
+        </div>
+        <div class="tiers">
+            <div class="tier-card">
+                <div class="tier-name">Quartz</div>
+                <div class="tier-points">0 - 999 pts</div>
+                <div class="benefits">
+                    <span>✓ Free carbon-neutral shipping</span>
+                    <span>✓ 90-day fit guarantee</span>
+                </div>
+            </div>
+            <div class="tier-card">
+                <div class="tier-name">Obsidian</div>
+                <div class="tier-points">1,000 - 4,999 pts</div>
+                <div class="benefits">
+                    <span>✓ Tailoring credit each season</span>
+                    <span>✓ Atelier preview appointments</span>
+                    <span>✓ Private drop invitations</span>
+                </div>
+            </div>
+            <div class="tier-card">
+                <div class="tier-name">Aurora</div>
+                <div class="tier-points">5,000+ pts</div>
+                <div class="benefits">
+                    <span>✓ Annual bespoke capsule</span>
+                    <span>✓ Dedicated stylist hotline</span>
+                    <span>✓ City-to-atelier travel credit</span>
+                </div>
+            </div>
+        </div>
+        <div class="progress">
+            <div class="progress-bar"></div>
+        </div>
+        <div class="cta">
+            <button>Activate Membership</button>
+        </div>
+    </div>
+</body>
+</html>"""
+
+    def _ecommerce_customer_account(self, colors: dict) -> str:
+        return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Dashboard</title>
+    <style>
+        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+        body {{ font-family: 'Inter', sans-serif; background: #f4f6fb; padding: 60px; }}
+        .dashboard {{ max-width: 1400px; margin: 0 auto; }}
+        .header {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }}
+        .header h1 {{ font-size: 40px; font-weight: 900; }}
+        .button {{ padding: 14px 24px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; }}
+        .button.primary {{ background: {colors['primary']}; color: white; }}
+        .grid {{ display: grid; grid-template-columns: 340px 1fr; gap: 32px; }}
+        .card {{ background: white; border-radius: 24px; padding: 28px; box-shadow: 0 20px 50px rgba(15,23,42,0.08); }}
+        .profile {{ text-align: center; }}
+        .avatar {{ width: 120px; height: 120px; border-radius: 50%; margin: 0 auto 16px; background: linear-gradient(135deg, {colors['primary']}, {colors['secondary']}); }}
+        .stats {{ display: flex; justify-content: space-between; margin-top: 24px; }}
+        .orders {{ display: grid; gap: 16px; }}
+        .order-item {{ padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }}
+        .order-id {{ font-weight: 700; }}
+        .status {{ padding: 6px 14px; border-radius: 999px; font-size: 12px; font-weight: 700; }}
+        .status.shipped {{ background: #dcfce7; color: #166534; }}
+        .status.processing {{ background: #fef3c7; color: #a16207; }}
+        .quick-actions {{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 24px; }}
+        .quick-actions button {{ padding: 16px; border-radius: 16px; background: rgba(15,23,42,0.05); border: none; font-weight: 700; cursor: pointer; }}
+        .payment-card {{ margin-top: 24px; }}
+        .card-number {{ font-size: 24px; letter-spacing: 4px; font-weight: 700; }}
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="header">
+            <div>
+                <p style="text-transform: uppercase; font-size: 13px; letter-spacing: 2px; color: #94a3b8;">Welcome back</p>
+                <h1>Hey, Marisol 👋</h1>
+            </div>
+            <button class="button primary">Start Return</button>
+        </div>
+        <div class="grid">
+            <div class="card profile">
+                <div class="avatar"></div>
+                <h2 style="font-size: 26px;">Marisol Chen</h2>
+                <p style="color: #94a3b8;">Member since 2020</p>
+                <div class="stats">
+                    <div>
+                        <div style="font-size: 32px; font-weight: 900;">128</div>
+                        <p style="color: #94a3b8;">Orders</p>
+                    </div>
+                    <div>
+                        <div style="font-size: 32px; font-weight: 900;">$12.4K</div>
+                        <p style="color: #94a3b8;">Lifetime spend</p>
+                    </div>
+                </div>
+                <div class="quick-actions">
+                    <button>Manage Addresses</button>
+                    <button>Update Payment</button>
+                    <button>Download Invoices</button>
+                </div>
+            </div>
+            <div class="card">
+                <h3 style="font-size: 22px; margin-bottom: 20px;">Recent Orders</h3>
+                <div class="orders">
+                    <div class="order-item">
+                        <div>
+                            <div class="order-id">#ORD-9284</div>
+                            <p style="color: #94a3b8;">Delivered · June 18</p>
+                        </div>
+                        <span class="status shipped">Shipped</span>
+                    </div>
+                    <div class="order-item">
+                        <div>
+                            <div class="order-id">#ORD-9275</div>
+                            <p style="color: #94a3b8;">Preparing · June 12</p>
+                        </div>
+                        <span class="status processing">Processing</span>
+                    </div>
+                    <div class="order-item">
+                        <div>
+                            <div class="order-id">#ORD-9241</div>
+                            <p style="color: #94a3b8;">Delivered · May 28</p>
+                        </div>
+                        <span class="status shipped">Shipped</span>
+                    </div>
+                </div>
+                <div class="payment-card card" style="margin-top: 24px; background: linear-gradient(135deg, {colors['primary']}, {colors['secondary']}); color: white;">
+                    <p style="letter-spacing: 3px; font-size: 14px; opacity: 0.8;">PRIMARY CARD</p>
+                    <div class="card-number">**** 1428</div>
+                    <p>Expires 08/27</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>"""
+
+    # ===== Portfolio (다양한 구조) =====
     def generate_portfolio(self, colors: dict) -> str:
         """Portfolio 디자인 생성"""
-        layouts = [
-            self._portfolio_masonry,
-            self._portfolio_minimal,
-            self._portfolio_grid,
-            self._portfolio_case_study,
-            self._portfolio_timeline,
-            self._portfolio_photography,
-            self._portfolio_developer,
-            self._portfolio_designer_resume,
-            self._portfolio_video_creator,
-            self._portfolio_freelancer,
+        layout_names = [
+            '_portfolio_masonry',
+            '_portfolio_minimal',
+            '_portfolio_grid',
+            '_portfolio_case_study',
+            '_portfolio_timeline',
+            '_portfolio_photography',
+            '_portfolio_developer',
+            '_portfolio_designer_resume',
+            '_portfolio_video_creator',
+            '_portfolio_freelancer',
+            '_portfolio_architect',
+            '_portfolio_writer',
+            '_portfolio_musician',
+            '_portfolio_product_manager',
+            '_portfolio_content_creator',
         ]
+        layouts = self._get_layout_methods(layout_names, "Portfolio")
         chosen_method = random.choice(layouts)
         self.current_method_name = chosen_method.__name__
         return chosen_method(colors)
@@ -6213,21 +7492,22 @@ tbody td:first-child {{text-align:left;font-weight:600;}}
 </body>
 </html>"""
     
-    # ===== Blog (5가지 구조) =====
+    # ===== Blog (다양한 구조) =====
     def generate_blog(self, colors: dict) -> str:
         """Blog 디자인 생성"""
-        layouts = [
-            self._blog_grid,
-            self._blog_magazine,
-            self._blog_list,
-            self._blog_featured,
-            self._blog_sidebar,
-            self._blog_personal,
-            self._blog_tech_news,
-            self._blog_food_recipe,
-            self._blog_travel,
-            self._blog_minimal_medium,
+        layout_names = [
+            '_blog_grid',
+            '_blog_magazine',
+            '_blog_list',
+            '_blog_featured',
+            '_blog_sidebar',
+            '_blog_personal',
+            '_blog_tech_news',
+            '_blog_food_recipe',
+            '_blog_travel',
+            '_blog_minimal_medium',
         ]
+        layouts = self._get_layout_methods(layout_names, "Blog")
         chosen_method = random.choice(layouts)
         self.current_method_name = chosen_method.__name__
         return chosen_method(colors)
@@ -7176,21 +8456,22 @@ tbody td:first-child {{text-align:left;font-weight:600;}}
 </body>
 </html>"""
     
-    # ===== Components (5가지 구조) =====
+    # ===== Components (다양한 구조) =====
     def generate_components(self, colors: dict) -> str:
         """Components 디자인 생성"""
-        layouts = [
-            self._components_showcase,
-            self._components_library,
-            self._components_design_system,
-            self._components_pattern_library,
-            self._components_interactive_demo,
-            self._components_form_elements,
-            self._components_navigation_menus,
-            self._components_card_layouts,
-            self._components_modal_dialogs,
-            self._components_pricing_tables,
+        layout_names = [
+            '_components_showcase',
+            '_components_library',
+            '_components_design_system',
+            '_components_pattern_library',
+            '_components_interactive_demo',
+            '_components_form_elements',
+            '_components_navigation_menus',
+            '_components_card_layouts',
+            '_components_modal_dialogs',
+            '_components_pricing_tables',
         ]
+        layouts = self._get_layout_methods(layout_names, "Components")
         chosen_method = random.choice(layouts)
         self.current_method_name = chosen_method.__name__
         return chosen_method(colors)
@@ -8469,8 +9750,9 @@ tbody td:first-child {{text-align:left;font-weight:600;}}
         else:
             raise Exception("Failed to generate unique structure")
         
-        # 디자인 이름 가져오기
-        design_name = self.get_design_name(self.current_method_name)
+        # 디자인 이름 가져오기 (고유 타이틀 구성)
+        base_name = self.get_design_name(self.current_method_name)
+        design_name = self.build_unique_title(base_name, category)
         
         # 스크린샷
         screenshot = await self.capture_screenshot(html_code)

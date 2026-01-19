@@ -23,6 +23,7 @@ export default function DesignModal({ design, onClose }: DesignModalProps) {
   const [selectedTheme, setSelectedTheme] = useState(0);
   const [previewCode, setPreviewCode] = useState(design.code);
   const [isLoadingPreview, setIsLoadingPreview] = useState(false);
+  const [previewMode, setPreviewMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -70,6 +71,10 @@ export default function DesignModal({ design, onClose }: DesignModalProps) {
     // 프리뷰 로딩 완료
     setTimeout(() => setIsLoadingPreview(false), 300);
   }, [selectedTheme, design.code]);
+
+  useEffect(() => {
+    setPreviewMode('desktop');
+  }, [design.id]);
 
   const handleCopyCode = async () => {
     const codeToCopy = previewCode || design.code;
@@ -125,22 +130,57 @@ export default function DesignModal({ design, onClose }: DesignModalProps) {
         </button>
 
         {/* Image - Live Preview with iframe */}
-        <div className="relative w-full h-[500px] bg-gray-100 overflow-hidden">
-          {isLoadingPreview && (
-            <div className="absolute inset-0 bg-white bg-opacity-80 flex items-center justify-center z-10">
-              <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
-                <p className="text-sm text-gray-600">Updating preview...</p>
-              </div>
+        <div className="w-full bg-gray-50 px-4 py-6 border-b border-gray-100">
+          <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.3em] text-gray-500">
+            <span className="text-[10px] text-gray-400">Responsive Preview</span>
+            <div className="flex items-center gap-2 rounded-full border border-gray-200 bg-white p-1">
+              {[
+                { label: 'Desktop', value: 'desktop', icon: 'desktop' },
+                { label: 'Tablet', value: 'tablet', icon: 'tablet' },
+                { label: 'Mobile', value: 'mobile', icon: 'mobile' },
+              ].map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => setPreviewMode(option.value as 'desktop' | 'tablet' | 'mobile')}
+                  className={`flex items-center gap-2 rounded-full px-4 py-2 text-[11px] font-semibold transition-colors ${
+                    previewMode === option.value
+                      ? 'bg-black text-white'
+                      : 'text-gray-500 hover:text-black'
+                  }`}
+                >
+                  <PreviewIcon type={option.icon} active={previewMode === option.value} />
+                  <span className="hidden sm:inline">{option.label}</span>
+                </button>
+              ))}
             </div>
-          )}
-          <iframe
-            srcDoc={previewCode || design.code || ''}
-            className="w-full h-full border-0"
-            style={{ transform: 'scale(0.5)', transformOrigin: 'top left', width: '200%', height: '200%' }}
-            title="Design Preview"
-            sandbox="allow-scripts"
-          />
+            <span className="ml-auto text-[10px] tracking-[0.4em] text-gray-400">
+              {previewMode === 'desktop' ? 'FULL WIDTH' : previewMode === 'tablet' ? '768PX' : '375PX'}
+            </span>
+          </div>
+
+          <div className="mt-8 flex justify-center">
+            <div
+              className="relative overflow-hidden rounded-[32px] border border-gray-200 bg-white shadow-[0_20px_60px_rgba(0,0,0,0.12)]"
+              style={{ width: previewMode === 'desktop' ? '100%' : previewMode === 'tablet' ? '768px' : '375px' }}
+            >
+              {isLoadingPreview && (
+                <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-10">
+                  <div className="text-center">
+                    <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-black mx-auto mb-3"></div>
+                    <p className="text-xs uppercase tracking-[0.3em] text-gray-500">Updating</p>
+                  </div>
+                </div>
+              )}
+              <iframe
+                srcDoc={previewCode || design.code || ''}
+                className="w-full border-0"
+                style={{ minHeight: '640px' }}
+                title="Design Preview"
+                sandbox="allow-scripts"
+              />
+            </div>
+          </div>
         </div>
 
         {/* Details */}
@@ -257,5 +297,41 @@ export default function DesignModal({ design, onClose }: DesignModalProps) {
         </div>
       </div>
     </div>
+  );
+}
+
+function PreviewIcon({ type, active }: { type: string; active: boolean }) {
+  const stroke = active ? '#FFFFFF' : '#9CA3AF';
+  const common = {
+    fill: 'none',
+    stroke,
+    strokeWidth: 1.5,
+    strokeLinecap: 'round' as const,
+    strokeLinejoin: 'round' as const,
+  };
+
+  if (type === 'tablet') {
+    return (
+      <svg className="h-4 w-4" viewBox="0 0 24 24" {...common}>
+        <rect x="5" y="3" width="14" height="18" rx="2" />
+        <circle cx="12" cy="18" r="0.5" fill={stroke} />
+      </svg>
+    );
+  }
+
+  if (type === 'mobile') {
+    return (
+      <svg className="h-4 w-4" viewBox="0 0 24 24" {...common}>
+        <rect x="8" y="2" width="8" height="20" rx="2" />
+        <circle cx="12" cy="18" r="0.5" fill={stroke} />
+      </svg>
+    );
+  }
+
+  return (
+    <svg className="h-4 w-4" viewBox="0 0 24 24" {...common}>
+      <rect x="3" y="5" width="18" height="14" rx="2" />
+      <path d="M8 20h8" />
+    </svg>
   );
 }

@@ -73,7 +73,6 @@ export default function DesignGallery({ initialDesigns, initialCategory }: Desig
           </div>
         ))}
       </div>
-
       {designs.length === 0 && (
         <div className="text-center py-20">
           <p className="text-gray-400 text-lg font-light tracking-wide">No designs uploaded yet.</p>
