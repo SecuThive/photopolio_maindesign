@@ -33,6 +33,12 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  // 🧪 디버깅: API 호출 시 환경 변수 다시 확인
+  console.log('📊 [Metrics API Debug]');
+  console.log('NEXT_PUBLIC_SUPABASE_URL:', process.env.NEXT_PUBLIC_SUPABASE_URL ? 'EXISTS' : 'MISSING');
+  console.log('SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'EXISTS' : 'MISSING');
+  console.log('Key length:', process.env.SUPABASE_SERVICE_ROLE_KEY?.length || 0);
+
   const isMissingPageViews = (error: { code?: string } | null | undefined) =>
     error?.code === TABLE_MISSING_CODE;
 
@@ -124,7 +130,18 @@ export async function GET(request: NextRequest) {
       dailyViews,
     });
   } catch (error) {
-    console.error('Failed to load metrics', error);
-    return NextResponse.json({ error: 'Server error' }, { status: 500 });
+    // 🧪 디버깅: 에러 상세 정보 출력
+    console.error('❌ [Metrics API Error]');
+    console.error('Error type:', error?.constructor?.name);
+    console.error('Error message:', error instanceof Error ? error.message : 'Unknown error');
+    console.error('Error details:', JSON.stringify(error, null, 2));
+    
+    return NextResponse.json({ 
+      error: 'Server error',
+      debug: process.env.NODE_ENV === 'development' ? {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        type: error?.constructor?.name
+      } : undefined
+    }, { status: 500 });
   }
 }
