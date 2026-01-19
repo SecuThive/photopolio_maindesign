@@ -102,15 +102,39 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* Preconnect to Google Fonts - 성능 향상 */}
+        {/* DNS Prefetch & Preconnect - 최우선 최적화 */}
+        <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+        <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         
-        {/* Google Fonts with display=swap - CLS 방지 */}
+        {/* Preload Critical Fonts - LCP 개선 (h1용 Inter 600) */}
         <link 
-          href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" 
+          rel="preload" 
+          href="https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiA.woff2" 
+          as="font" 
+          type="font/woff2" 
+          crossOrigin="anonymous"
+        />
+        
+        {/* Google Fonts with display=optional - 더 적극적인 폴백 */}
+        <link 
+          href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=optional" 
           rel="stylesheet"
         />
+        
+        {/* Critical CSS - 첫 화면 렌더링 최적화 */}
+        <style dangerouslySetInnerHTML={{ __html: `
+          body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+          .min-h-screen{min-height:100vh}
+          .bg-luxury-white{background-color:#fafafa}
+          .text-4xl{font-size:2.25rem;line-height:2.5rem}
+          .md\\:text-5xl{font-size:3rem;line-height:1}
+          .font-semibold{font-weight:600}
+          .text-gray-900{color:rgb(17 24 39)}
+          .tracking-tight{letter-spacing:-0.025em}
+          @media(min-width:768px){.md\\:text-5xl{font-size:3rem;line-height:1}}
+        ` }} />
         
         {/* AdSense - async로 차단 방지 */}
         <script 

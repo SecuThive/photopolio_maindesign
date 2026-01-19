@@ -13,6 +13,12 @@ const legacyBlogRedirects = [
 ];
 
 const nextConfig = {
+  compiler: {
+    // 최신 브라우저 타겟팅 - 레거시 폴리필 제거
+    reactRemoveProperties: process.env.NODE_ENV === 'production',
+  },
+  // 최신 브라우저만 지원 (ES2020+)
+  swcMinify: true,
   images: {
     remotePatterns: [
       {
