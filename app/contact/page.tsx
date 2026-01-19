@@ -21,13 +21,13 @@ export default function ContactPage() {
       <SimpleHeader />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <h1 className="text-4xl font-bold text-gray-900 mb-8">Contact Us</h1>
+        <h1 className="text-4xl font-bold text-gray-900 mb-8">Contact Base Syntax</h1>
         
         <div className="prose prose-lg text-gray-700 space-y-6">
           <section>
             <p className="text-lg">
-              We&rsquo;d love to hear from you! Whether you have a question, feedback, or just want to say hello, 
-              feel free to reach out.
+              We partner with U.S.-based SaaS teams, developer tool startups, and agencies. If you have a
+              product question, feedback on the gallery, or ideas for new templates, we would love to hear from you.
             </p>
           </section>
 
@@ -45,10 +45,10 @@ export default function ContactPage() {
               </div>
 
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Business Hours</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Business Hours (Pacific Time)</h3>
                 <p className="text-gray-700">
-                  Monday - Friday: 9:00 AM - 6:00 PM (KST)<br />
-                  Saturday - Sunday: Closed
+                  Monday - Friday: 9:00 AM - 6:00 PM PT<br />
+                  Saturday - Sunday: Offline
                 </p>
               </div>
 
@@ -64,16 +64,16 @@ export default function ContactPage() {
           <section className="mt-12">
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">Feedback & Suggestions</h2>
             <p>
-              Your feedback helps us improve! If you have any suggestions for new features, 
-              design categories, or improvements to our gallery, we&rsquo;d love to hear them.
+              Your feedback shapes our roadmap. Share feature ideas, new U.S. market segments, or workflow
+              improvements and we&rsquo;ll prioritize them in upcoming drops.
             </p>
           </section>
 
           <section className="mt-12">
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">For Designers</h2>
             <p>
-              Interested in contributing your AI-generated designs to our gallery? 
-              Please reach out to us via email with your portfolio and we&rsquo;ll get back to you.
+              Interested in contributing your AI-generated designs or partnering on a case study? Send us a short
+              introduction with links to your portfolio and we&rsquo;ll follow up with the next steps.
             </p>
           </section>
 

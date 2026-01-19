@@ -3,19 +3,34 @@ import { GoogleAnalytics } from '@next/third-parties/google';
 import CommandPalette from '@/components/CommandPalette';
 import "./globals.css";
 
+const siteUrl = 'https://www.ui-syntax.com';
+const siteDescription = 'Base Syntax is a U.S.-based AI web design gallery for SaaS founders, product designers, and front-end engineers who need production-ready inspiration.';
+
 export const metadata: Metadata = {
-  metadataBase: new URL('https://www.ui-syntax.com'),
+  metadataBase: new URL(siteUrl),
+  applicationName: 'Base Syntax',
+  category: 'technology',
   title: {
-    default: "Base Syntax - AI Design Gallery",
-    template: "%s | Base Syntax"
+    default: 'Base Syntax - AI Web Design Inspiration for U.S. Product Teams',
+    template: '%s | Base Syntax',
   },
-  description: "Discover stunning AI-generated web designs. Browse our curated gallery of landing pages, dashboards, e-commerce sites, portfolios, and more. Get inspired for your next project.",
-  keywords: ["AI design", "web design", "UI design", "UX design", "design gallery", "landing page", "dashboard design", "e-commerce design", "portfolio design", "AI generated", "design inspiration"],
-  authors: [{ name: "Base Syntax" }],
-  creator: "Base Syntax",
-  publisher: "Base Syntax",
+  description: siteDescription,
+  keywords: [
+    'US web design inspiration',
+    'AI design gallery',
+    'SaaS landing page examples',
+    'developer tools marketing site',
+    'dashboard UI inspiration',
+    'product design gallery',
+  ],
+  authors: [{ name: 'Base Syntax' }],
+  creator: 'Base Syntax',
+  publisher: 'Base Syntax',
   alternates: {
-    canonical: 'https://www.ui-syntax.com',
+    canonical: siteUrl,
+    languages: {
+      'en-US': siteUrl,
+    },
   },
   robots: {
     index: true,
@@ -30,19 +45,24 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: 'website',
-    locale: 'ko_KR',
-    url: 'https://www.ui-syntax.com',
-    title: "Base Syntax - AI Design Gallery",
-    description: "Discover stunning AI-generated web designs. Browse our curated gallery of landing pages, dashboards, e-commerce sites, portfolios, and more.",
+    locale: 'en_US',
+    url: siteUrl,
+    title: 'Base Syntax - AI Web Design Inspiration for U.S. Product Teams',
+    description: siteDescription,
     siteName: 'Base Syntax',
+    images: [
+      {
+        url: `${siteUrl}/opengraph-image.png`,
+        width: 1200,
+        height: 630,
+        alt: 'Base Syntax - AI Web Design Inspiration',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: "Base Syntax - AI Design Gallery",
-    description: "Discover stunning AI-generated web designs. Browse our curated gallery of landing pages, dashboards, e-commerce sites, portfolios, and more.",
-  },
-  verification: {
-    google: 'your-google-verification-code',
+    title: 'Base Syntax - AI Web Design Inspiration for U.S. Product Teams',
+    description: siteDescription,
   },
 };
 
@@ -51,8 +71,34 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'Base Syntax',
+    url: siteUrl,
+    description: siteDescription,
+    inLanguage: 'en-US',
+    publisher: {
+      '@type': 'Organization',
+      name: 'Base Syntax',
+      logo: {
+        '@type': 'ImageObject',
+        url: `${siteUrl}/opengraph-image.png`,
+      },
+    },
+    audience: {
+      '@type': 'Audience',
+      audienceType: 'Product designers and software engineers in the United States',
+    },
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: `${siteUrl}/?category={category}`,
+      'query-input': 'required name=category',
+    },
+  };
+
   return (
-    <html lang="ko">
+    <html lang="en">
       <head>
         <script 
           async 
@@ -64,6 +110,10 @@ export default function RootLayout({
           type="application/rss+xml" 
           title="Base Syntax RSS Feed" 
           href="https://www.ui-syntax.com/feed.xml" 
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
         />
       </head>
       <body>

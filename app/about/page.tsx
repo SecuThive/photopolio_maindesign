@@ -4,13 +4,13 @@ import SimpleHeader from '@/components/SimpleHeader';
 
 export const metadata: Metadata = {
   title: "About Us",
-  description: "Learn about Base Syntax, a curated gallery of AI-generated web designs featuring landing pages, dashboards, e-commerce platforms, and portfolios. Discover our mission and technology.",
+  description: "Learn how Base Syntax curates U.S.-ready AI web designs for SaaS, developer tools, and commerce teams with annotated inspiration and launch support.",
   alternates: {
     canonical: 'https://www.ui-syntax.com/about',
   },
   openGraph: {
     title: "About Base Syntax - AI Design Gallery",
-    description: "Learn about Base Syntax, a curated gallery of AI-generated web designs featuring landing pages, dashboards, e-commerce platforms, and portfolios.",
+    description: "See how Base Syntax curates annotated AI web designs aligned to U.S. SaaS, fintech, and commerce standards.",
     url: 'https://www.ui-syntax.com/about',
   },
 };
@@ -22,7 +22,7 @@ export default function AboutPage() {
     name: 'Base Syntax',
     url: 'https://www.ui-syntax.com',
     logo: 'https://www.ui-syntax.com/logo.png',
-    description: 'AI-generated web design gallery showcasing creative and innovative designs',
+    description: 'U.S.-ready AI web design gallery curated for SaaS, fintech, and commerce teams',
     email: 'thive8564@gmail.com',
     sameAs: [],
   };
@@ -41,17 +41,17 @@ export default function AboutPage() {
         <div className="prose prose-lg text-gray-700 space-y-6">
           <section>
             <p className="text-xl leading-relaxed">
-              Welcome to <strong>Base Syntax</strong> - a curated gallery of AI-generated web designs 
-              that pushes the boundaries of digital creativity.
+              Welcome to <strong>Base Syntax</strong>, a U.S.-based gallery of AI-generated web designs built for
+              SaaS founders, developer tools, and agencies shipping products for the American market.
             </p>
           </section>
 
           <section className="mt-12">
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">Our Mission</h2>
             <p>
-              We believe in the power of AI to inspire and transform web design. Our gallery showcases 
-              innovative UI/UX designs across various categories including landing pages, dashboards, 
-              e-commerce platforms, portfolios, and more.
+              We believe AI accelerates high-quality shipping when it is curated with intent. Our gallery highlights
+              landing pages, dashboards, commerce flows, and marketing systems that reflect U.S. accessibility and
+              conversion best practices.
             </p>
           </section>
 
@@ -65,10 +65,10 @@ export default function AboutPage() {
                 <strong>Diverse Categories:</strong> From landing pages to dashboards, covering all major design types
               </li>
               <li>
-                <strong>Design Inspiration:</strong> A constantly updated collection to inspire your next project
+                <strong>Design Inspiration:</strong> Weekly drops mapped to enterprise SaaS, developer, and commerce trends
               </li>
               <li>
-                <strong>Free Access:</strong> Browse and explore all designs completely free
+                <strong>Launch Support:</strong> Implementation-ready notes so product and engineering teams move faster
               </li>
             </ul>
           </section>
@@ -76,17 +76,16 @@ export default function AboutPage() {
           <section className="mt-12">
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">The Technology</h2>
             <p>
-              Our designs are generated using state-of-the-art AI models that understand modern 
-              design principles, user experience best practices, and current web design trends. 
-              Each design is carefully curated to ensure quality and innovation.
+              Our concepts originate from state-of-the-art diffusion and language models trained on North American
+              SaaS, fintech, and commerce references. Human curators annotate the layouts so teams understand why each
+              section resonates with U.S. buyers.
             </p>
           </section>
 
           <section className="mt-12">
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">Get in Touch</h2>
             <p>
-              Have questions or feedback? We&rsquo;d love to hear from you! 
-              Reach out to us at{" "}
+              Have questions or feedback? We&rsquo;d love to hear from you. Reach out at{" "}
               <a href="mailto:thive8564@gmail.com" className="text-blue-600 hover:text-blue-800 underline">
                 thive8564@gmail.com
               </a>
@@ -95,7 +94,7 @@ export default function AboutPage() {
 
           <section className="mt-12 pt-8 border-t border-gray-200">
             <p className="text-center text-gray-600 italic">
-              &ldquo;Empowering creativity through AI-driven design innovation&rdquo;
+              &ldquo;Empowering U.S. product teams with AI-driven design systems&rdquo;
             </p>
           </section>
         </div>

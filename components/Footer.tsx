@@ -12,7 +12,7 @@ export default function Footer() {
               BASE SYNTAX
             </h2>
             <p className="text-gray-400 text-sm">
-              AI-generated web design gallery showcasing creative and innovative designs.
+              U.S.-focused AI web design inspiration for SaaS founders, product designers, and front-end engineers.
             </p>
           </div>
 
