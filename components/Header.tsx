@@ -85,18 +85,6 @@ export default function Header({ selectedCategory }: HeaderProps) {
 
           <div className="flex items-center gap-3 lg:hidden">
             <button
-              type="button"
-              onClick={openCommandPalette}
-              className="flex items-center justify-center rounded-full border border-gray-800 p-2 text-white hover:border-gray-600 hover:text-white"
-              aria-label="Open search"
-            >
-              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="11" cy="11" r="7" />
-                <line x1="16.65" y1="16.65" x2="21" y2="21" />
-              </svg>
-            </button>
-
-            <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="text-white p-2 bg-gray-900 hover:bg-gray-800 rounded transition-colors"
               aria-label="Toggle menu"
@@ -110,37 +98,6 @@ export default function Header({ selectedCategory }: HeaderProps) {
               </svg>
             </button>
           </div>
-        </div>
-
-        <div className="lg:hidden border-t border-gray-900 pt-4 space-y-3">
-          <div className="flex flex-wrap gap-2">
-            <Link href="/about" className="flex-1 min-w-[120px] text-center rounded-full border border-gray-800 px-4 py-2 text-xs uppercase tracking-[0.2em] text-gray-300 hover:border-gray-600">
-              About
-            </Link>
-            <Link href="/contact" className="flex-1 min-w-[120px] text-center rounded-full border border-gray-800 px-4 py-2 text-xs uppercase tracking-[0.2em] text-gray-300 hover:border-gray-600">
-              Contact
-            </Link>
-          </div>
-
-          <button
-            type="button"
-            onClick={openCommandPalette}
-            className="flex w-full items-center justify-between rounded-2xl border border-gray-800 px-4 py-3 text-sm text-gray-200 shadow-inner shadow-black/20"
-          >
-            <div className="flex items-center gap-3">
-              <div className="rounded-full bg-white/10 p-2">
-                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="11" cy="11" r="7" />
-                  <line x1="16.65" y1="16.65" x2="21" y2="21" />
-                </svg>
-              </div>
-              <div className="text-left">
-                <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Quick Search</p>
-                <p className="text-sm font-medium text-white">Find designs fast</p>
-              </div>
-            </div>
-            <span className="text-[10px] uppercase tracking-[0.3em] text-gray-500">Tap</span>
-          </button>
         </div>
 
         {/* Desktop Category Filter */}
@@ -195,7 +152,24 @@ export default function Header({ selectedCategory }: HeaderProps) {
         <>
           {/* Dropdown Menu - slide-down animation */}
           <div className="lg:hidden bg-gray-950 border-t border-gray-800 shadow-lg animate-slideDown">
-            <div className="px-4 py-6 max-w-7xl mx-auto">
+            <div className="px-4 py-6 max-w-7xl mx-auto space-y-4">
+              
+              {/* Search Button in Mobile Menu */}
+              <button
+                type="button"
+                onClick={() => {
+                  openCommandPalette();
+                  setMobileMenuOpen(false);
+                }}
+                className="flex w-full items-center gap-3 rounded-lg border border-gray-800 px-4 py-3 text-sm text-gray-200 hover:bg-gray-900 transition-colors"
+              >
+                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="7" />
+                  <line x1="16.65" y1="16.65" x2="21" y2="21" />
+                </svg>
+                <span className="flex-1 text-left font-medium">Search Designs</span>
+                <span className="text-xs text-gray-500">⌘K</span>
+              </button>
 
               <nav className="space-y-1">
                 <Link 
