@@ -1,0 +1,185 @@
+Total designs: 134
+Duplicate structures: 45
+
+[1] Structure hash e4fc436034ef1bb93e6a37a8e55ebc21 (2 variants)
+  - b39937f3-8efe-4cba-83df-c6fe82d2a1b5 | UI Library - Crystal Studio 52278Y | 2026-01-20T01:52:30.998432+00:00
+  - 4fea9f1a-a54d-4428-9953-0b0270e77118 | UI Library | 2026-01-18T15:49:21.073129+00:00
+
+[2] Structure hash 78cbdeeba63b5504b27954b6bf0247d3 (2 variants)
+  - 1b9953fb-9446-4d70-9b69-16cd289663c8 | Card Layouts - Quantum Circuit 5221WR | 2026-01-20T01:52:25.5165+00:00
+  - 37e0e426-070c-42a8-a722-253d34515af4 | Card Layouts | 2026-01-18T17:37:52.371166+00:00
+
+[3] Structure hash f12ffdb21bfe8af731c997c12de4ec61 (2 variants)
+  - 8fbc4080-5e00-4f80-a493-cd5a631a87e8 | Component Showcase - Neon Flow 5216GS | 2026-01-20T01:52:19.292777+00:00
+  - f558f730-bf74-4fd2-961c-7985a91ac21f | Component Showcase | 2026-01-18T17:37:28.753167+00:00
+
+[4] Structure hash 75d8da6e51e8f1b569646855562256cf (3 variants)
+  - 7138d401-a7e7-42d4-a16c-fc25c390f230 | Pattern Library - Pixel Circuit 5211AJ | 2026-01-20T01:52:14.52426+00:00
+  - d57ac048-0716-4fd2-a685-2f5234ce5daf | Pattern Library - Atlas Canvas 4146M2 | 2026-01-19T06:41:48.711984+00:00
+  - ec7fd759-f9d0-41df-8898-b27e6488c30e | Pattern Library | 2026-01-18T17:37:47.559201+00:00
+
+[5] Structure hash 862eeacbf0f528f4a5515a54f58304f8 (2 variants)
+  - eb62411f-11d5-4f0b-bb37-5c0df5d260e2 | Form Elements Library - Crystal Sphere 52067P | 2026-01-20T01:52:09.387309+00:00
+  - b23ba27b-12e8-4144-bbf4-b61e9fdf78a0 | Form Elements Library | 2026-01-18T17:37:37.954304+00:00
+
+[6] Structure hash 8f27346de0a3279090ac7a1da2181854 (2 variants)
+  - 7c1949f4-9ff5-4502-9a82-33677aea84d2 | Pricing Tables - Crystal Sphere 52013Y | 2026-01-20T01:52:04.39308+00:00
+  - 5967951c-83a7-4415-9927-cc392957c8a5 | Pricing Tables | 2026-01-18T17:37:33.513573+00:00
+
+[7] Structure hash 336e380a56e2a61db9c5d2a6863d3fee (2 variants)
+  - adcc7967-d649-437e-987a-84f9a0b1969b | Modal Dialogs - Iris Flow 5156QJ | 2026-01-20T01:51:59.029316+00:00
+  - bfde25b4-5832-412f-b504-99dbc58bf44b | Modal Dialogs | 2026-01-18T17:38:01.4747+00:00
+
+[8] Structure hash e63645c05ba55ce72035c2ad813fa784 (2 variants)
+  - 2df9d868-9521-40de-ba3a-0973311b38a9 | Navigation Menus - Neon Studio 5150YN | 2026-01-20T01:51:54.044959+00:00
+  - 80d6e577-3ed1-4abc-bb3e-506b5122fae5 | Navigation Menus | 2026-01-18T17:37:42.88684+00:00
+
+[9] Structure hash 0c418bdd4158c44422092580e15b3ee0 (2 variants)
+  - 7be4d772-eb93-41dc-93f6-51c7b64a20f0 | Design System - Pixel Flow 514647 | 2026-01-20T01:51:48.654754+00:00
+  - c3dd661c-b0f4-4439-af01-c8c569bec22d | Design System | 2026-01-18T17:37:56.98001+00:00
+
+[10] Structure hash dec65475581b50c21a1871245e902570 (2 variants)
+  - 34b05d50-3f54-4cd4-9c92-8936cc59514d | Interactive Demo - Nova Harbor 514034 | 2026-01-20T01:51:43.918255+00:00
+  - 907c22a2-8492-4a58-92b5-c6694936d044 | Interactive Demo | 2026-01-18T17:38:06.172553+00:00
+
+[11] Structure hash a7188a2d27c2d5fa27bd19e1eed85da7 (2 variants)
+  - 682bbec0-10aa-4712-aa99-313cf7727547 | Featured Article - Aero Studio 5137QZ | 2026-01-20T01:51:40.715475+00:00
+  - 4b9a0674-2d22-4d5d-932e-9c8f3120ea04 | Featured Article | 2026-01-18T17:36:58.736189+00:00
+
+[12] Structure hash b552a8bc4605d35e6e5df9aa0fd91e1c (2 variants)
+  - 86f5823f-4456-4137-8d6a-fbad3c92e779 | Blog List - Velvet Signal 5132NM | 2026-01-20T01:51:35.26929+00:00
+  - 347e4793-5335-4887-aed3-df2234bbcbc6 | Blog List | 2026-01-18T17:37:17.302387+00:00
+
+[13] Structure hash 909972e39d271ea66a0932393e2bb6f4 (2 variants)
+  - d975c397-3798-4968-8058-b6e1c5446cce | Tech News Blog - Nova Canvas 51276B | 2026-01-20T01:51:30.472308+00:00
+  - 009cbd21-2cbc-4bf1-af98-a525640acdb6 | Tech News Blog | 2026-01-18T17:37:12.998061+00:00
+
+[14] Structure hash 0a53c935e361490d4590c59b3baa44c0 (2 variants)
+  - 5a01688d-f82b-452a-9977-439d4c9fe920 | Food & Recipe Blog - Atlas Studio 5121P3 | 2026-01-20T01:51:24.995924+00:00
+  - 028d679e-bbd4-4f38-8100-340b8f1357d8 | Food & Recipe Blog | 2026-01-18T17:37:26.635068+00:00
+
+[15] Structure hash 42b60f4361d0d13f9688f3ddab0fe7c6 (2 variants)
+  - d07612e9-c81f-46f0-8816-68bd638b4150 | Travel Blog - Quantum Beacon 5115NY | 2026-01-20T01:51:19.317364+00:00
+  - 553ed519-cb2e-47d7-a911-062a00bfb74a | Travel Blog | 2026-01-18T17:37:03.879265+00:00
+
+[16] Structure hash 03ad4abee045f22ecf90fd4e7bd5744f (2 variants)
+  - 507958c2-0670-40d8-90a0-34047ba6b4d7 | Blog with Sidebar - Nova Beacon 51105Y | 2026-01-20T01:51:13.56172+00:00
+  - eff2c2dd-0fac-4a3f-baa2-eaa03f0366f3 | Blog with Sidebar | 2026-01-18T17:37:21.581218+00:00
+
+[17] Structure hash 1787c297e592d134385324179c884ae7 (2 variants)
+  - bff67c6d-6df8-4f04-ab60-dd327c73582d | Blog Grid - Quantum Harbor 5105DV | 2026-01-20T01:51:08.639483+00:00
+  - 7960e094-fbbf-47b1-940a-7a50cd37bbd4 | Blog Grid | 2026-01-18T17:37:08.314951+00:00
+
+[18] Structure hash 691ba9eb253894226061ffff956dfd74 (3 variants)
+  - 46bc3467-b4f0-4bae-9e0d-c56a2f9a4dec | Personal Blog - Nova Sphere 50594A | 2026-01-20T01:51:03.483459+00:00
+  - 9ed0f246-a92a-4b0d-a72c-e60f389707f8 | Personal Blog - Neon Circuit 4144FE | 2026-01-19T06:41:46.769836+00:00
+  - 20100d7d-f998-42c8-812c-5a210667325e | Personal Blog | 2026-01-18T17:36:48.9818+00:00
+
+[19] Structure hash 7833c31c82d5a1a5cf2d12369c7bd9d8 (2 variants)
+  - 564bf6ca-ac71-42ab-b2b4-8ec73de40f02 | Magazine Layout - Quantum Studio 5052WC | 2026-01-20T01:50:56.8787+00:00
+  - 5c3536a9-bab6-4424-bf44-d77f593ffda8 | Magazine Layout | 2026-01-18T17:36:53.718798+00:00
+
+[20] Structure hash f40a9c2620e1da71eda851d8fdaab9d4 (2 variants)
+  - a38981bc-e801-4dd1-bf04-fc55540acff9 | Minimal Medium Style - Solar Studio 5045K3 | 2026-01-20T01:50:50.505608+00:00
+  - 1aa0f4bd-2448-48de-ab35-6e70a32f45b3 | Minimal Medium Style | 2026-01-18T17:36:44.397147+00:00
+
+[21] Structure hash e89e529227296dbc512170a35860cae3 (2 variants)
+  - 2f32f0c7-a63f-4a1f-831a-8cbf894fbc3e | Developer Portfolio - Velvet Pulse 5032ZP | 2026-01-20T01:50:35.516454+00:00
+  - 9423c1f0-5ed5-4986-af1e-140b11308933 | Developer Portfolio | 2026-01-18T17:36:33.27065+00:00
+
+[22] Structure hash 6019980daf9fdd5d2f722698581075a3 (3 variants)
+  - d160be4c-c56d-4b3a-9ef3-a62e7826437c | Case Study - Quantum Canvas 5026VT | 2026-01-20T01:50:30.120517+00:00
+  - e9f70f3e-97d6-4fbf-aa57-cc59ee2ccb3d | Case Study - Velvet Orbit 4142GJ | 2026-01-19T06:41:44.790147+00:00
+  - 82d5bf9d-56ba-4f81-9e64-33315c220c36 | Case Study | 2026-01-18T17:35:57.170843+00:00
+
+[23] Structure hash 9b953b3ed739357e5b7f8503e6856e9e (2 variants)
+  - 0ff7e82a-1369-4484-bfe2-735514434d32 | Video Creator Portfolio - Crystal Studio 50216Z | 2026-01-20T01:50:24.758806+00:00
+  - fa29a443-5d06-4e68-b4e5-e7545fc1731c | Video Creator Portfolio | 2026-01-18T17:36:24.190583+00:00
+
+[24] Structure hash 2ef0512976ee9f395d50b93f0520f081 (2 variants)
+  - 4cc2489d-6daf-4a6c-a02e-fb301fa5e3b0 | Masonry Portfolio - Aero Orbit 5015PQ | 2026-01-20T01:50:18.951894+00:00
+  - 77c85832-dbee-404f-98b2-6ba7610bf834 | Masonry Portfolio | 2026-01-18T17:36:03.333052+00:00
+
+[25] Structure hash ae5d99eff37cc3ae5315e6cabedbbec7 (2 variants)
+  - 719ce957-145f-4821-8aab-f7f23560805d | Minimal Portfolio - Quantum Circuit 5011G7 | 2026-01-20T01:50:13.492492+00:00
+  - 2336e372-b02d-469c-b87e-be6b01c20884 | Minimal Portfolio | 2026-01-18T17:36:18.217451+00:00
+
+[26] Structure hash 4185222ed0a739b436b42ca8bb941f40 (2 variants)
+  - 56a6e455-fbae-49c6-a82d-462d154767a0 | Timeline Portfolio - Quantum Harbor 5005L2 | 2026-01-20T01:50:08.98457+00:00
+  - fd921195-fe1f-4df6-8d55-92d142fd84f9 | Timeline Portfolio | 2026-01-18T17:36:28.925662+00:00
+
+[27] Structure hash 5eebbce12ba8c6159c5aa44144f8c4e6 (2 variants)
+  - 6e6ad58e-40ff-4565-9f4c-ba720c444490 | Designer Resume - Quantum Studio 5001Q9 | 2026-01-20T01:50:03.746063+00:00
+  - ee792693-a8ae-4b93-98d2-33fa652550a2 | Designer Resume | 2026-01-18T17:36:13.977152+00:00
+
+[28] Structure hash 9bdbf178ffad9d20cd719371d67b298a (2 variants)
+  - e0816fba-e8ef-419e-a077-f54a03142a40 | Portfolio Grid - Aero Canvas 4956XG | 2026-01-20T01:49:58.951745+00:00
+  - 426248f4-4618-43bc-9b00-92f718cb3693 | Portfolio Grid | 2026-01-18T17:35:52.224929+00:00
+
+[29] Structure hash 4e4d13ec6bcdab29cf7c759e71918b0e (2 variants)
+  - 296b58fa-f260-40fb-ae67-643f6657ffd2 | Product Gallery - Solar Studio 4943FV | 2026-01-20T01:49:45.782026+00:00
+  - 5dd38a62-6119-49e3-97ee-75d67d24a9b2 | Product Gallery | 2026-01-18T17:35:20.284847+00:00
+
+[30] Structure hash 13131a361097e6d9490e54e8949510fb (2 variants)
+  - dcb5ed1a-5eac-4ef1-83ff-8b68d57b9f80 | Order Tracker - Crystal Signal 4937V8 | 2026-01-20T01:49:41.015126+00:00
+  - 0422d845-1e60-4931-98a4-39849e84f638 | Order Tracker | 2026-01-18T17:35:29.414697+00:00
+
+[31] Structure hash 9d096f6ec686ebb79009829f7feae3e3 (2 variants)
+  - 1a5dbda5-92ae-48de-a091-7b31b5e60b59 | Wishlist Manager - Iris Beacon 49329M | 2026-01-20T01:49:35.814603+00:00
+  - feb6898c-f6c1-4a59-9e29-7bc7e549ed73 | Wishlist Manager | 2026-01-18T17:35:15.811166+00:00
+
+[32] Structure hash c782595b9a9a8dd468e74dd00f9071d6 (2 variants)
+  - c7d31cd6-8de7-459f-8083-c15156573743 | Category Browser - Aero Signal 4926KD | 2026-01-20T01:49:30.056775+00:00
+  - 7ebcfcfe-0b1f-455d-8761-2f7e9376f887 | Category Browser | 2026-01-18T17:35:34.370269+00:00
+
+[33] Structure hash cabdff44eaaa5b4021cdd21cf80340b1 (2 variants)
+  - 4a76a113-e07e-48ee-a53d-c4e821c12f6e | Search Results - Quantum Pulse 4920RS | 2026-01-20T01:49:23.943929+00:00
+  - 82d82c40-eb18-4080-af2e-470e360b1300 | Search Results | 2026-01-18T17:35:39.033263+00:00
+
+[34] Structure hash ba002346c4810dfd705120df257ceab5 (2 variants)
+  - ba8d2d45-52a8-4eaf-b0ae-49fb8010b00d | Customer Reviews - Neon Studio 49154K | 2026-01-20T01:49:18.749533+00:00
+  - 36ffe613-8495-417a-a81c-4b200160b9e7 | Customer Reviews | 2026-01-18T17:35:24.723379+00:00
+
+[35] Structure hash f4f6b1dde14af61f3cf7df7dc4b9d833 (2 variants)
+  - 71774cfa-72a7-43a7-978a-fdca3e5eef68 | Product Showcase - Velvet Studio 4910U3 | 2026-01-20T01:49:13.49206+00:00
+  - 1e78555d-0347-44bc-a3bc-039479fd34e2 | Product Showcase | 2026-01-18T15:47:55.834207+00:00
+
+[36] Structure hash b6ba682e129e473cba6d8435054df58e (2 variants)
+  - a9aeb2b9-9b75-427e-a195-b5d5158fdfd5 | User Admin Panel - Quantum Flow 49038T | 2026-01-20T01:49:05.629437+00:00
+  - 151ae93d-3314-4399-bcd6-2c650b8d9b04 | User Admin Panel | 2026-01-18T15:46:28.169157+00:00
+
+[37] Structure hash 2eff47df11e303701463cb44b338ce37 (2 variants)
+  - 904f68ab-af6e-4ea6-adaf-2e768dc98ac4 | Project Tracker - Aero Pulse 4849FG | 2026-01-20T01:48:51.591635+00:00
+  - b25b8ea0-ae63-4747-9b6b-1d6fe45623f5 | Project Tracker | 2026-01-18T15:46:23.997492+00:00
+
+[38] Structure hash 8f7fc8b348a1e0362bf5ea25ea19d2f3 (2 variants)
+  - fa03d932-c5a1-4395-9acd-ce1e41c0b6b3 | Marketing Campaign - Solar Circuit 4834QL | 2026-01-20T01:48:37.423776+00:00
+  - 3d767f87-fbf3-412c-936b-52ee4ee43e1b | Marketing Campaign - Atlas Flow 4139XD | 2026-01-19T06:41:41.023194+00:00
+
+[39] Structure hash 5f4a3f5e76e1125ce526c2177e50a678 (2 variants)
+  - d57a763b-bd07-41f1-bc14-6f37589cfac4 | Metrics Overview - Pixel Sphere 4830ZM | 2026-01-20T01:48:32.760242+00:00
+  - cf5a772f-69b4-4378-8f6d-9988b5087da3 | Metrics Overview | 2026-01-18T15:46:41.309249+00:00
+
+[40] Structure hash 2dfc96ecb65f0f611953273cd714cb31 (2 variants)
+  - 48e6ce7f-3f52-4558-946f-7b7cec059ca3 | Two Column Benefits - Quantum Beacon 48183R | 2026-01-20T01:48:20.767844+00:00
+  - fa190998-51ee-4e75-b806-5d5c906b7bfe | Two Column Benefits | 2026-01-18T17:50:37.344348+00:00
+
+[41] Structure hash ca2186f39b2821ae928d0883755bedd0 (2 variants)
+  - 6daba534-f2df-4f17-b757-5b0f8cd0247e | Resource Download - Pixel Canvas 4813V7 | 2026-01-20T01:48:16.006349+00:00
+  - 1bced497-f278-440a-87f0-51ee3b1ab829 | Resource Download | 2026-01-18T17:50:33.069527+00:00
+
+[42] Structure hash 0026d022691d0ab645839244c78e3544 (2 variants)
+  - 1a6d96e1-d8ff-41e0-a355-eca413132392 | Split Screen Signup - Neon Orbit 4746ZE | 2026-01-20T01:47:50.653971+00:00
+  - 857a8ca5-5e9f-4403-bb7b-364c5adfa800 | Split Screen Signup | 2026-01-18T15:45:57.445699+00:00
+
+[43] Structure hash a44931a62fd13077b9a0d8a027c0ae89 (2 variants)
+  - 9d43cf37-f7be-4eac-99e5-74774ad58cda | Event Conference - Iris Pulse 47416U | 2026-01-20T01:47:44.251732+00:00
+  - e48b5919-9bfe-4ea8-a9a2-cf9c1605e702 | Event Conference | 2026-01-18T17:34:40.401119+00:00
+
+[44] Structure hash 0708e686039bdbeb66f60ec8082e4b8f (2 variants)
+  - 3aa8eb6a-da8c-4a1b-9452-d3eefb2df670 | Demo Request - Solar Pulse 4735U5 | 2026-01-20T01:47:39.277618+00:00
+  - 814ff273-642b-4fe1-91af-138f73585ec4 | Demo Request | 2026-01-18T17:34:58.33601+00:00
+
+[45] Structure hash f6a5341b634358a60a5562f022732fce (2 variants)
+  - 38083e4e-e17c-45f6-8e21-a0ea47c75f13 | Case Study Proof - Crystal Circuit 4728W2 | 2026-01-20T01:47:33.01196+00:00
+  - eaed2a6f-4399-4d97-a19a-6c8d6f942267 | Case Study Proof - Quantum Harbor 413699 | 2026-01-19T06:41:39.270643+00:00

@@ -18,8 +18,10 @@ import os
 import argparse
 import asyncio
 import random
+import hashlib
+import re
 from datetime import datetime
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Set
 
 from dotenv import load_dotenv
 from supabase import create_client, Client
@@ -77,6 +79,7 @@ AUTO_MOBILE_CATEGORIES = {"Landing Page", "Portfolio", "E-commerce", "Blog"}
 MOBILE_ORIENTATION_RATIO = 0.4
 DEFAULT_DESKTOP_VIEWPORT = {"width": 1440, "height": 900, "scale": 1.15}
 DEFAULT_MOBILE_VIEWPORT = {"width": 414, "height": 896, "scale": 2.0}
+MAX_STRUCTURE_ATTEMPTS = 5
 
 
 class DesignUploader:
@@ -86,6 +89,49 @@ class DesignUploader:
         self.supabase = supabase
         self.ollama_url = OLLAMA_API_URL.rstrip('/')
         self.model = OLLAMA_MODEL
+        self.structure_hashes: Set[str] = set()
+        self._hydrate_structure_hashes()
+
+    def _hydrate_structure_hashes(self) -> None:
+        """Load existing design structure hashes from Supabase to prevent duplicates."""
+        print("📦 Loading existing design structures...")
+        start = 0
+        batch_size = 500
+
+        try:
+            while True:
+                response = (
+                    self.supabase
+                    .table('designs')
+                    .select('id, code')
+                    .range(start, start + batch_size - 1)
+                    .execute()
+                )
+
+                rows = response.data or []
+                for row in rows:
+                    html = row.get('code') or ''
+                    if not html:
+                        continue
+                    self.structure_hashes.add(self._structure_hash(html))
+
+                if len(rows) < batch_size:
+                    break
+                start += batch_size
+
+            print(f"✅ Loaded {len(self.structure_hashes)} existing structure hash(es)")
+        except Exception as exc:
+            print(f"⚠️ Unable to preload structure hashes: {exc}")
+            self.structure_hashes.clear()
+
+    def _structure_hash(self, html: str) -> str:
+        """Return a layout-focused hash that ignores color differences."""
+        sanitized = re.sub(r'#[0-9a-fA-F]{3,6}', 'COLOR', html or '')
+        tags = ''.join(re.findall(r'<([a-zA-Z0-9-]+)', sanitized))
+        layouts = ''.join(
+            re.findall(r'grid-template-columns:[^;]+|flex-direction:[^;]+|display:\s*(?:grid|flex)', sanitized)
+        )
+        return hashlib.md5((tags + layouts).encode('utf-8')).hexdigest()
 
     def generate_html(self, category: str, prompt: str, orientation: str) -> str:
         """Generate HTML markup from Ollama for the given category and prompt."""
@@ -231,7 +277,27 @@ Rules:
 
         print(f"📱 Orientation: {final_orientation}")
 
-        html = self.generate_html(category, prompt, final_orientation)
+        html = None
+        structure_hash = ''
+        for attempt in range(1, MAX_STRUCTURE_ATTEMPTS + 1):
+            candidate_html = self.generate_html(category, prompt, final_orientation)
+            candidate_hash = self._structure_hash(candidate_html)
+
+            if candidate_hash and candidate_hash not in self.structure_hashes:
+                html = candidate_html
+                structure_hash = candidate_hash
+                self.structure_hashes.add(candidate_hash)
+                break
+
+            print(
+                f"⚠️ Duplicate structure detected (attempt {attempt}/{MAX_STRUCTURE_ATTEMPTS}). Regenerating...",
+            )
+
+        if html is None:
+            raise RuntimeError('Failed to generate a unique design structure after multiple attempts.')
+
+        print(f"🔐 Structure hash: {structure_hash}")
+
         screenshot = self.render_screenshot(html, final_orientation)
 
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')

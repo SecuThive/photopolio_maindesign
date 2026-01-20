@@ -51,7 +51,23 @@ class UniversalDesignGenerator:
         self.used_hashes: Set[str] = set()
         self.design_count = 0
         self.last_layout_type = None  # 마지막 생성 레이아웃 타입 추적
+        self._load_existing_structure_hashes()
     
+    def _load_existing_structure_hashes(self) -> None:
+        """Supabase에 저장된 기존 구조 해시를 불러와 중복 생성을 방지."""
+        print("📦 Loading existing structure hashes from Supabase...")
+        try:
+            response = supabase.table('designs').select('id, code').execute()
+            rows = response.data or []
+            for row in rows:
+                html = row.get('code') or ''
+                if not html:
+                    continue
+                self.used_hashes.add(self.get_structure_hash(html))
+            print(f"✅ Loaded {len(self.used_hashes)} existing hash(es)")
+        except Exception as exc:
+            print(f"⚠️ Failed to load existing hashes: {exc}")
+
     def get_description_by_layout(self, category: str, layout_type: str) -> str:
         """레이아웃 타입별 고유한 설명 생성 (3줄) - 여러 변형 중 랜덤 선택"""
         descriptions = {

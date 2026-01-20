@@ -9,12 +9,15 @@
 # Change to automation directory
 cd "$(dirname "$0")"
 
-# Run the Python script with random category
+# Run the Python script 12 times with random categories
 CATEGORIES=("Landing Page" "Dashboard" "E-commerce" "Portfolio" "Blog")
-RANDOM_CATEGORY=${CATEGORIES[$RANDOM % ${#CATEGORIES[@]}]}
+TOTAL_RUNS=12
 
-echo "Running automated design upload for category: $RANDOM_CATEGORY"
-python upload_design.py --category "$RANDOM_CATEGORY"
+for ((i = 1; i <= TOTAL_RUNS; i++)); do
+	RANDOM_CATEGORY=${CATEGORIES[$RANDOM % ${#CATEGORIES[@]}]}
+	echo "Running automated design upload $i/$TOTAL_RUNS for category: $RANDOM_CATEGORY"
+	python upload_design.py --category "$RANDOM_CATEGORY"
+	echo "[$(date)] Design upload $i/$TOTAL_RUNS completed for $RANDOM_CATEGORY" >> automation.log
+done
 
-# Log the execution
-echo "[$(date)] Design upload completed for $RANDOM_CATEGORY" >> automation.log
+echo "All $TOTAL_RUNS uploads completed."
