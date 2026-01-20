@@ -34,6 +34,11 @@ export const metadata: Metadata = {
       'en-US': siteUrl,
     },
   },
+  icons: {
+    icon: [{ url: '/icon.png', type: 'image/png' }],
+    shortcut: ['/icon.png'],
+    apple: [{ url: '/icon.png', sizes: '180x180' }],
+  },
   robots: {
     index: true,
     follow: true,

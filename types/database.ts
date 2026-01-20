@@ -8,6 +8,7 @@ export type Design = {
   code: string | null;
   created_at: string;
   updated_at: string;
+  likes: number | null;
 };
 
 export type PageView = {
@@ -33,6 +34,7 @@ export type Database = {
           code?: string | null;
           created_at?: string;
           updated_at?: string;
+          likes?: number | null;
         };
         Update: {
           id?: string;
@@ -44,6 +46,27 @@ export type Database = {
           code?: string | null;
           created_at?: string;
           updated_at?: string;
+          likes?: number | null;
+        };
+      };
+      design_likes: {
+        Row: {
+          id: string;
+          created_at: string;
+          design_id: string;
+          token: string;
+        };
+        Insert: {
+          id?: string;
+          created_at?: string;
+          design_id: string;
+          token: string;
+        };
+        Update: {
+          id?: string;
+          created_at?: string;
+          design_id?: string;
+          token?: string;
         };
       };
       page_views: {

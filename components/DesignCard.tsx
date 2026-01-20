@@ -1,13 +1,18 @@
 import React from 'react';
 import Image from 'next/image';
 import { Design } from '@/types/database';
+import LikeButton from './LikeButton';
 
 interface DesignCardProps {
   design: Design;
   onClick: () => void;
+  likes: number;
+  liked: boolean;
+  onToggleLike: () => void;
+  likeDisabled?: boolean;
 }
 
-export default function DesignCard({ design, onClick }: DesignCardProps) {
+export default function DesignCard({ design, onClick, likes, liked, onToggleLike, likeDisabled }: DesignCardProps) {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
@@ -31,6 +36,7 @@ export default function DesignCard({ design, onClick }: DesignCardProps) {
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
         />
         <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-500"></div>
+        <LikeButton likes={likes} liked={liked} onToggle={onToggleLike} disabled={likeDisabled} />
       </div>
       
       <div className="p-6 border-t border-gray-100">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/lib/supabase/client';
 import { Design } from '@/types/database';
 import DesignCard from './DesignCard';
@@ -20,13 +20,73 @@ export default function DesignGallery({ initialDesigns, initialCategory }: Desig
   const [loading, setLoading] = useState(false);
   const [selectedDesign, setSelectedDesign] = useState<Design | null>(null);
   const [activeCategory, setActiveCategory] = useState(initialCategory);
+  const [likesMap, setLikesMap] = useState<Record<string, number>>(() => {
+    const initialMap: Record<string, number> = {};
+    initialDesigns.forEach((design) => {
+      initialMap[design.id] = design.likes ?? 0;
+    });
+    return initialMap;
+  });
+  const [likeToken, setLikeToken] = useState<string | null>(null);
+  const [likedIds, setLikedIds] = useState<Set<string>>(new Set());
+  const [pendingLikes, setPendingLikes] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     setDesigns(initialDesigns);
     setPage(1);
     setHasMore(initialDesigns.length === ITEMS_PER_PAGE);
     setActiveCategory(initialCategory);
+    setLikesMap(() => {
+      const next: Record<string, number> = {};
+      initialDesigns.forEach((design) => {
+        next[design.id] = design.likes ?? 0;
+      });
+      return next;
+    });
   }, [initialDesigns, initialCategory]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const ensureToken = () => {
+      try {
+        const storedToken = localStorage.getItem('design_like_token');
+        if (storedToken) {
+          setLikeToken(storedToken);
+        } else {
+          const newToken = crypto.randomUUID();
+          localStorage.setItem('design_like_token', newToken);
+          setLikeToken(newToken);
+        }
+      } catch (error) {
+        console.error('Failed to access like token storage', error);
+      }
+    };
+
+    const loadLikedDesigns = () => {
+      try {
+        const storedIds = localStorage.getItem('liked_design_ids');
+        if (storedIds) {
+          const parsed: string[] = JSON.parse(storedIds);
+          setLikedIds(new Set(parsed));
+        }
+      } catch (error) {
+        console.error('Failed to parse liked design ids', error);
+      }
+    };
+
+    ensureToken();
+    loadLikedDesigns();
+  }, []);
+
+  const persistLikedIds = useCallback((ids: Set<string>) => {
+    if (typeof window === 'undefined') return;
+    try {
+      localStorage.setItem('liked_design_ids', JSON.stringify(Array.from(ids)));
+    } catch (error) {
+      console.error('Failed to persist liked ids', error);
+    }
+  }, []);
 
   useEffect(() => {
     const recordView = async () => {
@@ -65,14 +125,87 @@ export default function DesignGallery({ initialDesigns, initialCategory }: Desig
       if (error) throw error;
 
       if (data) {
-        setDesigns((prev) => [...prev, ...data]);
-        setHasMore(data.length === ITEMS_PER_PAGE);
+        const fetchedDesigns = data as Design[];
+        setDesigns((prev) => [...prev, ...fetchedDesigns]);
+        setHasMore(fetchedDesigns.length === ITEMS_PER_PAGE);
         setPage((prev) => prev + 1);
+        setLikesMap((prev) => {
+          const next = { ...prev };
+          fetchedDesigns.forEach((design) => {
+            if (next[design.id] === undefined) {
+              next[design.id] = design.likes ?? 0;
+            }
+          });
+          return next;
+        });
       }
     } catch (error) {
       console.error('Error loading designs:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleToggleLike = async (designId: string) => {
+    if (!likeToken) return;
+
+    const currentlyLiked = likedIds.has(designId);
+    setPendingLikes((prev) => ({ ...prev, [designId]: true }));
+
+    setLikesMap((prev) => ({
+      ...prev,
+      [designId]: Math.max(0, (prev[designId] ?? 0) + (currentlyLiked ? -1 : 1)),
+    }));
+
+    setLikedIds((prev) => {
+      const next = new Set(prev);
+      if (currentlyLiked) {
+        next.delete(designId);
+      } else {
+        next.add(designId);
+      }
+      persistLikedIds(next);
+      return next;
+    });
+
+    try {
+      const response = await fetch(`/api/designs/${designId}/like`, {
+        method: currentlyLiked ? 'DELETE' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: likeToken }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update like');
+      }
+
+      const payload = await response.json();
+      if (typeof payload.likes === 'number') {
+        setLikesMap((prev) => ({ ...prev, [designId]: payload.likes }));
+      }
+    } catch (error) {
+      console.error('Like toggle failed', error);
+      setLikesMap((prev) => ({
+        ...prev,
+        [designId]: Math.max(0, (prev[designId] ?? 0) + (currentlyLiked ? 1 : -1)),
+      }));
+
+      setLikedIds((prev) => {
+        const next = new Set(prev);
+        if (currentlyLiked) {
+          next.add(designId);
+        } else {
+          next.delete(designId);
+        }
+        persistLikedIds(next);
+        return next;
+      });
+    } finally {
+      setPendingLikes((prev) => {
+        const next = { ...prev };
+        delete next[designId];
+        return next;
+      });
     }
   };
 
@@ -85,7 +218,14 @@ export default function DesignGallery({ initialDesigns, initialCategory }: Desig
             className="animate-slide-up"
             style={{ animationDelay: `${index * 0.05}s` }}
           >
-            <DesignCard design={design} onClick={() => setSelectedDesign(design)} />
+            <DesignCard
+              design={design}
+              onClick={() => setSelectedDesign(design)}
+              likes={likesMap[design.id] ?? design.likes ?? 0}
+              liked={likedIds.has(design.id)}
+              onToggleLike={() => handleToggleLike(design.id)}
+              likeDisabled={!likeToken || !!pendingLikes[design.id]}
+            />
           </div>
         ))}
       </div>
@@ -108,7 +248,14 @@ export default function DesignGallery({ initialDesigns, initialCategory }: Desig
       )}
 
       {selectedDesign && (
-        <DesignModal design={selectedDesign} onClose={() => setSelectedDesign(null)} />
+        <DesignModal
+          design={selectedDesign}
+          onClose={() => setSelectedDesign(null)}
+          likes={likesMap[selectedDesign.id] ?? selectedDesign.likes ?? 0}
+          liked={likedIds.has(selectedDesign.id)}
+          onToggleLike={() => handleToggleLike(selectedDesign.id)}
+          likeDisabled={!likeToken || !!pendingLikes[selectedDesign.id]}
+        />
       )}
     </>
   );

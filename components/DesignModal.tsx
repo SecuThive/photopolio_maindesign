@@ -1,10 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { Design } from '@/types/database';
+import LikeButton from './LikeButton';
 
 interface DesignModalProps {
   design: Design;
   onClose: () => void;
+  likes: number;
+  liked: boolean;
+  onToggleLike: () => void;
+  likeDisabled?: boolean;
 }
 
 const COLOR_THEMES = [
@@ -18,7 +23,7 @@ const COLOR_THEMES = [
   { name: "Blue Steel", primary: "#2c3e50", secondary: "#3498db", accent: "#74b9ff" },
 ];
 
-export default function DesignModal({ design, onClose }: DesignModalProps) {
+export default function DesignModal({ design, onClose, likes, liked, onToggleLike, likeDisabled }: DesignModalProps) {
   const [copied, setCopied] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState(0);
   const [previewCode, setPreviewCode] = useState(design.code);
@@ -185,8 +190,8 @@ export default function DesignModal({ design, onClose }: DesignModalProps) {
 
         {/* Details */}
         <div className="p-12">
-          <div className="flex items-start justify-between mb-6">
-            <div className="flex-1">
+          <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
+            <div className="flex-1 min-w-[240px]">
               <h2 className="font-display text-4xl font-semibold text-black mb-3 tracking-tight">
                 {design.title}
               </h2>
@@ -200,6 +205,13 @@ export default function DesignModal({ design, onClose }: DesignModalProps) {
                 )}
               </div>
             </div>
+            <LikeButton
+              likes={likes}
+              liked={liked}
+              onToggle={onToggleLike}
+              disabled={likeDisabled}
+              variant="modal"
+            />
           </div>
 
           {design.description && (

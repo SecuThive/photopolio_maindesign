@@ -78,27 +78,18 @@ export default function AdminDashboardPage() {
     loadMetrics();
   }, [checkAuth, loadDesigns, loadMetrics]);
 
-  const handleDelete = async (id: string, imageUrl: string) => {
+  const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this design?')) return;
 
     try {
-      // Delete from database
-      const { error: dbError } = await supabase
-        .from('designs')
-        .delete()
-        .eq('id', id);
+      const response = await fetch(`/api/admin/designs/${id}`, {
+        method: 'DELETE',
+      });
 
-      if (dbError) throw dbError;
-
-      // Extract file path from URL and delete from storage
-      const urlParts = imageUrl.split('/');
-      const fileName = urlParts[urlParts.length - 1];
-      
-      const { error: storageError } = await supabase.storage
-        .from('designs-bucket')
-        .remove([`designs/${fileName}`]);
-
-      if (storageError) console.error('Storage delete error:', storageError);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData?.error || 'Failed to delete design');
+      }
 
       // Reload designs
       loadDesigns();
@@ -403,7 +394,7 @@ export default function AdminDashboardPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
                         <button
-                          onClick={() => handleDelete(design.id, design.image_url)}
+                          onClick={() => handleDelete(design.id)}
                           className="text-red-600 hover:text-red-900"
                         >
                           Delete
