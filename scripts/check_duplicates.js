@@ -60,12 +60,12 @@ function chunkArray(arr, size) {
     });
 
     const sorted = [...list].sort(
-      (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
     );
     const keep = sorted[0];
     const redundant = sorted.slice(1);
     if (redundant.length) {
-      console.log(`  -> Keeping oldest ${keep.id}, flagging ${redundant.length} duplicate(s)`);
+      console.log(`  -> Keeping newest ${keep.id}, flagging ${redundant.length} duplicate(s)`);
       idsToDelete.push(...redundant.map((item) => item.id));
     }
   });

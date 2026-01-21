@@ -9,9 +9,9 @@
 # Change to automation directory
 cd "$(dirname "$0")"
 
-# Run the Python script 12 times with random categories
+# Run the Python script 10 times with random categories
 CATEGORIES=("Landing Page" "Dashboard" "E-commerce" "Portfolio" "Blog")
-TOTAL_RUNS=12
+TOTAL_RUNS=10
 
 for ((i = 1; i <= TOTAL_RUNS; i++)); do
 	RANDOM_CATEGORY=${CATEGORIES[$RANDOM % ${#CATEGORIES[@]}]}

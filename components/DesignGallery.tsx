@@ -8,6 +8,22 @@ import DesignModal from './DesignModal';
 
 const ITEMS_PER_PAGE = 12;
 
+const generateLikeToken = () => {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+
+  if (typeof window !== 'undefined' && window.crypto?.getRandomValues) {
+    const buffer = new Uint32Array(4);
+    window.crypto.getRandomValues(buffer);
+    return Array.from(buffer)
+      .map((segment) => segment.toString(16).padStart(8, '0'))
+      .join('');
+  }
+
+  return `token-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+};
+
 interface DesignGalleryProps {
   initialDesigns: Design[];
   initialCategory: string | null;
@@ -49,21 +65,37 @@ export default function DesignGallery({ initialDesigns, initialCategory }: Desig
     if (typeof window === 'undefined') return;
 
     const ensureToken = () => {
+      const fallbackToken = generateLikeToken();
+
+      if (typeof window === 'undefined') {
+        setLikeToken(fallbackToken);
+        return;
+      }
+
       try {
         const storedToken = localStorage.getItem('design_like_token');
         if (storedToken) {
           setLikeToken(storedToken);
-        } else {
-          const newToken = crypto.randomUUID();
-          localStorage.setItem('design_like_token', newToken);
-          setLikeToken(newToken);
+          return;
         }
       } catch (error) {
-        console.error('Failed to access like token storage', error);
+        console.warn('Unable to read like token from storage', error);
       }
+
+      try {
+        localStorage.setItem('design_like_token', fallbackToken);
+      } catch (error) {
+        console.warn('Unable to persist like token, using in-memory fallback', error);
+      }
+
+      setLikeToken(fallbackToken);
     };
 
     const loadLikedDesigns = () => {
+      if (typeof window === 'undefined') {
+        return;
+      }
+
       try {
         const storedIds = localStorage.getItem('liked_design_ids');
         if (storedIds) {
@@ -71,7 +103,7 @@ export default function DesignGallery({ initialDesigns, initialCategory }: Desig
           setLikedIds(new Set(parsed));
         }
       } catch (error) {
-        console.error('Failed to parse liked design ids', error);
+        console.warn('Failed to parse liked design ids', error);
       }
     };
 
@@ -84,7 +116,7 @@ export default function DesignGallery({ initialDesigns, initialCategory }: Desig
     try {
       localStorage.setItem('liked_design_ids', JSON.stringify(Array.from(ids)));
     } catch (error) {
-      console.error('Failed to persist liked ids', error);
+      console.warn('Failed to persist liked ids', error);
     }
   }, []);
 

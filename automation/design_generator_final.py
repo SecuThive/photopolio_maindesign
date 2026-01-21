@@ -56,14 +56,26 @@ class UniversalDesignGenerator:
     def _load_existing_structure_hashes(self) -> None:
         """Supabase에 저장된 기존 구조 해시를 불러와 중복 생성을 방지."""
         print("📦 Loading existing structure hashes from Supabase...")
+        start = 0
+        batch_size = 500
         try:
-            response = supabase.table('designs').select('id, code').execute()
-            rows = response.data or []
-            for row in rows:
-                html = row.get('code') or ''
-                if not html:
-                    continue
-                self.used_hashes.add(self.get_structure_hash(html))
+            while True:
+                response = (
+                    supabase
+                    .table('designs')
+                    .select('id, code')
+                    .range(start, start + batch_size - 1)
+                    .execute()
+                )
+                rows = response.data or []
+                for row in rows:
+                    html = row.get('code') or ''
+                    if not html:
+                        continue
+                    self.used_hashes.add(self.get_structure_hash(html))
+                if len(rows) < batch_size:
+                    break
+                start += batch_size
             print(f"✅ Loaded {len(self.used_hashes)} existing hash(es)")
         except Exception as exc:
             print(f"⚠️ Failed to load existing hashes: {exc}")
@@ -2576,6 +2588,7 @@ async def main():
     
     parser = argparse.ArgumentParser()
     parser.add_argument('--count', type=int, default=1, help='Number of designs per category')
+    parser.add_argument('--total', type=int, help='Total number of designs to create across all categories')
     parser.add_argument('--category', type=str, help='Specific category')
     args = parser.parse_args()
     
@@ -2586,18 +2599,35 @@ async def main():
         categories = [args.category]
     else:
         categories = CATEGORIES
-    
-    # 각 카테고리별로 디자인 생성
-    for category in categories:
-        for i in range(args.count):
+
+    async def wait_between_runs(current: int, target: int) -> None:
+        if current < target:
+            print("⏳ Waiting...\n")
+            await asyncio.sleep(2)
+
+    # 전체 생성 개수 우선
+    if args.total and args.total > 0:
+        total_target = args.total
+        produced = 0
+        while produced < total_target:
+            category = categories[produced % len(categories)]
             try:
                 await generator.create_unique_design(category)
-                if i < args.count - 1:
-                    print("⏳ Waiting...\n")
-                    await asyncio.sleep(2)
+                produced += 1
+                await wait_between_runs(produced, total_target)
             except Exception as e:
                 print(f"\n❌ Error: {e}\n")
                 continue
+    else:
+        # 각 카테고리별로 디자인 생성
+        for category in categories:
+            for i in range(args.count):
+                try:
+                    await generator.create_unique_design(category)
+                    await wait_between_runs(i + 1, args.count)
+                except Exception as e:
+                    print(f"\n❌ Error: {e}\n")
+                    continue
     
     print(f"\n{'='*70}")
     print(f"🎉 Completed! Total: {generator.design_count} designs")
