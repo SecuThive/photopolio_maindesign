@@ -86,7 +86,9 @@ export default function DesignModal({ design, onClose, likes, liked, onToggleLik
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    setShareUrl(window.location.href);
+    const targetUrl = new URL(window.location.href);
+    targetUrl.searchParams.set('design', design.id);
+    setShareUrl(targetUrl.toString());
   }, [design.id]);
 
   const handleCopyCode = async () => {
