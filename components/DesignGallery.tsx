@@ -241,7 +241,10 @@ export default function DesignGallery({ initialDesigns, initialCategory }: Desig
     }
   };
 
-  const handleSelectDesign = (design: Design) => {
+  const handleSelectDesign = (design: Design, e?: React.MouseEvent<HTMLAnchorElement>) => {
+    if (e) {
+      e.preventDefault();
+    }
     setSelectedDesign(design);
     updateDesignQuery(design.id);
   };
@@ -325,11 +328,12 @@ export default function DesignGallery({ initialDesigns, initialCategory }: Desig
           >
             <DesignCard
               design={design}
-              onClick={() => handleSelectDesign(design)}
+              onClick={(e) => handleSelectDesign(design, e)}
               likes={likesMap[design.id] ?? design.likes ?? 0}
               liked={likedIds.has(design.id)}
               onToggleLike={() => handleToggleLike(design.id)}
               likeDisabled={!likeToken || !!pendingLikes[design.id]}
+              category={activeCategory}
             />
           </div>
         ))}

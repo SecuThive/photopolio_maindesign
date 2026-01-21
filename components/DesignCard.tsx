@@ -1,18 +1,20 @@
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Design } from '@/types/database';
 import LikeButton from './LikeButton';
 
 interface DesignCardProps {
   design: Design;
-  onClick: () => void;
+  onClick: (e: React.MouseEvent<HTMLAnchorElement>) => void;
   likes: number;
   liked: boolean;
   onToggleLike: () => void;
   likeDisabled?: boolean;
+  category?: string | null;
 }
 
-export default function DesignCard({ design, onClick, likes, liked, onToggleLike, likeDisabled }: DesignCardProps) {
+export default function DesignCard({ design, onClick, likes, liked, onToggleLike, likeDisabled, category }: DesignCardProps) {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
@@ -22,10 +24,13 @@ export default function DesignCard({ design, onClick, likes, liked, onToggleLike
     });
   };
 
+  const href = category ? `/?category=${category}&design=${design.id}` : `/?design=${design.id}`;
+
   return (
-    <div
+    <Link
+      href={href}
       onClick={onClick}
-      className="group cursor-pointer bg-white overflow-hidden transition-all duration-500 hover:luxury-shadow-lg"
+      className="block group cursor-pointer bg-white overflow-hidden transition-all duration-500 hover:luxury-shadow-lg"
     >
       <div className="relative aspect-[3/4] overflow-hidden bg-gray-100">
         <Image
@@ -59,6 +64,6 @@ export default function DesignCard({ design, onClick, likes, liked, onToggleLike
           )}
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
