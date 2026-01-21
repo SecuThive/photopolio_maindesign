@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase/client';
 import { Design } from '@/types/database';
 import DesignCard from './DesignCard';
@@ -46,6 +47,10 @@ export default function DesignGallery({ initialDesigns, initialCategory }: Desig
   const [likeToken, setLikeToken] = useState<string | null>(null);
   const [likedIds, setLikedIds] = useState<Set<string>>(new Set());
   const [pendingLikes, setPendingLikes] = useState<Record<string, boolean>>({});
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const activeDesignId = searchParams?.get('design');
 
   useEffect(() => {
     setDesigns(initialDesigns);
@@ -60,6 +65,64 @@ export default function DesignGallery({ initialDesigns, initialCategory }: Desig
       return next;
     });
   }, [initialDesigns, initialCategory]);
+
+  useEffect(() => {
+    if (!activeDesignId) {
+      setSelectedDesign(null);
+      return;
+    }
+
+    const existing = designs.find((design) => design.id === activeDesignId);
+    if (existing) {
+      setSelectedDesign((prev) => (prev?.id === existing.id ? prev : existing));
+      return;
+    }
+
+    let cancelled = false;
+    const fetchDesign = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('designs')
+          .select('*')
+          .eq('id', activeDesignId)
+          .single<Design>();
+
+        if (error) throw error;
+        if (!data || cancelled) return;
+
+        setDesigns((prev) => {
+          if (prev.some((design) => design.id === data.id)) {
+            return prev;
+          }
+          return [data, ...prev];
+        });
+        setLikesMap((prev) => ({ ...prev, [data.id]: data.likes ?? 0 }));
+        setSelectedDesign(data);
+      } catch (error) {
+        console.error('Failed to fetch design for modal', error);
+      }
+    };
+
+    fetchDesign();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeDesignId, designs]);
+
+  const updateDesignQuery = useCallback(
+    (designId?: string) => {
+      const params = new URLSearchParams(searchParams?.toString() || '');
+      if (designId) {
+        params.set('design', designId);
+      } else {
+        params.delete('design');
+      }
+      const query = params.toString();
+      router.push(query ? `${pathname}?${query}` : pathname, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -178,6 +241,16 @@ export default function DesignGallery({ initialDesigns, initialCategory }: Desig
     }
   };
 
+  const handleSelectDesign = (design: Design) => {
+    setSelectedDesign(design);
+    updateDesignQuery(design.id);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedDesign(null);
+    updateDesignQuery();
+  };
+
   const handleToggleLike = async (designId: string) => {
     if (!likeToken) return;
 
@@ -252,7 +325,7 @@ export default function DesignGallery({ initialDesigns, initialCategory }: Desig
           >
             <DesignCard
               design={design}
-              onClick={() => setSelectedDesign(design)}
+              onClick={() => handleSelectDesign(design)}
               likes={likesMap[design.id] ?? design.likes ?? 0}
               liked={likedIds.has(design.id)}
               onToggleLike={() => handleToggleLike(design.id)}
@@ -282,7 +355,7 @@ export default function DesignGallery({ initialDesigns, initialCategory }: Desig
       {selectedDesign && (
         <DesignModal
           design={selectedDesign}
-          onClose={() => setSelectedDesign(null)}
+          onClose={handleCloseModal}
           likes={likesMap[selectedDesign.id] ?? selectedDesign.likes ?? 0}
           liked={likedIds.has(selectedDesign.id)}
           onToggleLike={() => handleToggleLike(selectedDesign.id)}

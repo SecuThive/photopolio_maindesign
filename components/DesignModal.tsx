@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { Design } from '@/types/database';
 import LikeButton from './LikeButton';
@@ -29,6 +29,9 @@ export default function DesignModal({ design, onClose, likes, liked, onToggleLik
   const [previewCode, setPreviewCode] = useState(design.code);
   const [isLoadingPreview, setIsLoadingPreview] = useState(false);
   const [previewMode, setPreviewMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
+  const [shareUrl, setShareUrl] = useState('');
+  const [shareMessage, setShareMessage] = useState<string | null>(null);
+  const shareTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -81,6 +84,11 @@ export default function DesignModal({ design, onClose, likes, liked, onToggleLik
     setPreviewMode('desktop');
   }, [design.id]);
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    setShareUrl(window.location.href);
+  }, [design.id]);
+
   const handleCopyCode = async () => {
     const codeToCopy = previewCode || design.code;
     if (codeToCopy) {
@@ -90,6 +98,39 @@ export default function DesignModal({ design, onClose, likes, liked, onToggleLik
         setTimeout(() => setCopied(false), 2000);
       } catch (err) {
         console.error('Failed to copy code:', err);
+      }
+    }
+  };
+
+  const handleShare = async () => {
+    const urlToShare = shareUrl || design.image_url;
+    try {
+      if (navigator.share && typeof navigator.share === 'function') {
+        await navigator.share({
+          title: design.title,
+          text: design.description ?? 'Check out this AI-generated design',
+          url: urlToShare,
+        });
+        setShareMessage('Shared successfully');
+      } else {
+        await navigator.clipboard.writeText(urlToShare);
+        setShareMessage('Link copied');
+      }
+    } catch (error) {
+      console.error('Share failed', error);
+      try {
+        await navigator.clipboard.writeText(urlToShare);
+        setShareMessage('Link copied');
+      } catch (clipboardError) {
+        console.error('Clipboard fallback failed', clipboardError);
+        setShareMessage('Unable to share link');
+      }
+    } finally {
+      if (typeof window !== 'undefined') {
+        if (shareTimeoutRef.current) {
+          window.clearTimeout(shareTimeoutRef.current);
+        }
+        shareTimeoutRef.current = window.setTimeout(() => setShareMessage(null), 2500);
       }
     }
   };
@@ -212,6 +253,26 @@ export default function DesignModal({ design, onClose, likes, liked, onToggleLik
               disabled={likeDisabled}
               variant="modal"
             />
+            <button
+              onClick={handleShare}
+              className="flex items-center gap-2 rounded-full border border-gray-200 px-4 py-2 text-sm text-gray-600 hover:text-black hover:border-black transition-colors"
+              type="button"
+            >
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M15 8a3 3 0 10-2.995-3.2M15 8a3 3 0 01-2.36 2.94m0 0l-1.28.32m1.28-.32a3 3 0 100 6m0-6a3 3 0 012.995 3.2M12.64 10.94l1.28-.32m0 0A3 3 0 1115 20a3 3 0 01-2.995-3.2"
+                />
+              </svg>
+              {shareMessage || 'Share'}
+            </button>
           </div>
 
           {design.description && (
