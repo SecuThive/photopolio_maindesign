@@ -41,7 +41,7 @@ jobs:
       - name: Generate designs
         run: |
           cd automation
-          python design_generator_enhanced.py --count 10
+          python design_generator_final.py --count 10
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
