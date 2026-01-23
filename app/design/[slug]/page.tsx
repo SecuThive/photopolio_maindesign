@@ -142,14 +142,20 @@ export default async function DesignDetailPage({ params }: PageProps) {
   return (
     <div className="min-h-screen bg-luxury-white">
       <Header selectedCategory={currentDesign.category} />
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-12">
-        <div className="space-y-4 text-center md:text-left">
-          <div className="flex justify-center md:justify-start">
-            <Link
-              href="/"
-              className="inline-flex items-center gap-3 rounded-full border border-gray-200 bg-white/80 px-5 py-2 text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-600 shadow-sm transition-all hover:border-black hover:text-black hover:shadow"
-            >
-              <span className="flex h-6 w-6 items-center justify-center rounded-full border border-gray-300 bg-gray-50 text-[0.65rem] tracking-[0.1em] text-gray-600">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10">
+        {/* Hero Section with Background */}
+        <div className="relative bg-gradient-to-br from-gray-50 via-white to-gray-50 border border-gray-200 rounded-3xl p-8 md:p-12 shadow-sm overflow-hidden">
+          {/* Decorative Elements */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-50/30 to-purple-50/30 rounded-full blur-3xl -z-10"></div>
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-pink-50/30 to-yellow-50/30 rounded-full blur-3xl -z-10"></div>
+          
+          <div className="relative space-y-6">
+            {/* Breadcrumb */}
+            <div className="flex justify-center md:justify-start">
+              <Link
+                href="/"
+                className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white/90 backdrop-blur-sm px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.3em] text-gray-600 shadow-sm transition-all hover:border-black hover:text-black hover:shadow-md hover:scale-105"
+              >
                 <svg
                   aria-hidden="true"
                   viewBox="0 0 20 20"
@@ -165,25 +171,60 @@ export default async function DesignDetailPage({ params }: PageProps) {
                     strokeLinejoin="round"
                   />
                 </svg>
-              </span>
-              <span className="tracking-[0.5em]">Home</span>
-            </Link>
-          </div>
-          <p className="text-xs uppercase tracking-[0.35em] text-gray-500">Featured Design</p>
-          <h1 className="text-4xl md:text-5xl font-semibold text-gray-900 tracking-tight">{currentDesign.title}</h1>
-          <p className="text-sm uppercase tracking-[0.35em] text-gray-400">{formatDate(currentDesign.created_at)}</p>
-          <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-sm text-gray-500">
-            {currentDesign.category && (
-              <span className="px-4 py-1 bg-black text-white text-xs uppercase tracking-widest">{currentDesign.category}</span>
-            )}
-            <ShareLinkButton
-              url={shareUrl}
-              shareData={{ title: currentDesign.title || 'UI Syntax Design', text: currentDesign.description || undefined }}
-              className="rounded-full border border-gray-300 px-4 py-2 text-xs tracking-widest uppercase text-gray-600 hover:text-black hover:border-black transition-colors"
-              defaultLabel="Share"
-              successLabel="Shared successfully"
-              copiedLabel="Link copied"
-            />
+                <span className="tracking-[0.4em]">Home</span>
+              </Link>
+            </div>
+
+            {/* Title Section */}
+            <div className="text-center md:text-left space-y-4">
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
+                <span className="inline-flex items-center px-3 py-1 bg-gradient-to-r from-blue-500 to-purple-500 text-white text-[9px] font-bold uppercase tracking-[0.25em] rounded-full shadow-sm">
+                  ⭐ Featured
+                </span>
+                {currentDesign.category && (
+                  <span className="px-3 py-1 bg-black text-white text-[9px] font-bold uppercase tracking-[0.25em] rounded-full">
+                    {currentDesign.category}
+                  </span>
+                )}
+              </div>
+
+              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 tracking-tight leading-tight">
+                {currentDesign.title}
+              </h1>
+
+              {currentDesign.description && (
+                <p className="text-base md:text-lg text-gray-600 leading-relaxed max-w-3xl mx-auto md:mx-0">
+                  {currentDesign.description.length > 200 
+                    ? currentDesign.description.substring(0, 200) + '...' 
+                    : currentDesign.description}
+                </p>
+              )}
+
+              {/* Meta Info */}
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-6 pt-2">
+                <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <span className="tracking-wider">{formatDate(currentDesign.created_at)}</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
+                  </svg>
+                  <span className="font-semibold">{currentDesign.likes ?? 0}</span>
+                  <span className="tracking-wider">Likes</span>
+                </div>
+                <ShareLinkButton
+                  url={shareUrl}
+                  shareData={{ title: currentDesign.title || 'UI Syntax Design', text: currentDesign.description || undefined }}
+                  className="inline-flex items-center gap-2 rounded-full border border-gray-300 bg-white/90 backdrop-blur-sm px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.3em] text-gray-600 hover:text-black hover:border-black hover:bg-white transition-all hover:scale-105 shadow-sm"
+                  defaultLabel="Share"
+                  successLabel="Shared ✓"
+                  copiedLabel="Copied ✓"
+                />
+              </div>
+            </div>
           </div>
         </div>
 
@@ -196,9 +237,9 @@ export default async function DesignDetailPage({ params }: PageProps) {
               htmlCode={currentDesign.code}
             />
 
-            {currentDesign.description && (
-              <section className="bg-white border border-gray-200 p-8 shadow-sm">
-                <h2 className="text-xs uppercase tracking-[0.3em] text-gray-400 mb-4">Overview</h2>
+            {currentDesign.description && currentDesign.description.length > 200 && (
+              <section className="bg-white border border-gray-200 p-8 shadow-sm rounded-2xl">
+                <h2 className="text-xs uppercase tracking-[0.3em] text-gray-400 mb-4">Full Description</h2>
                 <p className="text-lg text-gray-700 leading-relaxed">{currentDesign.description}</p>
               </section>
             )}
@@ -209,61 +250,88 @@ export default async function DesignDetailPage({ params }: PageProps) {
           </div>
 
           <aside className="space-y-8 w-full overflow-hidden">
-            <div className="bg-white border border-gray-100 p-6 space-y-4">
-              <h3 className="text-xs uppercase tracking-[0.3em] text-gray-400">Details</h3>
-              <dl className="space-y-3 text-sm text-gray-600">
-                <div className="flex justify-between border-b border-gray-100 pb-3">
-                  <dt className="font-light">Category</dt>
-                  <dd className="font-medium">{currentDesign.category || 'Uncategorized'}</dd>
+            {/* Quick Info Card */}
+            <div className="bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-2xl p-6 space-y-4 shadow-sm">
+              <h3 className="text-xs uppercase tracking-[0.3em] text-gray-400 flex items-center gap-2">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Quick Info
+              </h3>
+              <dl className="space-y-3 text-sm">
+                <div className="flex justify-between items-center py-2">
+                  <dt className="text-gray-500 flex items-center gap-2">
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                    </svg>
+                    Design ID
+                  </dt>
+                  <dd className="font-mono text-xs text-gray-700 bg-gray-100 px-2 py-1 rounded">{currentDesign.id.substring(0, 8)}...</dd>
                 </div>
-                <div className="flex justify-between border-b border-gray-100 pb-3">
-                  <dt className="font-light">Created</dt>
-                  <dd className="font-medium">{formatDate(currentDesign.created_at)}</dd>
-                </div>
-                <div className="flex justify-between border-b border-gray-100 pb-3">
-                  <dt className="font-light">Updated</dt>
-                  <dd className="font-medium">{formatDate(currentDesign.updated_at)}</dd>
-                </div>
-                <div className="flex justify-between border-b border-gray-100 pb-3">
-                  <dt className="font-light">Likes</dt>
-                  <dd className="font-medium">{currentDesign.likes ?? 0}</dd>
-                </div>
-                <div className="flex justify-between">
-                  <dt className="font-light">Design ID</dt>
-                  <dd className="font-mono text-xs text-gray-500">{currentDesign.id}</dd>
-                </div>
+                {currentDesign.updated_at !== currentDesign.created_at && (
+                  <div className="flex justify-between items-center py-2 border-t border-gray-100">
+                    <dt className="text-gray-500 flex items-center gap-2">
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                      Last Updated
+                    </dt>
+                    <dd className="font-medium text-gray-700">{formatDate(currentDesign.updated_at)}</dd>
+                  </div>
+                )}
+                {currentDesign.code && (
+                  <div className="flex justify-between items-center py-2 border-t border-gray-100">
+                    <dt className="text-gray-500 flex items-center gap-2">
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                      </svg>
+                      Source Code
+                    </dt>
+                    <dd className="font-medium text-green-600">Available ✓</dd>
+                  </div>
+                )}
               </dl>
             </div>
 
             {currentDesign.prompt && (
-              <div className="bg-gray-50 border border-gray-200 p-6">
-                <h3 className="text-xs uppercase tracking-[0.3em] text-gray-400 mb-3">AI Prompt</h3>
-                <p className="text-sm text-gray-600 font-mono leading-relaxed whitespace-pre-wrap">{currentDesign.prompt}</p>
+              <div className="bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200 rounded-2xl p-6 shadow-sm">
+                <h3 className="text-xs uppercase tracking-[0.3em] text-purple-900 mb-3 flex items-center gap-2">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                  </svg>
+                  AI Prompt
+                </h3>
+                <p className="text-sm text-purple-900 leading-relaxed">{currentDesign.prompt}</p>
               </div>
             )}
 
             {sidebarSuggestions.length > 0 && (
-              <div className="bg-white border border-gray-100 p-6">
-                <h3 className="text-xs uppercase tracking-[0.3em] text-gray-400 mb-4">Browse next</h3>
+              <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
+                <h3 className="text-xs uppercase tracking-[0.3em] text-gray-400 mb-4 flex items-center gap-2">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Browse Next
+                </h3>
                 <ul className="space-y-3">
                   {sidebarSuggestions.map((item) => (
                     <li key={item.id}>
                       <Link
                         href={`/design/${item.slug}`}
-                        className="group flex items-start gap-3 rounded-lg border border-gray-100 p-3 hover:border-black hover:bg-gray-50 transition-colors"
+                        className="group flex items-start gap-3 rounded-xl border border-gray-100 p-3 hover:border-black hover:bg-gray-50 transition-all hover:shadow-md"
                       >
-                        <div className="relative h-12 w-16 overflow-hidden rounded bg-gray-100">
+                        <div className="relative h-14 w-20 overflow-hidden rounded-lg bg-gray-100 flex-shrink-0">
                           <Image
                             src={item.image_url}
                             alt={item.title}
                             fill
                             className="object-cover"
-                            sizes="64px"
+                            sizes="80px"
                           />
                         </div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-900 line-clamp-1 group-hover:text-black">{item.title}</p>
-                          <p className="text-xs text-gray-500 line-clamp-1">{item.category || 'General'}</p>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-gray-900 line-clamp-1 group-hover:text-black">{item.title}</p>
+                          <p className="text-xs text-gray-500 mt-1">{item.category || 'General'}</p>
                         </div>
                       </Link>
                     </li>
@@ -276,8 +344,11 @@ export default async function DesignDetailPage({ params }: PageProps) {
               href={currentDesign.image_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="block text-center w-full px-8 py-4 bg-black text-white text-xs uppercase tracking-[0.3em] hover:bg-gray-900 transition-colors"
+              className="flex items-center justify-center gap-2 w-full px-6 py-4 bg-gradient-to-r from-gray-900 to-black text-white text-xs font-bold uppercase tracking-[0.3em] rounded-xl hover:from-black hover:to-gray-900 transition-all shadow-lg hover:shadow-xl hover:scale-105"
             >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
               View Original
             </a>
           </aside>
