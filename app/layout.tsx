@@ -122,11 +122,10 @@ export default function RootLayout({
 
         {/* Ezoic header bootstrap */}
         <Script
-          async
           src="//www.ezojs.com/ezoic/sa.min.js"
-          strategy="afterInteractive"
+          strategy="beforeInteractive"
         />
-        <Script id="ezstandalone-init" strategy="afterInteractive">
+        <Script id="ezstandalone-init" strategy="beforeInteractive">
           {`
             window.ezstandalone = window.ezstandalone || {};
             ezstandalone.cmd = ezstandalone.cmd || [];
