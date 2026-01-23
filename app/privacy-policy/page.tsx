@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from 'next/link';
 import SimpleHeader from '@/components/SimpleHeader';
+import EzoicPlacements from '@/components/EzoicPlacements';
+import { getPlacementIds } from '@/lib/ezoic';
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
@@ -20,6 +22,7 @@ export const metadata: Metadata = {
 };
 
 export default function PrivacyPolicyPage() {
+  const placementIds = getPlacementIds('NEXT_PUBLIC_EZOIC_PLACEMENTS_PRIVACY');
   return (
     <div className="min-h-screen bg-white">
       <SimpleHeader />
@@ -90,6 +93,10 @@ export default function PrivacyPolicyPage() {
           </section>
         </div>
       </div>
+
+      {placementIds.length > 0 && (
+        <EzoicPlacements placementIds={placementIds} wrapperClassName="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 my-16" />
+      )}
 
       {/* Footer */}
       <footer className="bg-black border-t border-gray-900 mt-auto">

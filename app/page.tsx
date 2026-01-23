@@ -3,6 +3,7 @@ import DesignGallery from '@/components/DesignGallery';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import EzoicPlacements from '@/components/EzoicPlacements';
+import { getPlacementIds } from '@/lib/ezoic';
 
 export const revalidate = 0;
 
@@ -12,6 +13,7 @@ export default async function HomePage({
   searchParams: { category?: string };
 }) {
   const category = searchParams?.category;
+  const placementIds = getPlacementIds();
 
   let query = supabaseServer
     .from('designs')
@@ -56,8 +58,9 @@ export default async function HomePage({
 
         <DesignGallery initialDesigns={initialDesigns || []} initialCategory={category || null} />
 
-        {/* Replace placement IDs with values from the Ezoic dashboard */}
-        <EzoicPlacements placementIds={[101, 102, 103]} wrapperClassName="my-24 space-y-12" />
+        {placementIds.length > 0 && (
+          <EzoicPlacements placementIds={placementIds} wrapperClassName="my-24 space-y-12" />
+        )}
       </main>
 
       <Footer />
