@@ -82,7 +82,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-2xl font-semibold text-gray-900 mt-8 mb-4">4. Disclaimer of Warranties</h2>
             <p>
-              UI Syntax is provided on an "AS IS" and "AS AVAILABLE" basis. We make no warranties, expressed 
+              UI Syntax is provided on an &ldquo;AS IS&rdquo; and &ldquo;AS AVAILABLE&rdquo; basis. We make no warranties, expressed 
               or implied, and hereby disclaim all warranties including, without limitation:
             </p>
             <ul className="list-disc pl-6 space-y-2">
@@ -129,7 +129,7 @@ export default function TermsPage() {
             <h2 className="text-2xl font-semibold text-gray-900 mt-8 mb-4">8. Changes to Terms</h2>
             <p>
               We reserve the right to modify or replace these Terms at any time. If a revision is material, 
-              we will provide at least 30 days' notice prior to any new terms taking effect. What constitutes 
+              we will provide at least 30 days&rsquo; notice prior to any new terms taking effect. What constitutes 
               a material change will be determined at our sole discretion.
             </p>
           </section>

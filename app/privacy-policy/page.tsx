@@ -134,7 +134,7 @@ export default function PrivacyPolicyPage() {
               <a href="mailto:thive8564@gmail.com" className="text-blue-600 hover:text-blue-800 underline">
                 thive8564@gmail.com
               </a>{" "}
-              with the subject line "CCPA Request."
+              with the subject line &ldquo;CCPA Request.&rdquo;
             </p>
           </section>
 
@@ -168,7 +168,7 @@ export default function PrivacyPolicyPage() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold text-gray-900 mt-8 mb-4">9. Children's Privacy</h2>
+            <h2 className="text-2xl font-semibold text-gray-900 mt-8 mb-4">9. Children&rsquo;s Privacy</h2>
             <p>
               Our service is not intended for children under the age of 13. We do not knowingly collect 
               personally identifiable information from children under 13. If you are a parent or guardian 
@@ -189,7 +189,7 @@ export default function PrivacyPolicyPage() {
             <h2 className="text-2xl font-semibold text-gray-900 mt-8 mb-4">11. Changes to This Privacy Policy</h2>
             <p>
               We may update our Privacy Policy from time to time. We will notify you of any changes by 
-              posting the new Privacy Policy on this page and updating the "Last Updated" date.
+              posting the new Privacy Policy on this page and updating the &ldquo;Last Updated&rdquo; date.
             </p>
           </section>
 

@@ -19,7 +19,8 @@ export const metadata: Metadata = {
   },
 };
 
-export const revalidate = 3600; // Revalidate every hour
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export default async function BestSaaSLandingPagesPage() {
   // Fetch landing page designs
@@ -63,7 +64,7 @@ export default async function BestSaaSLandingPagesPage() {
             </h2>
             
             <p>
-              After analyzing hundreds of successful SaaS companies from Stripe to Notion, we've identified 
+              After analyzing hundreds of successful SaaS companies from Stripe to Notion, we&rsquo;ve identified 
               the key elements that make landing pages convert:
             </p>
 
@@ -75,7 +76,7 @@ export default async function BestSaaSLandingPagesPage() {
               </li>
               <li>
                 <strong>Social Proof Above the Fold:</strong> Enterprise buyers need validation. Logo bars 
-                from recognizable customers, G2 ratings, or quantified results ("Join 10,000+ teams") build 
+                from recognizable customers, G2 ratings, or quantified results (&ldquo;Join 10,000+ teams&rdquo;) build 
                 immediate credibility.
               </li>
               <li>
@@ -83,9 +84,9 @@ export default async function BestSaaSLandingPagesPage() {
                 tours help technical decision-makers understand your interface before booking a demo.
               </li>
               <li>
-                <strong>Feature-Benefit Mapping:</strong> Don't just list features—connect each capability 
-                to a business outcome. "Real-time collaboration" becomes "Ship products 3x faster with your 
-                distributed team."
+                <strong>Feature-Benefit Mapping:</strong> Don&rsquo;t just list features&mdash;connect each capability 
+                to a business outcome. &ldquo;Real-time collaboration&rdquo; becomes &ldquo;Ship products 3x faster with your 
+                distributed team.&rdquo;
               </li>
               <li>
                 <strong>Strategic CTAs:</strong> Primary CTA should offer low friction (free trial, demo, 
@@ -98,7 +99,7 @@ export default async function BestSaaSLandingPagesPage() {
             </h2>
 
             <p>
-              Our curated SaaS landing pages showcase modern design trends from Silicon Valley's top 
+              Our curated SaaS landing pages showcase modern design trends from Silicon Valley&rsquo;s top 
               product teams:
             </p>
 
@@ -139,7 +140,7 @@ export default async function BestSaaSLandingPagesPage() {
             <p className="mt-8">
               Each design in this collection balances conversion optimization with brand expression. 
               Use them as inspiration for your next landing page redesign, or as reference points when 
-              briefing designers and developers on what "modern SaaS design" looks like in 2026.
+              briefing designers and developers on what &ldquo;modern SaaS design&rdquo; looks like in 2026.
             </p>
           </div>
         </div>
@@ -148,7 +149,13 @@ export default async function BestSaaSLandingPagesPage() {
         {designsWithSlugs.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {designsWithSlugs.map((design) => (
-              <DesignCard key={design.id} design={design} />
+              <DesignCard 
+                key={design.id} 
+                design={design} 
+                likes={0} 
+                liked={false} 
+                onToggleLike={() => {}} 
+              />
             ))}
           </div>
         ) : (

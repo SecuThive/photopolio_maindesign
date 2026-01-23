@@ -19,7 +19,8 @@ export const metadata: Metadata = {
   },
 };
 
-export const revalidate = 3600; // Revalidate every hour
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export default async function MinimalistDashboardsPage() {
   // Fetch dashboard designs
@@ -63,8 +64,8 @@ export default async function MinimalistDashboardsPage() {
             </h2>
             
             <p>
-              Minimalism in dashboard design isn't about removing features—it's about ruthless prioritization. 
-              When users log into a SaaS platform, they're there to accomplish specific tasks: analyze metrics, 
+              Minimalism in dashboard design isn&rsquo;t about removing features&mdash;it&rsquo;s about ruthless prioritization. 
+              When users log into a SaaS platform, they&rsquo;re there to accomplish specific tasks: analyze metrics, 
               manage resources, or configure settings. Great dashboards eliminate friction in these workflows.
             </p>
 
@@ -75,7 +76,7 @@ export default async function MinimalistDashboardsPage() {
             <ul className="space-y-3 my-6">
               <li>
                 <strong>Progressive Disclosure:</strong> Show essential information by default, with drill-down 
-                capabilities for power users. Don't dump 20 metrics on the screen when most users only track 3.
+                capabilities for power users. Don&rsquo;t dump 20 metrics on the screen when most users only track 3.
               </li>
               <li>
                 <strong>Consistent Spacing Systems:</strong> Modern dashboards use 4px or 8px base spacing units. 
@@ -87,7 +88,7 @@ export default async function MinimalistDashboardsPage() {
                 type scale (like 12px, 14px, 16px, 20px, 24px) can do more than decorative elements.
               </li>
               <li>
-                <strong>Purposeful White Space:</strong> Empty space isn't wasted space—it gives users room to 
+                <strong>Purposeful White Space:</strong> Empty space isn&rsquo;t wasted space&mdash;it gives users room to 
                 breathe and helps them focus on what matters. Cramming more widgets into a dashboard usually 
                 decreases usability.
               </li>
@@ -109,21 +110,21 @@ export default async function MinimalistDashboardsPage() {
             <ul className="space-y-3 my-6">
               <li>
                 <strong>Neutral Base Palette:</strong> Grays ranging from #F9FAFB (background) to #111827 
-                (primary text) create a calm foundation that doesn't compete with data visualizations.
+                (primary text) create a calm foundation that doesn&rsquo;t compete with data visualizations.
               </li>
               <li>
-                <strong>Semantic Color System:</strong> Color is reserved for meaning—green for success, 
+                <strong>Semantic Color System:</strong> Color is reserved for meaning&mdash;green for success, 
                 red for errors, blue for links and primary actions. This reduces cognitive load because 
                 users intuitively understand color coding.
               </li>
               <li>
-                <strong>High Contrast Ratios:</strong> WCAG AA compliance (4.5:1 for body text) isn't just 
-                about accessibility—it makes dashboards easier to read during long work sessions.
+                <strong>High Contrast Ratios:</strong> WCAG AA compliance (4.5:1 for body text) isn&rsquo;t just 
+                about accessibility&mdash;it makes dashboards easier to read during long work sessions.
               </li>
             </ul>
 
             <h2 className="text-2xl font-semibold text-gray-900 mt-8 mb-4">
-              Layout Patterns You'll See
+              Layout Patterns You&rsquo;ll See
             </h2>
 
             <p>
@@ -138,7 +139,7 @@ export default async function MinimalistDashboardsPage() {
               <li>• <strong>Data Tables:</strong> Clean tables with row hover states, sortable columns, 
               and inline actions without clutter</li>
               <li>• <strong>Empty States:</strong> Thoughtfully designed blank slates that guide users 
-              toward their first action rather than showing cryptic "No data" messages</li>
+              toward their first action rather than showing cryptic &ldquo;No data&rdquo; messages</li>
             </ul>
 
             <h2 className="text-2xl font-semibold text-gray-900 mt-8 mb-4">
@@ -146,7 +147,7 @@ export default async function MinimalistDashboardsPage() {
             </h2>
 
             <p>
-              While these are design concepts, they're informed by modern frontend best practices:
+              While these are design concepts, they&rsquo;re informed by modern frontend best practices:
             </p>
 
             <ul className="space-y-2 my-4">
@@ -184,7 +185,13 @@ export default async function MinimalistDashboardsPage() {
         {designsWithSlugs.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {designsWithSlugs.map((design) => (
-              <DesignCard key={design.id} design={design} />
+              <DesignCard 
+                key={design.id} 
+                design={design} 
+                likes={0} 
+                liked={false} 
+                onToggleLike={() => {}} 
+              />
             ))}
           </div>
         ) : (
