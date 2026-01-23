@@ -2,6 +2,7 @@ import { supabaseServer } from '@/lib/supabase/server';
 import DesignGallery from '@/components/DesignGallery';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import EzoicPlacements from '@/components/EzoicPlacements';
 
 export const revalidate = 0;
 
@@ -52,6 +53,9 @@ export default async function HomePage({
             ))}
           </div>
         </section>
+
+        {/* Replace placement IDs with values from the Ezoic dashboard */}
+        <EzoicPlacements placementIds={[101, 102, 103]} wrapperClassName="my-16 space-y-8" />
 
         <DesignGallery initialDesigns={initialDesigns || []} initialCategory={category || null} />
       </main>
