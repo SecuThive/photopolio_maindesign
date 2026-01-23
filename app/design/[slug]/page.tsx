@@ -142,6 +142,15 @@ export default async function DesignDetailPage({ params }: PageProps) {
       <Header selectedCategory={currentDesign.category} />
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-12">
         <div className="space-y-4 text-center md:text-left">
+          <div className="flex justify-center md:justify-start">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.3em] text-gray-500 hover:text-black transition-colors"
+            >
+              <span className="text-sm">Back</span>
+              <span className="text-[10px] tracking-[0.5em]">HOME</span>
+            </Link>
+          </div>
           <p className="text-xs uppercase tracking-[0.35em] text-gray-500">Featured Design</p>
           <h1 className="text-4xl md:text-5xl font-semibold text-gray-900 tracking-tight">{currentDesign.title}</h1>
           <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-sm text-gray-500">
