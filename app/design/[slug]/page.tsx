@@ -169,8 +169,8 @@ export default async function DesignDetailPage({ params }: PageProps) {
           </div>
           <p className="text-xs uppercase tracking-[0.35em] text-gray-500">Featured Design</p>
           <h1 className="text-4xl md:text-5xl font-semibold text-gray-900 tracking-tight">{currentDesign.title}</h1>
+          <p className="text-sm uppercase tracking-[0.35em] text-gray-400">{formatDate(currentDesign.created_at)}</p>
           <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-sm text-gray-500">
-            <span>{formatDate(currentDesign.created_at)}</span>
             {currentDesign.category && (
               <span className="px-4 py-1 bg-black text-white text-xs uppercase tracking-widest">{currentDesign.category}</span>
             )}
