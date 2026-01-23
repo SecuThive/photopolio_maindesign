@@ -179,7 +179,7 @@ export default function DesignModal({ design, onClose, likes, liked, onToggleLik
 
         {/* Image - Live Preview with iframe */}
         <div className="w-full bg-gray-50 px-4 py-6 border-b border-gray-100">
-          <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.3em] text-gray-500">
+          <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.3em] text-gray-500 pr-16 lg:pr-24">
             <span className="text-[10px] text-gray-400">Responsive Preview</span>
             <div className="flex items-center gap-2 rounded-full border border-gray-200 bg-white p-1">
               {[

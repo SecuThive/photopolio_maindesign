@@ -20,6 +20,7 @@ export default function LikeButton({ likes, liked, onToggle, disabled, variant =
     <button
       type="button"
       onClick={(event) => {
+        event.preventDefault();
         event.stopPropagation();
         if (!disabled) {
           onToggle();
