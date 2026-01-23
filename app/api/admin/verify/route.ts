@@ -1,6 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
+export async function POST(request: NextRequest) {
+  try {
+    const { path } = await request.json();
+    const secretPath = process.env.ADMIN_SECRET_PATH || 'secret-admin-dashboard-x9k2p';
+    
+    // 비밀 경로 검증
+    if (path !== secretPath) {
+      return NextResponse.json({ error: 'Invalid path' }, { status: 404 });
+    }
+    
+    return NextResponse.json({ valid: true });
+  } catch (error) {
+    return NextResponse.json({ error: 'Server error' }, { status: 500 });
+  }
+}
+
 export async function GET(request: NextRequest) {
   try {
     const cookieStore = await cookies();

@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import { supabase } from '@/lib/supabase/client';
 import { Design } from '@/types/database';
 import Image from 'next/image';
@@ -20,7 +21,9 @@ export default function AdminDashboardPage() {
   const [uploading, setUploading] = useState(false);
   const [metrics, setMetrics] = useState<MetricsSummary | null>(null);
   const [metricsLoading, setMetricsLoading] = useState(true);
+  const [isValidPath, setIsValidPath] = useState(false);
   const router = useRouter();
+  const params = useParams();
   const formatNumber = (value: number) => new Intl.NumberFormat('en-US').format(value);
   const formatDayLabel = (date: string) =>
     new Date(date).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
@@ -28,16 +31,35 @@ export default function AdminDashboardPage() {
   const maxDailyValue = dailyViews.reduce((max, day) => Math.max(max, day.count), 0);
   const normalizedDailyMax = Math.max(maxDailyValue, 1);
 
+  useEffect(() => {
+    // 비밀 경로 검증
+    const checkPath = async () => {
+      const response = await fetch('/api/admin/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ path: params.admin }),
+      });
+      
+      if (response.ok) {
+        setIsValidPath(true);
+      } else {
+        notFound();
+      }
+    };
+    
+    checkPath();
+  }, [params.admin]);
+
   const checkAuth = useCallback(async () => {
     try {
       const response = await fetch('/api/admin/verify');
       if (!response.ok) {
-        router.push('/admin');
+        router.push(`/${params.admin}`);
       }
     } catch (err) {
-      router.push('/admin');
+      router.push(`/${params.admin}`);
     }
-  }, [router]);
+  }, [router, params.admin]);
 
   const loadDesigns = useCallback(async () => {
     setLoading(true);
@@ -73,10 +95,23 @@ export default function AdminDashboardPage() {
   }, []);
 
   useEffect(() => {
-    checkAuth();
-    loadDesigns();
-    loadMetrics();
-  }, [checkAuth, loadDesigns, loadMetrics]);
+    if (isValidPath) {
+      checkAuth();
+      loadDesigns();
+      loadMetrics();
+    }
+  }, [isValidPath, checkAuth, loadDesigns, loadMetrics]);
+
+  if (!isValidPath) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
+          <p className="mt-4 text-gray-600">확인 중...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this design?')) return;

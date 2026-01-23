@@ -1,13 +1,35 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useParams } from 'next/navigation';
+import { notFound } from 'next/navigation';
 
 export default function AdminLoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isValidPath, setIsValidPath] = useState(false);
   const router = useRouter();
+  const params = useParams();
+
+  useEffect(() => {
+    // 비밀 경로 검증
+    const checkPath = async () => {
+      const response = await fetch('/api/admin/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ path: params.admin }),
+      });
+      
+      if (response.ok) {
+        setIsValidPath(true);
+      } else {
+        notFound();
+      }
+    };
+    
+    checkPath();
+  }, [params.admin]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,7 +44,7 @@ export default function AdminLoginPage() {
       });
 
       if (response.ok) {
-        router.push('/admin/dashboard');
+        router.push(`/${params.admin}/dashboard`);
       } else {
         setError('비밀번호가 올바르지 않습니다.');
       }
@@ -32,6 +54,17 @@ export default function AdminLoginPage() {
       setLoading(false);
     }
   };
+
+  if (!isValidPath) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
+          <p className="mt-4 text-gray-600">확인 중...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
