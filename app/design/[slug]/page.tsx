@@ -145,10 +145,26 @@ export default async function DesignDetailPage({ params }: PageProps) {
           <div className="flex justify-center md:justify-start">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.3em] text-gray-500 hover:text-black transition-colors"
+              className="inline-flex items-center gap-3 rounded-full border border-gray-200 bg-white/80 px-5 py-2 text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-600 shadow-sm transition-all hover:border-black hover:text-black hover:shadow"
             >
-              <span className="text-sm">Back</span>
-              <span className="text-[10px] tracking-[0.5em]">HOME</span>
+              <span className="flex h-6 w-6 items-center justify-center rounded-full border border-gray-300 bg-gray-50 text-[0.65rem] tracking-[0.1em] text-gray-600">
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-3 w-3"
+                >
+                  <path
+                    d="M11.5 5.5 7 10l4.5 4.5"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </span>
+              <span className="tracking-[0.5em]">Home</span>
             </Link>
           </div>
           <p className="text-xs uppercase tracking-[0.35em] text-gray-500">Featured Design</p>
