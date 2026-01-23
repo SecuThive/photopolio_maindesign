@@ -34,6 +34,12 @@ const nextConfig = {
       permanent: true,
     }));
 
+    redirects.push({
+      source: '/ads.txt',
+      destination: 'https://srv.adstxtmanager.com/19390/ui-syntax.com',
+      permanent: true,
+    });
+
     return redirects;
   },
 };
