@@ -54,10 +54,10 @@ export default async function HomePage({
           </div>
         </section>
 
-        {/* Replace placement IDs with values from the Ezoic dashboard */}
-        <EzoicPlacements placementIds={[101, 102, 103]} wrapperClassName="my-16 space-y-8" />
-
         <DesignGallery initialDesigns={initialDesigns || []} initialCategory={category || null} />
+
+        {/* Replace placement IDs with values from the Ezoic dashboard */}
+        <EzoicPlacements placementIds={[101, 102, 103]} wrapperClassName="my-24 space-y-12" />
       </main>
 
       <Footer />
