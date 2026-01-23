@@ -193,6 +193,7 @@ export default async function DesignDetailPage({ params }: PageProps) {
               imageUrl={currentDesign.image_url}
               title={currentDesign.title}
               colors={currentDesign.colors || undefined}
+              htmlCode={currentDesign.code}
             />
 
             {currentDesign.description && (

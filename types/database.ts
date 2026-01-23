@@ -11,6 +11,15 @@ export type Design = {
   likes: number | null;
   slug?: string | null;
   colors?: string[] | null;
+  colorable_regions?: Array<{
+    id: string;
+    name: string;
+    type: string;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  }> | null;
 };
 
 export type DesignWithSlug = Design & { slug: string };
