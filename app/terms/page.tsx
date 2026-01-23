@@ -41,15 +41,20 @@ export default function TermsPage() {
           <section>
             <h2 className="text-2xl font-semibold text-gray-900 mt-8 mb-4">1. Use of Service</h2>
             <p>
-              UI Syntax provides a curated gallery of AI-generated web design inspiration for professional use. 
+              UI Syntax provides a curated gallery of AI-generated web design inspiration for both personal and commercial use. 
               By accessing our service, you agree to:
             </p>
             <ul className="list-disc pl-6 space-y-2">
-              <li>Use the designs for inspiration and reference purposes</li>
-              <li>Not reproduce or redistribute designs without proper attribution</li>
+              <li>Use the designs freely for personal, educational, or commercial projects</li>
+              <li>Use the designs for inspiration and reference purposes without restriction</li>
+              <li>Not reproduce or redistribute the entire gallery or substantial portions without permission</li>
               <li>Respect intellectual property rights of AI-generated content</li>
               <li>Use the service in compliance with all applicable laws and regulations</li>
             </ul>
+            <p className="mt-4 text-sm text-gray-600 italic">
+              Note: All designs provided on UI Syntax may be used freely for both personal and commercial purposes. 
+              While attribution is appreciated, it is not required.
+            </p>
           </section>
 
           <section>

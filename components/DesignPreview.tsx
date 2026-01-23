@@ -91,7 +91,7 @@ export default function DesignPreview({ imageUrl, title, colors, htmlCode }: Des
                   height: `${100 / scale}%`,
                 }}
                 title="Live Design Preview"
-                sandbox="allow-same-origin"
+                sandbox="allow-same-origin allow-forms"
               />
             </div>
           </div>

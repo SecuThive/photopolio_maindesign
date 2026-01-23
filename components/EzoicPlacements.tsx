@@ -27,12 +27,24 @@ export default function EzoicPlacements({ placementIds, wrapperClassName }: Ezoi
     const uniqueIds = Array.from(new Set(placementIds));
 
     const enqueueShowAds = () => {
-      if (typeof ez.showAds === 'function') {
-        ez.showAds(...uniqueIds);
+      try {
+        if (typeof ez.showAds === 'function') {
+          ez.showAds(...uniqueIds);
+        }
+      } catch (error) {
+        // Ezoic 스크립트 로딩 오류 무시
+        console.debug('Ezoic ads not ready:', error);
       }
     };
 
-    ez.cmd.push(enqueueShowAds);
+    // 약간의 지연을 두고 실행
+    const timer = setTimeout(() => {
+      if (ez.cmd) {
+        ez.cmd.push(enqueueShowAds);
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, [placementIds]);
 
   if (placementIds.length === 0) {
