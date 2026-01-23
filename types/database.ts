@@ -9,6 +9,7 @@ export type Design = {
   created_at: string;
   updated_at: string;
   likes: number | null;
+  slug?: string | null;
 };
 
 export type DesignWithSlug = Design & { slug: string };

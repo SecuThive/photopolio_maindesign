@@ -6,15 +6,13 @@ import LikeButton from './LikeButton';
 
 interface DesignCardProps {
   design: DesignWithSlug;
-  onClick: (e: React.MouseEvent<HTMLAnchorElement>) => void;
   likes: number;
   liked: boolean;
   onToggleLike: () => void;
   likeDisabled?: boolean;
-  category?: string | null;
 }
 
-export default function DesignCard({ design, onClick, likes, liked, onToggleLike, likeDisabled, category }: DesignCardProps) {
+export default function DesignCard({ design, likes, liked, onToggleLike, likeDisabled }: DesignCardProps) {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
@@ -29,7 +27,6 @@ export default function DesignCard({ design, onClick, likes, liked, onToggleLike
   return (
     <Link
       href={href}
-      onClick={onClick}
       className="block group cursor-pointer bg-white overflow-hidden transition-all duration-500 hover:luxury-shadow-lg"
     >
       <div className="relative aspect-[3/4] overflow-hidden bg-gray-100">
