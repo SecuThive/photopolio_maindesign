@@ -84,10 +84,19 @@ async function main() {
     return;
   }
 
-  for (const batch of chunk(updates, 50)) {
-    const { error: updateError } = await supabase.from('designs').upsert(batch, { onConflict: 'id' });
-    if (updateError) {
-      console.error('Failed to upsert slug batch:', updateError);
+  for (const batch of chunk(updates, 10)) {
+    const results = await Promise.all(
+      batch.map(({ id, slug }) =>
+        supabase
+          .from('designs')
+          .update({ slug })
+          .eq('id', id)
+      ),
+    );
+
+    const failed = results.find((result) => result.error);
+    if (failed?.error) {
+      console.error('Failed to update slug batch:', failed.error);
       process.exit(1);
     }
   }
