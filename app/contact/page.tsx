@@ -112,6 +112,7 @@ export default function ContactPage() {
               <h3 className="text-sm font-semibold text-white mb-4 uppercase tracking-wider">Legal</h3>
               <ul className="space-y-2">
                 <li><Link href="/privacy-policy" className="text-gray-400 hover:text-white text-sm transition-colors">Privacy Policy</Link></li>
+                <li><Link href="/terms" className="text-gray-400 hover:text-white text-sm transition-colors">Terms of Service</Link></li>
                 <li><Link href="/contact" className="text-gray-400 hover:text-white text-sm transition-colors">Contact</Link></li>
                 <li><a href="/feed.xml" className="text-gray-400 hover:text-white text-sm transition-colors">RSS Feed</a></li>
               </ul>
