@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next'
 import { createClient } from '@supabase/supabase-js'
+import { createDesignSlug } from '@/lib/slug'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -11,7 +12,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Fetch all designs from Supabase
   const { data: designs } = await supabase
     .from('designs')
-    .select('id, created_at, category')
+    .select('id, title, created_at, category')
     .order('created_at', { ascending: false })
 
   // Static pages
@@ -50,7 +51,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Dynamic design pages
   const designPages: MetadataRoute.Sitemap = designs?.map((design) => ({
-    url: `${baseUrl}/?design=${design.id}`,
+    url: `${baseUrl}/design/${createDesignSlug(design.title, design.id)}`,
     lastModified: new Date(design.created_at),
     changeFrequency: 'weekly' as const,
     priority: 0.7,

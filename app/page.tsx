@@ -4,6 +4,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import EzoicPlacements from '@/components/EzoicPlacements';
 import { getPlacementIds } from '@/lib/ezoic';
+import { withDesignSlugs } from '@/lib/slug';
 
 export const revalidate = 0;
 
@@ -26,6 +27,7 @@ export default async function HomePage({
   }
 
   const { data: initialDesigns } = await query;
+  const designsWithSlugs = initialDesigns ? withDesignSlugs(initialDesigns) : [];
 
   return (
     <div className="min-h-screen bg-luxury-white">
@@ -56,7 +58,7 @@ export default async function HomePage({
           </div>
         </section>
 
-        <DesignGallery initialDesigns={initialDesigns || []} initialCategory={category || null} />
+        <DesignGallery initialDesigns={designsWithSlugs} initialCategory={category || null} />
 
         {placementIds.length > 0 && (
           <EzoicPlacements placementIds={placementIds} wrapperClassName="my-24 space-y-12" />

@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
-import { Design } from '@/types/database';
+import { DesignWithSlug } from '@/types/database';
 import LikeButton from './LikeButton';
 
 interface DesignModalProps {
-  design: Design;
+  design: DesignWithSlug;
   onClose: () => void;
   likes: number;
   liked: boolean;
@@ -85,11 +85,16 @@ export default function DesignModal({ design, onClose, likes, liked, onToggleLik
   }, [design.id]);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const targetUrl = new URL(window.location.href);
-    targetUrl.searchParams.set('design', design.id);
-    setShareUrl(targetUrl.toString());
-  }, [design.id]);
+    const fallbackBase = (process.env.NEXT_PUBLIC_SITE_URL || '').replace(/\/$/, '');
+    if (typeof window === 'undefined') {
+      if (fallbackBase) {
+        setShareUrl(`${fallbackBase}/design/${design.slug}`);
+      }
+      return;
+    }
+    const base = fallbackBase || window.location.origin;
+    setShareUrl(`${base}/design/${design.slug}`);
+  }, [design.slug]);
 
   const handleCopyCode = async () => {
     const codeToCopy = previewCode || design.code;

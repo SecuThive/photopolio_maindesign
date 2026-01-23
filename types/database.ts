@@ -11,6 +11,8 @@ export type Design = {
   likes: number | null;
 };
 
+export type DesignWithSlug = Design & { slug: string };
+
 export type PageView = {
   id: string;
   created_at: string;

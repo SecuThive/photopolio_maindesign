@@ -1,11 +1,11 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Design } from '@/types/database';
+import { DesignWithSlug } from '@/types/database';
 import LikeButton from './LikeButton';
 
 interface DesignCardProps {
-  design: Design;
+  design: DesignWithSlug;
   onClick: (e: React.MouseEvent<HTMLAnchorElement>) => void;
   likes: number;
   liked: boolean;
@@ -24,7 +24,7 @@ export default function DesignCard({ design, onClick, likes, liked, onToggleLike
     });
   };
 
-  const href = category ? `/?category=${category}&design=${design.id}` : `/?design=${design.id}`;
+  const href = `/design/${design.slug}`;
 
   return (
     <Link

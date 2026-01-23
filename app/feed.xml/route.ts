@@ -1,5 +1,6 @@
 import RSS from 'rss';
 import { createClient } from '@supabase/supabase-js';
+import { createDesignSlug } from '@/lib/slug';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -35,7 +36,7 @@ export async function GET() {
     feed.item({
       title: design.title,
       description: design.description || `${design.category} design - ${design.title}`,
-      url: `https://www.ui-syntax.com/?design=${design.id}`,
+      url: `https://www.ui-syntax.com/design/${createDesignSlug(design.title, design.id)}`,
       guid: design.id,
       categories: [design.category],
       date: new Date(design.created_at),

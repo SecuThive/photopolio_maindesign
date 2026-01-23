@@ -3,9 +3,10 @@
 import { useEffect, useState, useCallback } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase/client';
-import { Design } from '@/types/database';
+import { Design, DesignWithSlug } from '@/types/database';
 import DesignCard from './DesignCard';
 import DesignModal from './DesignModal';
+import { extractDesignIdFromSlug, withDesignSlug, withDesignSlugs } from '@/lib/slug';
 
 const ITEMS_PER_PAGE = 12;
 
@@ -26,16 +27,16 @@ const generateLikeToken = () => {
 };
 
 interface DesignGalleryProps {
-  initialDesigns: Design[];
+  initialDesigns: DesignWithSlug[];
   initialCategory: string | null;
 }
 
 export default function DesignGallery({ initialDesigns, initialCategory }: DesignGalleryProps) {
-  const [designs, setDesigns] = useState<Design[]>(initialDesigns);
+  const [designs, setDesigns] = useState<DesignWithSlug[]>(initialDesigns);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(initialDesigns.length === ITEMS_PER_PAGE);
   const [loading, setLoading] = useState(false);
-  const [selectedDesign, setSelectedDesign] = useState<Design | null>(null);
+  const [selectedDesign, setSelectedDesign] = useState<DesignWithSlug | null>(null);
   const [activeCategory, setActiveCategory] = useState(initialCategory);
   const [likesMap, setLikesMap] = useState<Record<string, number>>(() => {
     const initialMap: Record<string, number> = {};
@@ -50,7 +51,7 @@ export default function DesignGallery({ initialDesigns, initialCategory }: Desig
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const activeDesignId = searchParams?.get('design');
+  const activeDesignSlug = searchParams?.get('design');
 
   useEffect(() => {
     setDesigns(initialDesigns);
@@ -67,12 +68,12 @@ export default function DesignGallery({ initialDesigns, initialCategory }: Desig
   }, [initialDesigns, initialCategory]);
 
   useEffect(() => {
-    if (!activeDesignId) {
+    if (!activeDesignSlug) {
       setSelectedDesign(null);
       return;
     }
 
-    const existing = designs.find((design) => design.id === activeDesignId);
+    const existing = designs.find((design) => design.slug === activeDesignSlug);
     if (existing) {
       setSelectedDesign((prev) => (prev?.id === existing.id ? prev : existing));
       return;
@@ -81,23 +82,27 @@ export default function DesignGallery({ initialDesigns, initialCategory }: Desig
     let cancelled = false;
     const fetchDesign = async () => {
       try {
+        const designId = extractDesignIdFromSlug(activeDesignSlug);
+        if (!designId) return;
         const { data, error } = await supabase
           .from('designs')
           .select('*')
-          .eq('id', activeDesignId)
+          .eq('id', designId)
           .single<Design>();
 
         if (error) throw error;
         if (!data || cancelled) return;
 
+        const designWithSlug = withDesignSlug(data);
+
         setDesigns((prev) => {
           if (prev.some((design) => design.id === data.id)) {
             return prev;
           }
-          return [data, ...prev];
+          return [designWithSlug, ...prev];
         });
         setLikesMap((prev) => ({ ...prev, [data.id]: data.likes ?? 0 }));
-        setSelectedDesign(data);
+        setSelectedDesign(designWithSlug);
       } catch (error) {
         console.error('Failed to fetch design for modal', error);
       }
@@ -108,13 +113,13 @@ export default function DesignGallery({ initialDesigns, initialCategory }: Desig
     return () => {
       cancelled = true;
     };
-  }, [activeDesignId, designs]);
+  }, [activeDesignSlug, designs]);
 
   const updateDesignQuery = useCallback(
-    (designId?: string) => {
+    (designSlug?: string) => {
       const params = new URLSearchParams(searchParams?.toString() || '');
-      if (designId) {
-        params.set('design', designId);
+      if (designSlug) {
+        params.set('design', designSlug);
       } else {
         params.delete('design');
       }
@@ -220,7 +225,7 @@ export default function DesignGallery({ initialDesigns, initialCategory }: Desig
       if (error) throw error;
 
       if (data) {
-        const fetchedDesigns = data as Design[];
+        const fetchedDesigns = withDesignSlugs(data as Design[]);
         setDesigns((prev) => [...prev, ...fetchedDesigns]);
         setHasMore(fetchedDesigns.length === ITEMS_PER_PAGE);
         setPage((prev) => prev + 1);
@@ -241,12 +246,12 @@ export default function DesignGallery({ initialDesigns, initialCategory }: Desig
     }
   };
 
-  const handleSelectDesign = (design: Design, e?: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleSelectDesign = (design: DesignWithSlug, e?: React.MouseEvent<HTMLAnchorElement>) => {
     if (e) {
       e.preventDefault();
     }
     setSelectedDesign(design);
-    updateDesignQuery(design.id);
+    updateDesignQuery(design.slug);
   };
 
   const handleCloseModal = () => {
