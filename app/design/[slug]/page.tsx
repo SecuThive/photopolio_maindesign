@@ -5,6 +5,8 @@ import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ShareLinkButton from '@/components/ShareLinkButton';
+import DesignPreview from '@/components/DesignPreview';
+import CodeBlock from '@/components/CodeBlock';
 import { supabaseServer } from '@/lib/supabase/server';
 import { extractDesignIdFromSlug, withDesignSlug, withDesignSlugs } from '@/lib/slug';
 import { Design, DesignWithSlug } from '@/types/database';
@@ -187,16 +189,11 @@ export default async function DesignDetailPage({ params }: PageProps) {
 
         <div className="grid gap-10 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
           <div className="space-y-8">
-            <div className="relative aspect-[3/2] overflow-hidden rounded-[32px] bg-gray-100 border border-gray-200 shadow-[0_25px_70px_rgba(0,0,0,0.12)]">
-              <Image
-                src={currentDesign.image_url}
-                alt={currentDesign.title}
-                fill
-                className="object-cover object-top"
-                sizes="(max-width: 1024px) 100vw, 70vw"
-                priority
-              />
-            </div>
+            <DesignPreview 
+              imageUrl={currentDesign.image_url}
+              title={currentDesign.title}
+              colors={currentDesign.colors || undefined}
+            />
 
             {currentDesign.description && (
               <section className="bg-white border border-gray-200 p-8 shadow-sm">
@@ -206,15 +203,7 @@ export default async function DesignDetailPage({ params }: PageProps) {
             )}
 
             {currentDesign.code && (
-              <section className="bg-black text-green-400 border border-gray-900 p-8">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xs uppercase tracking-[0.3em] text-gray-400">Source Code</h2>
-                  <span className="text-[11px] uppercase tracking-[0.3em] text-gray-500">Read-only</span>
-                </div>
-                <pre className="overflow-x-auto text-sm leading-relaxed font-mono max-h-[480px]">
-                  <code>{currentDesign.code}</code>
-                </pre>
-              </section>
+              <CodeBlock code={currentDesign.code} />
             )}
           </div>
 

@@ -10,6 +10,7 @@ export type Design = {
   updated_at: string;
   likes: number | null;
   slug?: string | null;
+  colors?: string[] | null;
 };
 
 export type DesignWithSlug = Design & { slug: string };
@@ -38,6 +39,7 @@ export type Database = {
           created_at?: string;
           updated_at?: string;
           likes?: number | null;
+          colors?: string[] | null;
         };
         Update: {
           id?: string;
@@ -50,6 +52,7 @@ export type Database = {
           created_at?: string;
           updated_at?: string;
           likes?: number | null;
+          colors?: string[] | null;
         };
       };
       design_likes: {
