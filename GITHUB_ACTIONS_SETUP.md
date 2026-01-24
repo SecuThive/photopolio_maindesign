@@ -100,7 +100,7 @@ Total: ~59 designs per run (E-commerce는 9개)
 ### 생성 개수 조정
 workflow 파일의 마지막 명령어 수정:
 ```yaml
-python design_generator_final.py --count 5  # 5개로 줄이기
+python design_generator_final.py --total 5  # 6개 카테고리를 합쳐 총 5개만 생성
 ```
 
 ### 특정 카테고리만 생성
