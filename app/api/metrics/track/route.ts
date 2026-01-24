@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
+import type { Database } from '@/types/database';
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,11 +11,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Missing designId' }, { status: 400 });
     }
 
+    type ViewRow = { views: number | null };
     const { data, error } = await supabaseAdmin
       .from('designs')
       .select('views')
       .eq('id', designId)
-      .single();
+      .single<ViewRow>();
 
     if (error || !data) {
       console.error('Failed to read design views', error);
@@ -22,9 +24,12 @@ export async function POST(request: NextRequest) {
     }
 
     const nextViews = (data.views ?? 0) + 1;
+    const updates: Database['public']['Tables']['designs']['Update'] = {
+      views: nextViews,
+    };
     const { error: updateError } = await supabaseAdmin
       .from('designs')
-      .update({ views: nextViews })
+      .update(updates as never)
       .eq('id', designId);
 
     if (updateError) {
