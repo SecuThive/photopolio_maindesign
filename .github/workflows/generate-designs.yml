@@ -14,6 +14,21 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Restore generator state cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            automation/history.json
+            automation/structures
+          key: advanced-generator-${{ github.run_id }}
+          restore-keys: |
+            advanced-generator-
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -37,6 +52,14 @@ jobs:
           SUPABASE_URL=${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           EOF
+
+      - name: Generate structure-style combos (Ollama)
+        run: |
+          cd automation
+          node advanced_generator.js
+        env:
+          OLLAMA_HOST: ${{ secrets.OLLAMA_HOST }}
+          OLLAMA_MODEL: ${{ secrets.OLLAMA_MODEL }}
 
       - name: Generate designs
         run: |
