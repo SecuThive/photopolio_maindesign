@@ -34,8 +34,8 @@ GitHub Repository에서 다음 환경 변수를 설정해야 합니다:
 
 ## 🎨 생성 설정
 
-- **카테고리별 생성 개수**: 10개씩
-- **총 생성 개수**: 60개 (Landing Page 10, Dashboard 10, E-commerce 9, Portfolio 10, Blog 10, Components 10)
+- **구조/스타일 풀**: 카테고리별 50개 HTML 스켈레톤 + 5개 스타일 테마(Ollama에서 조합)
+- **총 생성 개수**: 10개 (6개 카테고리를 순환하며 전체 10개만 생성)
 - **생성 시간**: 약 5-10분 소요 (GitHub Actions 환경에서)
 
 ## 📝 수동 실행 방법
@@ -90,10 +90,17 @@ GitHub Repository에서 다음 환경 변수를 설정해야 합니다:
 ```yaml
 Schedule: 매일 UTC 00:00 (한국 09:00)
 Python: 3.12
+Node: 18 (Ollama 프롬프트 생성)
 Browser: Chromium (Playwright)
-Designs per run: 10 per category
-Total: ~59 designs per run (E-commerce는 9개)
+Designs per run: 총 10개 (카테고리 순환)
 ```
+
+## 🤖 Ollama 구성
+
+- 워크플로우가 자동으로 Ollama CLI를 설치하고 `ollama serve`를 background로 실행합니다.
+- 기본 모델은 `llama3.1`이며, 필요 시 `.github/workflows/generate-designs.yml`의 `env: OLLAMA_MODEL` 값을 원하는 모델명으로 바꾸면 됩니다.
+- 별도의 GitHub Secret 없이 러너 내부에서 모델을 `ollama pull` 하므로 추가 환경 변수 설정이 필요 없습니다.
+- 서버는 `http://127.0.0.1:11434`에 바인딩되므로 JS/CLI 모두 동일 주소를 사용하게 됩니다.
 
 ## 🚀 최적화 옵션
 
