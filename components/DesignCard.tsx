@@ -22,6 +22,15 @@ export default function DesignCard({ design, likes, liked, onToggleLike, likeDis
     });
   };
 
+  const buildSnippet = (text: string) => {
+    const sentences = text
+      .split(/(?<=[.!?])\s+/)
+      .map((segment) => segment.trim())
+      .filter(Boolean);
+    const preview = sentences.slice(0, 2).join(' ') || text;
+    return preview.length > 220 ? `${preview.slice(0, 220)}…` : preview;
+  };
+
   const href = `/design/${design.slug}`;
 
   return (
@@ -48,7 +57,7 @@ export default function DesignCard({ design, likes, liked, onToggleLike, likeDis
         
         {design.description && (
           <p className="text-sm text-gray-500 line-clamp-2 mb-3 font-light leading-relaxed">
-            {design.description}
+            {buildSnippet(design.description)}
           </p>
         )}
         

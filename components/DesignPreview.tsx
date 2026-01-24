@@ -38,7 +38,12 @@ export default function DesignPreview({ imageUrl, title, colors, htmlCode }: Des
       const iframeDoc = iframeRef.current.contentDocument;
       if (!iframeDoc) return;
 
-      const htmlContent = `
+      const trimmed = htmlCode.trim();
+      const containsFullDocument = /^<!DOCTYPE|<html/i.test(trimmed);
+
+      const htmlContent = containsFullDocument
+        ? trimmed
+        : `
         <!DOCTYPE html>
         <html lang="en">
         <head>
@@ -59,7 +64,7 @@ export default function DesignPreview({ imageUrl, title, colors, htmlCode }: Des
           </style>
         </head>
         <body>
-          ${htmlCode}
+          ${trimmed}
         </body>
         </html>
       `;
@@ -91,7 +96,7 @@ export default function DesignPreview({ imageUrl, title, colors, htmlCode }: Des
                   height: `${100 / scale}%`,
                 }}
                 title="Live Design Preview"
-                sandbox="allow-same-origin allow-forms"
+                sandbox="allow-same-origin allow-forms allow-scripts"
               />
             </div>
           </div>

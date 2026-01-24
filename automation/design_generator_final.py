@@ -55,6 +55,8 @@ class UniversalDesignGenerator:
         self.design_count = 0
         self.last_layout_type = None  # 마지막 생성 레이아웃 타입 추적
         self.external_designs = self._load_external_designs()
+        self.total_existing_designs = 0
+        self.existing_slugs: Set[str] = set()
         self._load_existing_structure_hashes()
     
     def _load_existing_structure_hashes(self) -> None:
@@ -77,12 +79,18 @@ class UniversalDesignGenerator:
                     if not html:
                         continue
                     self.used_hashes.add(self.get_structure_hash(html))
+                    slug_val = (row.get('slug') or '').strip()
+                    if slug_val:
+                        self.existing_slugs.add(slug_val)
+                self.total_existing_designs += len(rows)
                 if len(rows) < batch_size:
                     break
                 start += batch_size
             print(f"✅ Loaded {len(self.used_hashes)} existing hash(es)")
         except Exception as exc:
             print(f"⚠️ Failed to load existing hashes: {exc}")
+        finally:
+            self.design_count = self.total_existing_designs
 
     def _load_external_designs(self) -> Dict[str, List[Dict[str, Any]]]:
         """advanced_generator.js가 만든 batch를 불러와 카테고리별 큐 형태로 보관."""
@@ -139,6 +147,21 @@ class UniversalDesignGenerator:
         entry['html'] = styled_html
         self._persist_external_designs()
         return entry
+
+    def _slugify(self, value: str) -> str:
+        slug = re.sub(r'[^a-z0-9]+', '-', value.lower()).strip('-')
+        return slug or 'design'
+
+    def _generate_slug(self, category: str) -> str:
+        base_title = f"{category} Design {self.design_count + 1}"
+        base_slug = self._slugify(base_title)
+        candidate = base_slug
+        suffix = 2
+        while candidate in self.existing_slugs:
+            candidate = f"{base_slug}-{suffix}"
+            suffix += 1
+        self.existing_slugs.add(candidate)
+        return candidate
 
     def get_description_by_layout(self, category: str, layout_type: str) -> str:
         """레이아웃 타입별 고유한 설명 생성 (3줄) - 여러 변형 중 랜덤 선택"""
@@ -2639,6 +2662,7 @@ class UniversalDesignGenerator:
         unique_description = external_description or self.get_description_by_layout(category, layout_hint)
         
         # DB 저장
+        slug_value = self._generate_slug(category)
         if prompt_context:
             style_label = prompt_context.get('style', {}).get('label')
             prompt_meta = f"External combo {prompt_context.get('id')} | Style: {style_label}"
@@ -2651,6 +2675,7 @@ class UniversalDesignGenerator:
             "image_url": image_url,
             "category": category,
             "code": html_code,
+            "slug": slug_value,
             "prompt": prompt_meta,
             # color_variations를 metadata나 별도 필드로 저장할 수 있음
         }
