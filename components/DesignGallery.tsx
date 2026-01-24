@@ -34,6 +34,7 @@ export default function DesignGallery({ initialDesigns, initialCategory }: Desig
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(initialDesigns.length === ITEMS_PER_PAGE);
   const [loading, setLoading] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(true);
   const [activeCategory, setActiveCategory] = useState(initialCategory);
   const [likesMap, setLikesMap] = useState<Record<string, number>>(() => {
     const initialMap: Record<string, number> = {};
@@ -58,6 +59,11 @@ export default function DesignGallery({ initialDesigns, initialCategory }: Desig
       });
       return next;
     });
+    setIsTransitioning(true);
+    const timeout = setTimeout(() => {
+      setIsTransitioning(false);
+    }, 360);
+    return () => clearTimeout(timeout);
   }, [initialDesigns, initialCategory]);
 
 
@@ -227,24 +233,52 @@ export default function DesignGallery({ initialDesigns, initialCategory }: Desig
 
   return (
     <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 animate-fade-in">
-        {designs.map((design, index) => (
-          <div
-            key={design.id}
-            className="animate-slide-up"
-            style={{ animationDelay: `${index * 0.05}s` }}
-          >
-            <DesignCard
-              design={design}
-              likes={likesMap[design.id] ?? design.likes ?? 0}
-              liked={likedIds.has(design.id)}
-              onToggleLike={() => handleToggleLike(design.id)}
-              likeDisabled={!likeToken || !!pendingLikes[design.id]}
-            />
+      <div className="relative">
+        <div
+          className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 animate-fade-in transition-all duration-500 ${
+            isTransitioning ? 'opacity-30 blur-[1px] translate-y-2' : 'opacity-100 blur-0 translate-y-0'
+          }`}
+          aria-live="polite"
+        >
+          {designs.map((design, index) => (
+            <div
+              key={design.id}
+              className="animate-slide-up"
+              style={{ animationDelay: `${index * 0.05}s` }}
+            >
+              <DesignCard
+                design={design}
+                likes={likesMap[design.id] ?? design.likes ?? 0}
+                liked={likedIds.has(design.id)}
+                onToggleLike={() => handleToggleLike(design.id)}
+                likeDisabled={!likeToken || !!pendingLikes[design.id]}
+              />
+            </div>
+          ))}
+        </div>
+
+        {isTransitioning && (
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+            <div className="flex items-center gap-3 rounded-full bg-white/80 px-6 py-3 text-xs font-semibold tracking-[0.35em] text-gray-600 shadow-xl backdrop-blur">
+              <span className="inline-flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-300 border-t-gray-900 animate-spin" aria-hidden />
+              Refreshing gallery
+            </div>
           </div>
-        ))}
+        )}
       </div>
-      {designs.length === 0 && (
+
+      {loading && (
+        <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8" aria-hidden>
+          {Array.from({ length: 4 }).map((_, index) => (
+            <div
+              key={`skeleton-${index}`}
+              className="h-72 rounded-[28px] border border-gray-200 bg-gradient-to-b from-gray-100 to-gray-200 animate-pulse"
+            />
+          ))}
+        </div>
+      )}
+
+      {designs.length === 0 && !isTransitioning && (
         <div className="text-center py-20">
           <p className="text-gray-400 text-lg font-light tracking-wide">No designs uploaded yet.</p>
         </div>
@@ -255,9 +289,16 @@ export default function DesignGallery({ initialDesigns, initialCategory }: Desig
           <button
             onClick={loadMore}
             disabled={loading}
-            className="px-10 py-3 bg-black text-white text-sm tracking-widest uppercase font-light hover:bg-gray-900 transition-all duration-300 border border-black hover:shadow-lg disabled:opacity-50"
+            className="flex items-center gap-3 px-10 py-3 bg-black text-white text-sm tracking-widest uppercase font-light hover:bg-gray-900 transition-all duration-300 border border-black hover:shadow-lg disabled:opacity-50"
           >
-            {loading ? 'Loading...' : 'Load More'}
+            {loading ? (
+              <>
+                <span className="h-4 w-4 rounded-full border border-white/30 border-t-white animate-spin" aria-hidden />
+                Loading
+              </>
+            ) : (
+              'Load More'
+            )}
           </button>
         </div>
       )}
