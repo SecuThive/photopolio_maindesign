@@ -9,6 +9,7 @@ export type Design = {
   created_at: string;
   updated_at: string;
   likes: number | null;
+  views?: number | null;
   slug?: string | null;
   colors?: string[] | null;
   colorable_regions?: Array<{
@@ -48,6 +49,7 @@ export type Database = {
           created_at?: string;
           updated_at?: string;
           likes?: number | null;
+          views?: number | null;
           colors?: string[] | null;
         };
         Update: {
@@ -61,6 +63,7 @@ export type Database = {
           created_at?: string;
           updated_at?: string;
           likes?: number | null;
+          views?: number | null;
           colors?: string[] | null;
         };
       };

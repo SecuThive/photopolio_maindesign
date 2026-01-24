@@ -1,34 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
-import type { Database } from '@/types/database';
-
-const TABLE_MISSING_CODE = 'PGRST205';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json().catch(() => ({}));
-    const page = typeof body?.page === 'string' ? body.page : '/';
-    const referer = request.headers.get('referer');
-    const userAgent = request.headers.get('user-agent');
+    const designId = typeof body?.designId === 'string' ? body.designId : null;
 
-    const payload: Database['public']['Tables']['page_views']['Insert'] = {
-      page,
-      referer,
-      user_agent: userAgent?.slice(0, 500) ?? null,
-    };
+    if (!designId) {
+      return NextResponse.json({ success: false, error: 'Missing designId' }, { status: 400 });
+    }
 
-    const { error } = await (supabaseAdmin.from('page_views') as any).insert(payload);
+    const { data, error } = await supabaseAdmin
+      .from('designs')
+      .select('views')
+      .eq('id', designId)
+      .single();
 
-    if (error) {
-      if (error.code === TABLE_MISSING_CODE) {
-        console.warn('Page view tracking skipped: create page_views table to enable analytics.');
-        return NextResponse.json({ success: false, missingTable: true });
-      }
-      console.error('Failed to record page view', error);
+    if (error || !data) {
+      console.error('Failed to read design views', error);
       return NextResponse.json({ success: false }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true });
+    const nextViews = (data.views ?? 0) + 1;
+    const { error: updateError } = await supabaseAdmin
+      .from('designs')
+      .update({ views: nextViews })
+      .eq('id', designId);
+
+    if (updateError) {
+      console.error('Failed to update design views', updateError);
+      return NextResponse.json({ success: false }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true, views: nextViews });
   } catch (error) {
     console.error('Page view tracking error', error);
     return NextResponse.json({ success: false }, { status: 500 });

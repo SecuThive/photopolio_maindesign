@@ -7,6 +7,7 @@ import Footer from '@/components/Footer';
 import ShareLinkButton from '@/components/ShareLinkButton';
 import DesignPreview from '@/components/DesignPreview';
 import CodeBlock from '@/components/CodeBlock';
+import ViewCountBadge from '@/components/ViewCountBadge';
 import { supabaseServer } from '@/lib/supabase/server';
 import { extractDesignIdFromSlug, withDesignSlug, withDesignSlugs } from '@/lib/slug';
 import { Design, DesignWithSlug } from '@/types/database';
@@ -138,6 +139,7 @@ export default async function DesignDetailPage({ params }: PageProps) {
   const relatedDesigns = await fetchRelatedDesigns(currentDesign);
   const sidebarSuggestions = relatedDesigns.slice(0, 3);
   const shareUrl = `${SITE_URL}/design/${currentDesign.slug}`;
+  const initialViewCount = currentDesign.views ?? 0;
 
   return (
     <div className="min-h-screen bg-luxury-white">
@@ -267,6 +269,17 @@ export default async function DesignDetailPage({ params }: PageProps) {
                     Design ID
                   </dt>
                   <dd className="font-mono text-xs text-gray-700 bg-gray-100 px-2 py-1 rounded">{currentDesign.id.substring(0, 8)}...</dd>
+                </div>
+                <div className="flex justify-between items-center py-2 border-t border-gray-100">
+                  <dt className="text-gray-500 flex items-center gap-2">
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-1.138a1 1 0 01.894 1.737l-3.362 3.028a1 1 0 00-.314.95l.977 4.48a1 1 0 01-1.494 1.06L12 17.882l-4.254 2.236a1 1 0 01-1.494-1.06l.977-4.48a1 1 0 00-.314-.95l-3.362-3.028a1 1 0 01.894-1.737L9 10l1.618-4.664a1 1 0 011.764 0L15 10z" />
+                    </svg>
+                    Views
+                  </dt>
+                  <dd className="font-semibold text-gray-900">
+                    <ViewCountBadge designId={currentDesign.id} initialViews={initialViewCount} />
+                  </dd>
                 </div>
                 {currentDesign.updated_at !== currentDesign.created_at && (
                   <div className="flex justify-between items-center py-2 border-t border-gray-100">

@@ -120,22 +120,6 @@ export default function DesignGallery({ initialDesigns, initialCategory }: Desig
     }
   }, []);
 
-  useEffect(() => {
-    const recordView = async () => {
-      try {
-        await fetch('/api/metrics/track', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ page: window.location.pathname }),
-        });
-      } catch (error) {
-        console.error('Failed to record page view', error);
-      }
-    };
-
-    recordView();
-  }, []);
-
   const loadMore = async () => {
     setLoading(true);
     try {
