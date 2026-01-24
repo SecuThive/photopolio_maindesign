@@ -10,12 +10,13 @@ Features:
 """
 
 import os
+import re
 import asyncio
 import hashlib
 import random
 import json
 from datetime import datetime
-from typing import Dict, Any, Set, List
+from typing import Dict, Any, Set, List, Optional
 
 from dotenv import load_dotenv
 from supabase import create_client, Client
@@ -43,6 +44,8 @@ COLOR_PALETTES = [
 
 CATEGORIES = ["Landing Page", "Dashboard", "E-commerce", "Portfolio", "Blog", "Components"]
 
+BATCH_FILE_PATH = os.path.join(os.path.dirname(__file__), "latest_batch.json")
+
 
 class UniversalDesignGenerator:
     """모든 카테고리를 지원하는 디자인 생성기"""
@@ -51,6 +54,7 @@ class UniversalDesignGenerator:
         self.used_hashes: Set[str] = set()
         self.design_count = 0
         self.last_layout_type = None  # 마지막 생성 레이아웃 타입 추적
+        self.external_designs = self._load_external_designs()
         self._load_existing_structure_hashes()
     
     def _load_existing_structure_hashes(self) -> None:
@@ -79,6 +83,62 @@ class UniversalDesignGenerator:
             print(f"✅ Loaded {len(self.used_hashes)} existing hash(es)")
         except Exception as exc:
             print(f"⚠️ Failed to load existing hashes: {exc}")
+
+    def _load_external_designs(self) -> Dict[str, List[Dict[str, Any]]]:
+        """advanced_generator.js가 만든 batch를 불러와 카테고리별 큐 형태로 보관."""
+        queues: Dict[str, List[Dict[str, Any]]] = {cat: [] for cat in CATEGORIES}
+        if not os.path.exists(BATCH_FILE_PATH):
+            return queues
+        try:
+            with open(BATCH_FILE_PATH, 'r', encoding='utf-8') as batch_file:
+                data = json.load(batch_file)
+                if not isinstance(data, list):
+                    return queues
+                for item in data:
+                    category = item.get('category')
+                    if category in queues:
+                        queues[category].append(item)
+        except Exception as exc:
+            print(f"⚠️ Failed to load external design batch: {exc}")
+        return queues
+
+    def _persist_external_designs(self) -> None:
+        """현재 큐 상태를 latest_batch.json에 다시 저장."""
+        flattened: List[Dict[str, Any]] = []
+        for bucket in self.external_designs.values():
+            flattened.extend(bucket)
+        try:
+            with open(BATCH_FILE_PATH, 'w', encoding='utf-8') as batch_file:
+                json.dump(flattened, batch_file, ensure_ascii=False, indent=2)
+        except Exception as exc:
+            print(f"⚠️ Failed to persist external design batch: {exc}")
+
+    def _apply_style_variant(self, html: str, style: Dict[str, Any]) -> str:
+        """Tailwind 스타일 클래스를 <main> 컨테이너에 주입."""
+        if not html or not style:
+            return html
+        classes = style.get('tailwindClasses') or style.get('classes')
+        if not classes:
+            return html
+        class_blob = ' '.join(sorted(set(classes)))
+
+        def _inject(match: re.Match) -> str:
+            existing = match.group(1)
+            return f'<main class="{existing} {class_blob}">'  # noqa: E501
+
+        updated, count = re.subn(r'<main\s+class="([^"]+)"', _inject, html, count=1)
+        return updated if count else html
+
+    def _pop_external_design(self, category: str) -> Optional[Dict[str, Any]]:
+        """카테고리 큐에서 하나 꺼내 스타일 적용 후 반환."""
+        bucket = self.external_designs.get(category)
+        if not bucket:
+            return None
+        entry = bucket.pop(0)
+        styled_html = self._apply_style_variant(entry.get('html', ''), entry.get('style'))
+        entry['html'] = styled_html
+        self._persist_external_designs()
+        return entry
 
     def get_description_by_layout(self, category: str, layout_type: str) -> str:
         """레이아웃 타입별 고유한 설명 생성 (3줄) - 여러 변형 중 랜덤 선택"""
@@ -328,7 +388,6 @@ class UniversalDesignGenerator:
     
     def get_structure_hash(self, html: str) -> str:
         """구조 해시 (색상 제외)"""
-        import re
         # 색상값 제거
         normalized = re.sub(r'#[0-9a-fA-F]{3,6}', 'COLOR', html)
         # DOM 구조와 레이아웃만 해싱
@@ -2530,16 +2589,36 @@ class UniversalDesignGenerator:
         print(f"🎨 Creating {category} design #{self.design_count + 1}")
         print(f"{'='*70}\n")
         
-        # 고유한 구조 생성
-        for attempt in range(max_attempts):
-            print(f"🔄 Attempt {attempt + 1}/{max_attempts}")
-            html_code = self.generate_design(category)
-            
-            if self.is_unique_structure(html_code):
-                print("✅ Unique structure generated")
-                break
+        external_entry = self._pop_external_design(category)
+        html_code = None
+        external_description = None
+        prompt_context = None
+
+        if external_entry:
+            html_code = external_entry.get('html', '')
+            external_description = external_entry.get('description')
+            prompt_context = external_entry
+            print("🧩 Using pre-generated structure/style combo from advanced generator")
+            if not html_code.strip():
+                print("⚠️ External combo had empty HTML. Falling back to built-in generator.")
+                html_code = None
+                external_description = None
+                prompt_context = None
+
+        if html_code is None:
+            # 고유한 구조 생성
+            for attempt in range(max_attempts):
+                print(f"🔄 Attempt {attempt + 1}/{max_attempts}")
+                html_code = self.generate_design(category)
+                
+                if self.is_unique_structure(html_code):
+                    print("✅ Unique structure generated")
+                    break
+            else:
+                raise Exception("Failed to generate unique structure")
         else:
-            raise Exception("Failed to generate unique structure")
+            # 외부 구조는 충돌 검사를 통과했다고 가정하고 해시만 등록
+            self.used_hashes.add(self.get_structure_hash(html_code))
         
         # 기본 색상으로 스크린샷
         screenshot = await self.capture_screenshot(html_code)
@@ -2555,17 +2634,24 @@ class UniversalDesignGenerator:
             for palette in COLOR_PALETTES
         ])
         
-        # 레이아웃 타입에 따른 고유한 설명 생성
-        unique_description = self.get_description_by_layout(category, self.last_layout_type)
+        # 레이아웃 타입에 따른 고유한 설명 생성 (외부 조합 우선)
+        layout_hint = self.last_layout_type or "external_layout"
+        unique_description = external_description or self.get_description_by_layout(category, layout_hint)
         
         # DB 저장
+        if prompt_context:
+            style_label = prompt_context.get('style', {}).get('label')
+            prompt_meta = f"External combo {prompt_context.get('id')} | Style: {style_label}"
+        else:
+            prompt_meta = f"Structure #{self.design_count} | Hash: {self.get_structure_hash(html_code)[:12]} | Layout: {self.last_layout_type}"
+
         design_data = {
             "title": f"{category} Design #{self.design_count + 1}",
             "description": unique_description,
             "image_url": image_url,
             "category": category,
             "code": html_code,
-            "prompt": f"Structure #{self.design_count} | Hash: {self.get_structure_hash(html_code)[:12]} | Layout: {self.last_layout_type}",
+            "prompt": prompt_meta,
             # color_variations를 metadata나 별도 필드로 저장할 수 있음
         }
         
