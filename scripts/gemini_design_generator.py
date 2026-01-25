@@ -23,6 +23,10 @@ import json
 import os
 import random
 import re
+import hashlib
+import subprocess
+import tempfile
+from pathlib import Path
 import uuid
 from datetime import datetime
 from typing import Any, Dict, List, Optional
@@ -46,6 +50,8 @@ if not all([SUPABASE_URL, SUPABASE_KEY, GEMINI_API_KEY]):
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 gemini_client = genai.Client(api_key=GEMINI_API_KEY)
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 STRUCTURES = [
     "Hero with Center Call-to-Action",
