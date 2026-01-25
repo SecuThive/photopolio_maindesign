@@ -12,7 +12,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Fetch all designs from Supabase
   const { data: designs } = await supabase
     .from('designs')
-    .select('id, title, created_at, category')
+    .select('id, title, created_at, category, slug')
     .order('created_at', { ascending: false })
 
   // Static pages
@@ -73,7 +73,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Dynamic design pages
   const designPages: MetadataRoute.Sitemap = designs?.map((design) => ({
-    url: `${baseUrl}/design/${createDesignSlug(design.title, design.id)}`,
+    url: `${baseUrl}/design/${design.slug || createDesignSlug(design.title, design.id)}`,
     lastModified: new Date(design.created_at),
     changeFrequency: 'weekly' as const,
     priority: 0.7,

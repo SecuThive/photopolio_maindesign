@@ -45,3 +45,9 @@ __pycache__/
 venv/
 env/
 .venv
+
+# Google Cloud Service Account (절대 커밋 금지!)
+service-account-key.json
+
+# Indexing API Logs
+indexing_log.json
