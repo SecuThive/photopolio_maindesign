@@ -20,6 +20,7 @@ const nextConfig = {
   // 최신 브라우저만 지원 (ES2020+)
   swcMinify: true,
   images: {
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',
