@@ -12,7 +12,7 @@ import { supabaseServer } from '@/lib/supabase/server';
 import { extractDesignIdFromSlug, withDesignSlug, withDesignSlugs } from '@/lib/slug';
 import { Design, DesignWithSlug } from '@/types/database';
 
-const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://www.ui-syntax.com').replace(/\/$/, '');
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://ui-syntax.com').replace(/\/$/, '');
 
 export const revalidate = 0;
 

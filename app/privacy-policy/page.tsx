@@ -8,12 +8,12 @@ export const metadata: Metadata = {
   title: "Privacy Policy",
   description: "Read UI Syntax's Privacy Policy. Learn about how we collect, use, and protect your information when you visit our AI design gallery.",
   alternates: {
-    canonical: 'https://www.ui-syntax.com/privacy-policy',
+    canonical: 'https://ui-syntax.com/privacy-policy',
   },
   openGraph: {
     title: "Privacy Policy - UI Syntax",
     description: "Read UI Syntax's Privacy Policy. Learn about how we collect, use, and protect your information.",
-    url: 'https://www.ui-syntax.com/privacy-policy',
+    url: 'https://ui-syntax.com/privacy-policy',
   },
   robots: {
     index: true,
@@ -207,8 +207,8 @@ export default function PrivacyPolicyPage() {
               </li>
               <li>
                 <strong>Website:</strong>{" "}
-                <a href="https://www.ui-syntax.com/contact" className="text-blue-600 hover:text-blue-800 underline">
-                  www.ui-syntax.com/contact
+                <a href="https://ui-syntax.com/contact" className="text-blue-600 hover:text-blue-800 underline">
+                  ui-syntax.com/contact
                 </a>
               </li>
             </ul>

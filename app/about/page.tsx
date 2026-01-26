@@ -8,12 +8,12 @@ export const metadata: Metadata = {
   title: "About Us",
   description: "Learn how UI Syntax curates production-ready AI web designs for SaaS, developer tools, and commerce teams with annotated inspiration and launch support.",
   alternates: {
-    canonical: 'https://www.ui-syntax.com/about',
+    canonical: 'https://ui-syntax.com/about',
   },
   openGraph: {
     title: "About UI Syntax - AI Design Gallery",
     description: "See how UI Syntax curates annotated AI web designs aligned to modern SaaS, fintech, and commerce standards.",
-    url: 'https://www.ui-syntax.com/about',
+    url: 'https://ui-syntax.com/about',
   },
 };
 
@@ -23,8 +23,8 @@ export default function AboutPage() {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: 'UI Syntax',
-    url: 'https://www.ui-syntax.com',
-    logo: 'https://www.ui-syntax.com/logo.png',
+    url: 'https://ui-syntax.com',
+    logo: 'https://ui-syntax.com/logo.png',
     description: 'Production-ready AI web design gallery curated for SaaS, fintech, and commerce teams',
     email: 'thive8564@gmail.com',
     sameAs: [],

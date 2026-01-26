@@ -10,12 +10,12 @@ export const metadata: Metadata = {
   title: "Best SaaS Landing Pages - Curated AI Design Collection",
   description: "Explore our handpicked collection of the best SaaS landing page designs. These AI-generated layouts showcase modern conversion patterns, compelling hero sections, and trust-building elements used by successful B2B companies.",
   alternates: {
-    canonical: 'https://www.ui-syntax.com/collections/best-saas-landing-pages',
+    canonical: 'https://ui-syntax.com/collections/best-saas-landing-pages',
   },
   openGraph: {
     title: "Best SaaS Landing Pages - UI Syntax",
     description: "Curated collection of top SaaS landing page designs with proven conversion patterns.",
-    url: 'https://www.ui-syntax.com/collections/best-saas-landing-pages',
+    url: 'https://ui-syntax.com/collections/best-saas-landing-pages',
   },
 };
 

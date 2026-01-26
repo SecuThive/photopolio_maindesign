@@ -8,12 +8,12 @@ export const metadata: Metadata = {
   title: "Contact Us",
   description: "Get in touch with UI Syntax. Have questions, feedback, or want to contribute your AI-generated designs? Contact us at thive8564@gmail.com.",
   alternates: {
-    canonical: 'https://www.ui-syntax.com/contact',
+    canonical: 'https://ui-syntax.com/contact',
   },
   openGraph: {
     title: "Contact UI Syntax - AI Design Gallery",
     description: "Get in touch with UI Syntax. Have questions, feedback, or want to contribute your AI-generated designs?",
-    url: 'https://www.ui-syntax.com/contact',
+    url: 'https://ui-syntax.com/contact',
   },
 };
 

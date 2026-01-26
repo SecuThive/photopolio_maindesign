@@ -8,12 +8,12 @@ export const metadata: Metadata = {
   title: "Terms and Conditions",
   description: "Read UI Syntax's Terms and Conditions. Learn about the rules and regulations for using our AI design gallery and services.",
   alternates: {
-    canonical: 'https://www.ui-syntax.com/terms',
+    canonical: 'https://ui-syntax.com/terms',
   },
   openGraph: {
     title: "Terms and Conditions - UI Syntax",
     description: "Read UI Syntax's Terms and Conditions. Learn about the rules and regulations for using our services.",
-    url: 'https://www.ui-syntax.com/terms',
+    url: 'https://ui-syntax.com/terms',
   },
   robots: {
     index: true,

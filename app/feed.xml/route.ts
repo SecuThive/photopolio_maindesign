@@ -23,8 +23,8 @@ export async function GET() {
   const feed = new RSS({
     title: 'UI Syntax - AI Design Gallery',
     description: 'Latest AI-generated web designs including landing pages, dashboards, e-commerce sites, portfolios, and more.',
-    site_url: 'https://www.ui-syntax.com',
-    feed_url: 'https://www.ui-syntax.com/feed.xml',
+    site_url: 'https://ui-syntax.com',
+    feed_url: 'https://ui-syntax.com/feed.xml',
     copyright: `${new Date().getFullYear()} UI Syntax`,
     language: 'ko',
     pubDate: new Date(),
@@ -36,7 +36,7 @@ export async function GET() {
     feed.item({
       title: design.title,
       description: design.description || `${design.category} design - ${design.title}`,
-      url: `https://www.ui-syntax.com/design/${createDesignSlug(design.title, design.id)}`,
+      url: `https://ui-syntax.com/design/${createDesignSlug(design.title, design.id)}`,
       guid: design.id,
       categories: [design.category],
       date: new Date(design.created_at),

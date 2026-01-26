@@ -54,7 +54,7 @@ export default async function Image() {
             color: '#666',
           }}
         >
-          www.ui-syntax.com
+          ui-syntax.com
         </div>
       </div>
     ),

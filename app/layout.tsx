@@ -6,7 +6,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import CommandPalette from '@/components/CommandPalette';
 import "./globals.css";
 
-const siteUrl = 'https://www.ui-syntax.com';
+const siteUrl = 'https://ui-syntax.com';
 const siteDescription = 'UI Syntax is a Silicon Valley standard AI web design gallery for SaaS founders, product designers, and front-end engineers who need production-ready inspiration.';
 
 export const metadata: Metadata = {
@@ -177,7 +177,7 @@ export default function RootLayout({
           rel="alternate" 
           type="application/rss+xml" 
           title="UI Syntax RSS Feed" 
-          href="https://www.ui-syntax.com/feed.xml" 
+          href="https://ui-syntax.com/feed.xml" 
         />
         
         <script

@@ -10,12 +10,12 @@ export const metadata: Metadata = {
   title: "Minimalist Dashboards - Clean UI Design Collection",
   description: "Discover minimalist dashboard designs that prioritize clarity and usability. These AI-generated admin panels and analytics interfaces showcase how leading SaaS products reduce cognitive load while maximizing data visibility.",
   alternates: {
-    canonical: 'https://www.ui-syntax.com/collections/minimalist-dashboards',
+    canonical: 'https://ui-syntax.com/collections/minimalist-dashboards',
   },
   openGraph: {
     title: "Minimalist Dashboards - UI Syntax",
     description: "Curated collection of clean, minimal dashboard designs for modern web applications.",
-    url: 'https://www.ui-syntax.com/collections/minimalist-dashboards',
+    url: 'https://ui-syntax.com/collections/minimalist-dashboards',
   },
 };
 

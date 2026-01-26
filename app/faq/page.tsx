@@ -9,12 +9,12 @@ export const metadata: Metadata = {
   title: "FAQ - Frequently Asked Questions",
   description: "Find answers to common questions about UI Syntax. Learn how to use our AI design gallery, licensing, customization options, and more.",
   alternates: {
-    canonical: 'https://www.ui-syntax.com/faq',
+    canonical: 'https://ui-syntax.com/faq',
   },
   openGraph: {
     title: "FAQ - UI Syntax",
     description: "Frequently asked questions about using UI Syntax AI design gallery for your projects.",
-    url: 'https://www.ui-syntax.com/faq',
+    url: 'https://ui-syntax.com/faq',
   },
   robots: {
     index: true,
