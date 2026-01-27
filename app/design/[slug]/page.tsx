@@ -128,6 +128,59 @@ function formatDate(dateString: string) {
   });
 }
 
+type DescriptionBlock = {
+  title?: string;
+  body: string;
+};
+
+function parseDescriptionBlocks(description?: string | null): DescriptionBlock[] {
+  if (!description) {
+    return [];
+  }
+
+  const normalized = description.replace(/\r\n/g, '\n').trim();
+  if (!normalized) {
+    return [];
+  }
+
+  const rawBlocks = normalized.split(/\n{2,}/).map((block) => block.trim()).filter(Boolean);
+  const structured = rawBlocks.map((block) => {
+    const headingMatch = block.match(/^([A-Za-z0-9][A-Za-z0-9\s&()\/-]{3,60}):\s*(.+)$/s);
+    if (headingMatch) {
+      return {
+        title: headingMatch[1].trim(),
+        body: headingMatch[2].trim(),
+      } as DescriptionBlock;
+    }
+    return { body: block };
+  });
+
+  if (structured.length === 1) {
+    const sentences = structured[0].body
+      .split(/(?<=[.!?])\s+(?=[A-Z0-9])/)
+      .map((sentence) => sentence.trim())
+      .filter(Boolean);
+
+    if (sentences.length > 2) {
+      const chunked: DescriptionBlock[] = [];
+      for (let i = 0; i < sentences.length; i += 2) {
+        chunked.push({ body: sentences.slice(i, i + 2).join(' ') });
+      }
+      return chunked;
+    }
+  }
+
+  return structured;
+}
+
+function getHeroDescription(blocks: DescriptionBlock[], fallback?: string | null): string | null {
+  const base = blocks[0]?.body || fallback || '';
+  if (!base) {
+    return null;
+  }
+  return base.length > 220 ? `${base.substring(0, 220).trim()}…` : base;
+}
+
 export default async function DesignDetailPage({ params }: PageProps) {
   const design = await fetchDesignBySlug(params.slug);
 
@@ -140,6 +193,8 @@ export default async function DesignDetailPage({ params }: PageProps) {
   const sidebarSuggestions = relatedDesigns.slice(0, 3);
   const shareUrl = `${SITE_URL}/design/${currentDesign.slug}`;
   const initialViewCount = currentDesign.views ?? 0;
+  const descriptionBlocks = parseDescriptionBlocks(currentDesign.description);
+  const heroDescription = getHeroDescription(descriptionBlocks, currentDesign.description);
 
   return (
     <div className="min-h-screen bg-luxury-white">
@@ -194,11 +249,9 @@ export default async function DesignDetailPage({ params }: PageProps) {
                 {currentDesign.title}
               </h1>
 
-              {currentDesign.description && (
+              {heroDescription && (
                 <p className="text-base md:text-lg text-gray-600 leading-relaxed max-w-3xl mx-auto md:mx-0">
-                  {currentDesign.description.length > 200 
-                    ? currentDesign.description.substring(0, 200) + '...' 
-                    : currentDesign.description}
+                  {heroDescription}
                 </p>
               )}
 
@@ -239,10 +292,26 @@ export default async function DesignDetailPage({ params }: PageProps) {
               htmlCode={currentDesign.code}
             />
 
-            {currentDesign.description && currentDesign.description.length > 200 && (
-              <section className="bg-white border border-gray-200 p-8 shadow-sm rounded-2xl">
-                <h2 className="text-xs uppercase tracking-[0.3em] text-gray-400 mb-4">Full Description</h2>
-                <p className="text-lg text-gray-700 leading-relaxed">{currentDesign.description}</p>
+            {descriptionBlocks.length > 0 && (
+              <section className="bg-white border border-gray-200 p-8 shadow-sm rounded-2xl space-y-6">
+                <div className="space-y-1">
+                  <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Design Narrative</p>
+                  <h2 className="text-2xl font-semibold text-gray-900">Full Context</h2>
+                </div>
+                <div className="space-y-6">
+                  {descriptionBlocks.map((block, index) => (
+                    <div key={`${block.title ?? 'block'}-${index}`} className="space-y-2">
+                      {block.title && (
+                        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-gray-500">
+                          {block.title}
+                        </p>
+                      )}
+                      <p className="text-lg text-gray-700 leading-relaxed whitespace-pre-line">
+                        {block.body}
+                      </p>
+                    </div>
+                  ))}
+                </div>
               </section>
             )}
 
