@@ -145,7 +145,7 @@ function parseDescriptionBlocks(description?: string | null): DescriptionBlock[]
 
   const rawBlocks = normalized.split(/\n{2,}/).map((block) => block.trim()).filter(Boolean);
   const structured = rawBlocks.map((block) => {
-    const headingMatch = block.match(/^([A-Za-z0-9][A-Za-z0-9\s&()\/-]{3,60}):\s*(.+)$/s);
+    const headingMatch = block.match(/^([A-Za-z0-9][A-Za-z0-9\s&()\/-]{3,60}):\s*([\s\S]+)$/);
     if (headingMatch) {
       return {
         title: headingMatch[1].trim(),
