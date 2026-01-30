@@ -15,22 +15,34 @@ export default function DesignPreview({ imageUrl, title, colors, htmlCode }: Des
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(0.5);
+  const DESIGN_WIDTH = 1920;
+  const DESIGN_HEIGHT = Math.round((1920 * 2) / 3); // keep 3:2 aspect
+  const [contentSize, setContentSize] = useState({ width: DESIGN_WIDTH, height: DESIGN_HEIGHT });
 
   // 컨테이너 크기에 맞춰 스케일 계산
   useEffect(() => {
     const updateScale = () => {
       if (containerRef.current) {
-        const containerWidth = containerRef.current.offsetWidth;
-        const designWidth = 1920; // HTML 디자인의 기본 너비
-        const newScale = containerWidth / designWidth;
-        setScale(newScale);
+        const containerWidth = containerRef.current.clientWidth;
+        // 약간의 마진을 두어 확실히 컨테이너 안에 들어오도록
+        const safeWidth = containerWidth - 2;
+        const nextScale = Math.min(Math.max(safeWidth / contentSize.width, 0.05), 1);
+        setScale(nextScale);
       }
     };
 
     updateScale();
+    const resizeObserver = new ResizeObserver(updateScale);
+    if (containerRef.current) {
+      resizeObserver.observe(containerRef.current);
+    }
     window.addEventListener('resize', updateScale);
-    return () => window.removeEventListener('resize', updateScale);
-  }, []);
+    
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener('resize', updateScale);
+    };
+  }, [contentSize.width]);
 
   // iframe에 HTML 주입
   useEffect(() => {
@@ -72,32 +84,51 @@ export default function DesignPreview({ imageUrl, title, colors, htmlCode }: Des
       iframeDoc.open();
       iframeDoc.write(htmlContent);
       iframeDoc.close();
+
+      const measure = () => {
+        const body = iframeRef.current?.contentDocument?.body;
+        if (!body) return;
+        const width = Math.max(body.scrollWidth, DESIGN_WIDTH);
+        const height = Math.max(body.scrollHeight, DESIGN_HEIGHT);
+        setContentSize({ width, height });
+      };
+
+      iframeRef.current.onload = measure;
+      setTimeout(measure, 50);
     }
-  }, [htmlCode]);
+  }, [htmlCode, DESIGN_HEIGHT, DESIGN_WIDTH]);
 
   const hasLivePreview = htmlCode && htmlCode.trim().length > 0;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-full">
       {/* Preview Container */}
       <div 
         ref={containerRef}
-        className="relative overflow-hidden rounded-[32px] border border-gray-200 shadow-[0_25px_70px_rgba(0,0,0,0.12)] bg-white"
+        className="relative w-full max-w-full overflow-hidden rounded-[32px] border border-gray-200 shadow-[0_25px_70px_rgba(0,0,0,0.12)] bg-white"
       >
         {hasLivePreview ? (
-          <div className="relative w-full" style={{ paddingBottom: '66.67%' }}>
-            <div className="absolute inset-0">
-              <iframe
-                ref={iframeRef}
-                className="border-0 origin-top-left"
-                style={{
-                  transform: `scale(${scale})`,
-                  width: `${100 / scale}%`,
-                  height: `${100 / scale}%`,
-                }}
-                title="Live Design Preview"
-                sandbox="allow-same-origin allow-forms allow-scripts"
-              />
+          <div className="relative w-full" style={{ paddingBottom: `${(contentSize.height / contentSize.width) * 100}%` }}>
+            <div className="absolute inset-0 overflow-hidden">
+              <div className="w-full h-full overflow-hidden">
+                <iframe
+                  ref={iframeRef}
+                  className="border-0 origin-top-left block"
+                  style={{
+                    transform: `scale(${scale})`,
+                    transformOrigin: 'top left',
+                    width: contentSize.width,
+                    height: contentSize.height,
+                    maxWidth: 'none',
+                    maxHeight: 'none',
+                    border: 'none',
+                    display: 'block',
+                  }}
+                  title="Live Design Preview"
+                  sandbox="allow-same-origin allow-forms allow-scripts"
+                  scrolling="no"
+                />
+              </div>
             </div>
           </div>
         ) : (

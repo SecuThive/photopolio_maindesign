@@ -197,16 +197,16 @@ export default async function DesignDetailPage({ params }: PageProps) {
   const heroDescription = getHeroDescription(descriptionBlocks, currentDesign.description);
 
   return (
-    <div className="min-h-screen bg-luxury-white">
+    <div className="min-h-screen bg-luxury-white overflow-x-hidden w-full">
       <Header selectedCategory={currentDesign.category} />
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 space-y-8 sm:space-y-10 w-full overflow-hidden">
         {/* Hero Section with Background */}
-        <div className="relative bg-gradient-to-br from-gray-50 via-white to-gray-50 border border-gray-200 rounded-3xl p-8 md:p-12 shadow-sm overflow-hidden">
+        <div className="relative w-full bg-gradient-to-br from-gray-50 via-white to-gray-50 border border-gray-200 rounded-3xl p-6 sm:p-8 md:p-12 shadow-sm overflow-hidden">
           {/* Decorative Elements */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-50/30 to-purple-50/30 rounded-full blur-3xl -z-10"></div>
           <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-pink-50/30 to-yellow-50/30 rounded-full blur-3xl -z-10"></div>
           
-          <div className="relative space-y-6">
+          <div className="relative space-y-5 sm:space-y-6">
             {/* Breadcrumb */}
             <div className="flex justify-center md:justify-start">
               <Link
@@ -233,7 +233,7 @@ export default async function DesignDetailPage({ params }: PageProps) {
             </div>
 
             {/* Title Section */}
-            <div className="text-center md:text-left space-y-4">
+            <div className="text-center md:text-left space-y-3 sm:space-y-4">
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
                 <span className="inline-flex items-center px-3 py-1 bg-gradient-to-r from-blue-500 to-purple-500 text-white text-[9px] font-bold uppercase tracking-[0.25em] rounded-full shadow-sm">
                   ⭐ Featured
@@ -245,18 +245,18 @@ export default async function DesignDetailPage({ params }: PageProps) {
                 )}
               </div>
 
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 tracking-tight leading-tight">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 tracking-tight leading-tight">
                 {currentDesign.title}
               </h1>
 
               {heroDescription && (
-                <p className="text-base md:text-lg text-gray-600 leading-relaxed max-w-3xl mx-auto md:mx-0">
+                <p className="text-sm sm:text-base md:text-lg text-gray-600 leading-relaxed max-w-3xl mx-auto md:mx-0">
                   {heroDescription}
                 </p>
               )}
 
               {/* Meta Info */}
-              <div className="flex flex-wrap items-center justify-center md:justify-start gap-6 pt-2">
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 sm:gap-6 pt-2">
                 <div className="flex items-center gap-2 text-sm text-gray-500">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -283,8 +283,8 @@ export default async function DesignDetailPage({ params }: PageProps) {
           </div>
         </div>
 
-        <div className="grid gap-10 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-          <div className="space-y-8">
+        <div className="grid gap-8 lg:gap-10 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] w-full overflow-hidden">
+          <div className="space-y-6 sm:space-y-8 min-w-0 max-w-full overflow-hidden">
             <DesignPreview 
               imageUrl={currentDesign.image_url}
               title={currentDesign.title}
@@ -293,12 +293,12 @@ export default async function DesignDetailPage({ params }: PageProps) {
             />
 
             {descriptionBlocks.length > 0 && (
-              <section className="bg-white border border-gray-200 p-8 shadow-sm rounded-2xl space-y-6">
+              <section className="bg-white border border-gray-200 p-6 sm:p-8 shadow-sm rounded-2xl space-y-5 sm:space-y-6 max-w-full overflow-hidden">
                 <div className="space-y-1">
                   <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Design Narrative</p>
                   <h2 className="text-2xl font-semibold text-gray-900">Full Context</h2>
                 </div>
-                <div className="space-y-6">
+                <div className="space-y-5 sm:space-y-6">
                   {descriptionBlocks.map((block, index) => (
                     <div key={`${block.title ?? 'block'}-${index}`} className="space-y-2">
                       {block.title && (
@@ -306,7 +306,7 @@ export default async function DesignDetailPage({ params }: PageProps) {
                           {block.title}
                         </p>
                       )}
-                      <p className="text-lg text-gray-700 leading-relaxed whitespace-pre-line">
+                      <p className="text-base sm:text-lg text-gray-700 leading-relaxed whitespace-pre-line">
                         {block.body}
                       </p>
                     </div>
@@ -320,7 +320,7 @@ export default async function DesignDetailPage({ params }: PageProps) {
             )}
           </div>
 
-          <aside className="space-y-8 w-full overflow-hidden">
+          <aside className="space-y-6 sm:space-y-8 w-full min-w-0 max-w-full overflow-hidden">
             {/* Quick Info Card */}
             <div className="bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-2xl p-6 space-y-4 shadow-sm">
               <h3 className="text-xs uppercase tracking-[0.3em] text-gray-400 flex items-center gap-2">
@@ -437,7 +437,7 @@ export default async function DesignDetailPage({ params }: PageProps) {
         </div>
 
         {relatedDesigns.length > 0 && (
-          <section className="mt-16 space-y-6 border-t border-gray-200 pt-12">
+          <section className="mt-12 sm:mt-16 space-y-6 border-t border-gray-200 pt-8 sm:pt-12 overflow-x-hidden">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <p className="text-xs uppercase tracking-[0.35em] text-gray-400">Gallery slider</p>
@@ -452,12 +452,12 @@ export default async function DesignDetailPage({ params }: PageProps) {
                 Back to gallery
               </Link>
             </div>
-            <div className="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory">
+            <div className="flex gap-4 sm:gap-6 overflow-x-auto pb-4 sm:pb-6 snap-x snap-mandatory">
               {relatedDesigns.map((item) => (
                 <Link
                   key={item.id}
                   href={`/design/${item.slug}`}
-                  className="group w-72 flex-shrink-0 snap-start"
+                  className="group w-64 sm:w-72 flex-shrink-0 snap-start"
                 >
                   <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-gray-200 bg-gray-50">
                     <Image

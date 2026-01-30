@@ -20,7 +20,7 @@ export default function CodeBlock({ code }: CodeBlockProps) {
   };
 
   return (
-    <section className="bg-black text-green-400 border border-gray-900 p-8 relative group">
+    <section className="bg-black text-green-400 border border-gray-900 p-6 sm:p-8 relative group max-w-full overflow-hidden">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xs uppercase tracking-[0.3em] text-gray-400">Source Code</h2>
         <div className="flex items-center gap-3">
@@ -53,7 +53,7 @@ export default function CodeBlock({ code }: CodeBlockProps) {
           </button>
         </div>
       </div>
-      <pre className="overflow-x-auto text-sm leading-relaxed font-mono max-h-[480px] overflow-y-auto custom-scrollbar">
+      <pre className="overflow-x-auto text-sm leading-relaxed font-mono max-h-[480px] overflow-y-auto custom-scrollbar w-full max-w-full">
         <code>{code}</code>
       </pre>
 
