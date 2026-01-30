@@ -5,6 +5,7 @@ sitemap.xml의 모든 URL을 구글에 강제 제출하여 빠른 색인을 요�
 
 사용법:
     python google_indexing_submit.py                    # sitemap의 모든 URL 제출
+    python google_indexing_submit.py --new-only         # 새로운 URL만 제출
     python google_indexing_submit.py --dry-run          # 테스트 (실제 제출 안 함)
     python google_indexing_submit.py --check-status     # URL 색인 상태 확인
     python google_indexing_submit.py --url URL          # 특정 URL만 제출
@@ -174,6 +175,31 @@ def save_log(log_data: Dict[str, Any]):
         json.dump(log_data, f, indent=2, ensure_ascii=False)
 
 
+def normalize_url(url: str) -> str:
+    """URL 정규화 (www 유무 통일)"""
+    return url.replace("https://www.", "https://").replace("http://www.", "http://")
+
+
+def get_submitted_urls() -> set:
+    """이미 제출된 URL 목록 가져오기"""
+    log_data = load_log()
+    submitted_urls = set()
+    
+    for submission in log_data.get("submissions", []):
+        if submission.get("success"):  # 성공한 제출만 카운트
+            url = submission.get("url")
+            if url:
+                submitted_urls.add(normalize_url(url))
+    
+    return submitted_urls
+
+
+def filter_new_urls(all_urls: List[str], submitted_urls: set) -> List[str]:
+    """새로운 URL만 필터링"""
+    new_urls = [url for url in all_urls if normalize_url(url) not in submitted_urls]
+    return new_urls
+
+
 def submit_urls_batch(api: GoogleIndexingAPI, urls: List[str], dry_run: bool = False):
     """
     URL들을 배치로 나눠서 제출
@@ -303,6 +329,11 @@ def main():
         default=SITEMAP_URL,
         help=f'Sitemap URL (기본값: {SITEMAP_URL})'
     )
+    parser.add_argument(
+        '--new-only',
+        action='store_true',
+        help='이미 제출된 URL은 제외하고 새로운 URL만 제출'
+    )
     
     args = parser.parse_args()
     
@@ -321,6 +352,22 @@ def main():
         if not urls:
             print("❌ 처리할 URL이 없습니다.")
             sys.exit(1)
+        
+        # 새로운 URL만 필터링
+        if args.new_only:
+            submitted_urls = get_submitted_urls()
+            original_count = len(urls)
+            urls = filter_new_urls(urls, submitted_urls)
+            
+            print(f"\n📊 URL 필터링 결과:")
+            print(f"   전체 URL: {original_count}개")
+            print(f"   이미 제출됨: {len(submitted_urls)}개")
+            print(f"   새로운 URL: {len(urls)}개")
+            
+            if not urls:
+                print("\n✅ 모든 URL이 이미 제출되었습니다!")
+                print("   새로 추가된 URL이 없습니다.")
+                sys.exit(0)
     
     # 동작 실행
     if args.check_status:

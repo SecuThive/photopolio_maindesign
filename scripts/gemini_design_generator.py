@@ -84,6 +84,19 @@ STRUCTURES = [
     "Clean Contact Form with Map",
     "Live Activity Feed Sidebar",
     "Settings Page with Toggle Buttons",
+    # --- 추가된 구조 ---
+    "Marquee-based Logo Wall",
+    "Comparison Slider (Before/After)",
+    "Draggable Kanban Board",
+    "Segmented Control Navigation",
+    "Infinite Scroll Feed with Skeleton Loader",
+    "Floating Action Button (FAB) Menu",
+    "Interactive Heatmap Dashboard",
+    "Command Palette Quick Search",
+    "Radial Progress Dashboard",
+    "Fixed Footer Mobile Bottom Bar",
+    "Multi-step Interactive Quiz",
+    "Expandable Sidebar with Tooltips"
 ]
 
 STYLES = [
@@ -117,6 +130,19 @@ STYLES = [
     "Sketch Style Hand-drawn",
     "High-tech Wireframe",
     "Pixel Art 16-bit Style",
+    # --- 추가된 스타일 ---
+    "Claymorphism Soft 3D",
+    "Monochromatic Deep Sea Blue",
+    "Acid Graphic Techno",
+    "Solarized Eye-care Dark",
+    "Japanese Zen Minimal",
+    "Dotted Blueprint Grid",
+    "Liquid Gradient Flow",
+    "Grainy Retro Film",
+    "Cyber-Security Matrix Green",
+    "Flat Illustration Pop",
+    "Skeuomorphic Modern Leather",
+    "High-Gloss Plastic Candy"
 ]
 
 CATEGORIES = [
