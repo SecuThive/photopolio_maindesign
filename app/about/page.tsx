@@ -86,6 +86,19 @@ export default function AboutPage() {
           </section>
 
           <section className="mt-12">
+            <h2 className="text-2xl font-semibold text-gray-900 mb-4">Why UI Syntax?</h2>
+            <p className="mb-4">
+              In today&rsquo;s fast-paced digital landscape, staying ahead of design trends is crucial. UI Syntax bridges the gap between AI capabilities and practical design needs. We analyze thousands of AI-generated designs monthly, selecting only those that demonstrate exceptional user experience, visual hierarchy, and technical implementation potential.
+            </p>
+            <p className="mb-4">
+              Our gallery serves designers seeking fresh perspectives, developers looking for implementation-ready mockups, and product managers exploring modern interface patterns. Each design includes detailed annotations covering color theory, typography choices, layout strategies, and accessibility considerations that make great designs work in production.
+            </p>
+            <p>
+              Whether you&rsquo;re building a SaaS dashboard, e-commerce platform, marketing landing page, or mobile application, our curated collection provides the visual foundation to accelerate your design process while maintaining the quality standards expected by modern users.
+            </p>
+          </section>
+
+          <section className="mt-12">
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">Get in Touch</h2>
             <p>
               Have questions or feedback? We&rsquo;d love to hear from you. Reach out at{" "}

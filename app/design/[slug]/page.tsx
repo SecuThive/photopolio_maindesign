@@ -92,6 +92,27 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const description = design.description || 'AI-generated design inspiration from UI Syntax.';
   const canonical = `${SITE_URL}/design/${design.slug}`;
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'CreativeWork',
+    name: design.title || 'UI Design',
+    description: description,
+    image: design.image_url,
+    author: {
+      '@type': 'Organization',
+      name: 'UI Syntax',
+      url: 'https://ui-syntax.com'
+    },
+    datePublished: design.created_at,
+    dateModified: design.updated_at,
+    inLanguage: 'en-US',
+    thumbnailUrl: design.image_url,
+    ...(design.category && {
+      genre: design.category,
+      keywords: design.category
+    })
+  };
+
   return {
     title: `${design.title} · UI Syntax`,
     description,
@@ -116,6 +137,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description,
       images: design.image_url ? [design.image_url] : undefined,
     },
+    other: {
+      'script:ld+json': JSON.stringify(jsonLd)
+    }
   };
 }
 

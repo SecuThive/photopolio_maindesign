@@ -80,6 +80,36 @@ export default function ContactPage() {
             </p>
           </section>
 
+          <section className="mt-10 md:mt-12">
+            <h2 className="text-2xl font-semibold text-gray-900 mb-4">Frequently Asked Questions</h2>
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Can I use these designs in my projects?</h3>
+                <p className="text-gray-700">
+                  Yes! Our designs are meant to serve as inspiration and reference for your own projects. While the specific implementations are showcased for educational purposes, you&rsquo;re welcome to draw inspiration and adapt design patterns to your needs. For commercial licensing inquiries, please contact us directly.
+                </p>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">How often do you add new designs?</h3>
+                <p className="text-gray-700">
+                  We update our gallery regularly with new AI-generated designs, typically adding fresh content weekly. Our curation process ensures that each design meets our quality standards and provides genuine value to the design community.
+                </p>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Do you offer custom design services?</h3>
+                <p className="text-gray-700">
+                  While UI Syntax primarily focuses on curating and showcasing AI-generated designs, we occasionally collaborate with teams on custom projects. Contact us at thive8564@gmail.com to discuss your specific needs and we&rsquo;ll explore how we can help.
+                </p>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">What makes UI Syntax different?</h3>
+                <p className="text-gray-700">
+                  Unlike generic design galleries, UI Syntax specifically focuses on AI-generated designs with detailed annotations and practical implementation insights. We bridge the gap between AI capabilities and real-world design needs, providing context, best practices, and technical considerations alongside each showcase.
+                </p>
+              </div>
+            </div>
+          </section>
+
           <section className="mt-10 md:mt-12 pt-6 md:pt-8 border-t border-gray-200">
             <p className="text-sm text-gray-500">
               Note: We do not provide technical support for third-party tools or services. 

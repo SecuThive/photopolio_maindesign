@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { notFound } from 'next/navigation';
 import { supabase } from '@/lib/supabase/client';
@@ -22,8 +22,13 @@ export default function AdminDashboardPage() {
   const [metrics, setMetrics] = useState<MetricsSummary | null>(null);
   const [metricsLoading, setMetricsLoading] = useState(true);
   const [isValidPath, setIsValidPath] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+  const selectAllCheckboxRef = useRef<HTMLInputElement | null>(null);
   const router = useRouter();
   const params = useParams();
+  const hasSelection = selectedIds.length > 0;
+  const isSelectAllChecked = designs.length > 0 && selectedIds.length === designs.length;
   const formatNumber = (value: number) => new Intl.NumberFormat('en-US').format(value);
   const formatDayLabel = (date: string) =>
     new Date(date).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
@@ -102,6 +107,20 @@ export default function AdminDashboardPage() {
     }
   }, [isValidPath, checkAuth, loadDesigns, loadMetrics]);
 
+  useEffect(() => {
+    const validIdSet = new Set(designs.map((design) => design.id));
+    setSelectedIds((prev) => {
+      const next = prev.filter((id) => validIdSet.has(id));
+      return next.length === prev.length ? prev : next;
+    });
+  }, [designs]);
+
+  useEffect(() => {
+    if (selectAllCheckboxRef.current) {
+      selectAllCheckboxRef.current.indeterminate = hasSelection && !isSelectAllChecked;
+    }
+  }, [hasSelection, isSelectAllChecked]);
+
   if (!isValidPath) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -113,6 +132,58 @@ export default function AdminDashboardPage() {
     );
   }
 
+  const toggleSelectAll = () => {
+    if (isSelectAllChecked) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(designs.map((design) => design.id));
+    }
+  };
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((existing) => existing !== id) : [...prev, id]
+    );
+  };
+
+  const handleBulkDelete = async () => {
+    const idsToDelete = [...selectedIds];
+    if (!idsToDelete.length) return;
+
+    if (
+      !confirm(
+        `Are you sure you want to delete ${idsToDelete.length} selected design${
+          idsToDelete.length > 1 ? 's' : ''
+        }?`
+      )
+    ) {
+      return;
+    }
+
+    setBulkDeleting(true);
+
+    try {
+      const response = await fetch('/api/admin/designs/bulk-delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: idsToDelete }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData?.error || 'Failed to delete designs');
+      }
+
+      setSelectedIds([]);
+      loadDesigns();
+      loadMetrics();
+    } catch (error) {
+      console.error('Error deleting designs:', error);
+      alert('An error occurred while deleting the selected designs.');
+    } finally {
+      setBulkDeleting(false);
+    }
+  };
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this design?')) return;
 
@@ -126,6 +197,7 @@ export default function AdminDashboardPage() {
         throw new Error(errorData?.error || 'Failed to delete design');
       }
 
+      setSelectedIds((prev) => prev.filter((selectedId) => selectedId !== id));
       // Reload designs
       loadDesigns();
       loadMetrics();
@@ -368,10 +440,23 @@ export default function AdminDashboardPage() {
 
         {/* Designs List */}
         <div className="bg-white rounded-lg shadow">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-xl font-bold text-gray-900">
-              Published designs ({designs.length})
-            </h2>
+          <div className="px-6 py-4 border-b border-gray-200 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">
+                Published designs ({designs.length})
+              </h2>
+              <p className="text-sm text-gray-500">
+                {hasSelection ? `${selectedIds.length} selected` : 'Select rows to enable bulk actions'}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={handleBulkDelete}
+              disabled={!hasSelection || bulkDeleting}
+              className="inline-flex items-center justify-center rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {bulkDeleting ? 'Deleting...' : 'Delete selected'}
+            </button>
           </div>
           
           {loading ? (
@@ -383,6 +468,17 @@ export default function AdminDashboardPage() {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-12">
+                      <span className="sr-only">Select all</span>
+                      <input
+                        ref={selectAllCheckboxRef}
+                        type="checkbox"
+                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        checked={isSelectAllChecked}
+                        onChange={toggleSelectAll}
+                        disabled={designs.length === 0}
+                      />
+                    </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Image
                     </th>
@@ -403,6 +499,14 @@ export default function AdminDashboardPage() {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {designs.map((design) => (
                     <tr key={design.id}>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <input
+                          type="checkbox"
+                          className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          checked={selectedIds.includes(design.id)}
+                          onChange={() => toggleSelect(design.id)}
+                        />
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="relative h-16 w-24">
                           <Image
