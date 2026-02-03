@@ -34,6 +34,17 @@ export type PageView = {
   user_agent: string | null;
 };
 
+export type NewsletterSubscriber = {
+  id: string;
+  email: string;
+  subscribed_at: string;
+  is_active: boolean;
+  ip_address: string | null;
+  user_agent: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -105,6 +116,29 @@ export type Database = {
           page?: string | null;
           referer?: string | null;
           user_agent?: string | null;
+        };
+      };
+      newsletter_subscribers: {
+        Row: NewsletterSubscriber;
+        Insert: {
+          id?: string;
+          email: string;
+          subscribed_at?: string;
+          is_active?: boolean;
+          ip_address?: string | null;
+          user_agent?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          email?: string;
+          subscribed_at?: string;
+          is_active?: boolean;
+          ip_address?: string | null;
+          user_agent?: string | null;
+          created_at?: string;
+          updated_at?: string;
         };
       };
     };
