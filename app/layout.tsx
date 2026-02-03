@@ -167,10 +167,11 @@ export default function RootLayout({
         ` }} />
         
         {/* AdSense - async로 차단 방지 */}
-        <script 
-          async 
+        <Script
+          async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2091277631590195"
           crossOrigin="anonymous"
+          strategy="afterInteractive"
         />
         
         <link 
