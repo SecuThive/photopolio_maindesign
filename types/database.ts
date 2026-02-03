@@ -12,6 +12,7 @@ export type Design = {
   views?: number | null;
   slug?: string | null;
   colors?: string[] | null;
+  status: 'published' | 'archived';
   colorable_regions?: Array<{
     id: string;
     name: string;
@@ -51,6 +52,7 @@ export type Database = {
           likes?: number | null;
           views?: number | null;
           colors?: string[] | null;
+          status?: 'published' | 'archived';
         };
         Update: {
           id?: string;
@@ -65,6 +67,7 @@ export type Database = {
           likes?: number | null;
           views?: number | null;
           colors?: string[] | null;
+          status?: 'published' | 'archived';
         };
       };
       design_likes: {

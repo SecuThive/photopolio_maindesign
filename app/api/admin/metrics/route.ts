@@ -46,7 +46,8 @@ export async function GET(request: NextRequest) {
     const [totalDesignRes, totalViewRes, todayViewRes] = await Promise.all([
       supabaseAdmin
         .from('designs')
-        .select('id', { count: 'exact', head: true }),
+        .select('id', { count: 'exact', head: true })
+        .eq('status', 'published'),
       supabaseAdmin
         .from('page_views')
         .select('id', { count: 'exact', head: true }),
@@ -84,7 +85,8 @@ export async function GET(request: NextRequest) {
         const { count } = await supabaseAdmin
           .from('designs')
           .select('id', { count: 'exact', head: true })
-          .eq('category', category);
+          .eq('category', category)
+          .eq('status', 'published');
         return { category, count: count ?? 0 };
       })
     );

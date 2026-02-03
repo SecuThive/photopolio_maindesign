@@ -28,6 +28,7 @@ export default async function BestSaaSLandingPagesPage() {
     .from('designs')
     .select('*')
     .eq('category', 'Landing Page')
+    .eq('status', 'published')
     .order('created_at', { ascending: false })
     .limit(12);
 

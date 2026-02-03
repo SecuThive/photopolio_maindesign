@@ -41,13 +41,18 @@ export async function POST(request: NextRequest) {
 
     const designs = (designsData ?? []) as DesignAsset[];
 
-    const { error: deleteError } = await supabaseAdmin
+    const archivePayload: Database['public']['Tables']['designs']['Update'] = {
+      status: 'archived',
+      updated_at: new Date().toISOString(),
+    };
+
+    const { error: archiveError } = await supabaseAdmin
       .from('designs')
-      .delete()
+      .update(archivePayload as never)
       .in('id', validIds);
 
-    if (deleteError) {
-      return NextResponse.json({ error: deleteError.message }, { status: 500 });
+    if (archiveError) {
+      return NextResponse.json({ error: archiveError.message }, { status: 500 });
     }
 
     const storageKeys = designs
@@ -68,7 +73,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({ success: true, deletedIds: validIds });
+    return NextResponse.json({ success: true, archivedIds: validIds });
   } catch (error) {
     console.error('Bulk delete designs error:', error);
     return NextResponse.json({ error: 'Server error' }, { status: 500 });

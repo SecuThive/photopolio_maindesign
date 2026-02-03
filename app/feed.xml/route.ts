@@ -12,6 +12,7 @@ export async function GET() {
   const { data: designs, error } = await supabase
     .from('designs')
     .select('*')
+    .eq('status', 'published')
     .order('created_at', { ascending: false })
     .limit(50);
 

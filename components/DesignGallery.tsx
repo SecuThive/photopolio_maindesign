@@ -135,6 +135,7 @@ export default function DesignGallery({ initialDesigns, initialCategory }: Desig
       let query = supabase
         .from('designs')
         .select('*')
+        .eq('status', 'published')
         .order('created_at', { ascending: false })
         .range(from, to);
 

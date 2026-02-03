@@ -72,6 +72,7 @@ export default function AdminDashboardPage() {
       const { data, error } = await supabase
         .from('designs')
         .select('*')
+        .eq('status', 'published')
         .order('created_at', { ascending: false });
 
       if (error) throw error;

@@ -11,16 +11,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Missing designId' }, { status: 400 });
     }
 
-    type ViewRow = { views: number | null };
+    type ViewRow = { views: number | null; status: 'published' | 'archived' };
     const { data, error } = await supabaseAdmin
       .from('designs')
-      .select('views')
+      .select('views, status')
       .eq('id', designId)
       .single<ViewRow>();
 
     if (error || !data) {
       console.error('Failed to read design views', error);
       return NextResponse.json({ success: false }, { status: 500 });
+    }
+
+    if (data.status === 'archived') {
+      return NextResponse.json({ success: false, error: 'Design archived' }, { status: 410 });
     }
 
     const nextViews = (data.views ?? 0) + 1;

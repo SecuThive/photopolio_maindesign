@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import Header from '@/components/Header';
@@ -61,6 +61,7 @@ async function fetchRelatedDesigns(design: DesignWithSlug): Promise<DesignWithSl
   let query = supabaseServer
     .from('designs')
     .select('*')
+    .eq('status', 'published')
     .neq('id', design.id)
     .order('created_at', { ascending: false })
     .limit(8);
@@ -80,6 +81,10 @@ async function fetchRelatedDesigns(design: DesignWithSlug): Promise<DesignWithSl
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const design = await fetchDesignBySlug(params.slug);
+
+  if (design?.status === 'archived') {
+    permanentRedirect('/');
+  }
 
   if (!design) {
     return {
@@ -210,6 +215,10 @@ export default async function DesignDetailPage({ params }: PageProps) {
 
   if (!design) {
     notFound();
+  }
+
+  if (design.status === 'archived') {
+    permanentRedirect('/');
   }
 
   const currentDesign = design;

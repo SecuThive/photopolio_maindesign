@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import type { Database } from '@/types/database';
 
-type DesignLikesRow = Pick<Database['public']['Tables']['designs']['Row'], 'likes'>;
+type DesignLikesRow = Pick<Database['public']['Tables']['designs']['Row'], 'likes' | 'status'>;
 type DesignLikeEntry = Database['public']['Tables']['design_likes']['Row'];
 type DesignLikeInsert = Database['public']['Tables']['design_likes']['Insert'];
 
@@ -10,23 +10,22 @@ type LikeTokenPayload = {
   token?: string;
 };
 
-async function getDesignLikes(designId: string) {
+async function getDesignRecord(designId: string) {
   const { data, error } = await supabaseAdmin
     .from('designs')
-    .select('likes')
+    .select('likes, status')
     .eq('id', designId)
-    .single<DesignLikesRow>();
+    .maybeSingle<DesignLikesRow>();
 
   if (error) {
     throw new Error(error.message);
   }
 
-  return data?.likes ?? 0;
+  return data ?? null;
 }
 
-async function respondWithLikes(designId: string) {
-  const likes = await getDesignLikes(designId);
-  return NextResponse.json({ likes });
+function isArchived(design: DesignLikesRow | null) {
+  return design?.status === 'archived';
 }
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
@@ -38,6 +37,16 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       return NextResponse.json({ error: 'Missing like token' }, { status: 400 });
     }
 
+    const design = await getDesignRecord(designId);
+
+    if (!design) {
+      return NextResponse.json({ error: 'Design not found' }, { status: 404 });
+    }
+
+    if (isArchived(design)) {
+      return NextResponse.json({ error: 'Design archived' }, { status: 410 });
+    }
+
     const { data: existing } = await supabaseAdmin
       .from('design_likes')
       .select('id')
@@ -46,7 +55,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       .maybeSingle<Pick<DesignLikeEntry, 'id'>>();
 
     if (existing) {
-      return respondWithLikes(designId);
+      return NextResponse.json({ likes: design.likes ?? 0 });
     }
 
     const insertPayload: DesignLikeInsert = { design_id: designId, token };
@@ -58,7 +67,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       return NextResponse.json({ error: insertError.message }, { status: 500 });
     }
 
-    const currentLikes = await getDesignLikes(designId);
+    const currentLikes = design.likes ?? 0;
     const nextLikes = currentLikes + 1;
 
     const { error: updateError } = await (supabaseAdmin as any)
@@ -86,6 +95,16 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return NextResponse.json({ error: 'Missing like token' }, { status: 400 });
     }
 
+    const design = await getDesignRecord(designId);
+
+    if (!design) {
+      return NextResponse.json({ error: 'Design not found' }, { status: 404 });
+    }
+
+    if (isArchived(design)) {
+      return NextResponse.json({ error: 'Design archived' }, { status: 410 });
+    }
+
     const { data: existing, error: fetchError } = await supabaseAdmin
       .from('design_likes')
       .select('id')
@@ -98,7 +117,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     }
 
     if (!existing) {
-      return respondWithLikes(designId);
+      return NextResponse.json({ likes: design.likes ?? 0 });
     }
 
     const { error: deleteError } = await supabaseAdmin
@@ -110,7 +129,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return NextResponse.json({ error: deleteError.message }, { status: 500 });
     }
 
-    const currentLikes = await getDesignLikes(designId);
+    const currentLikes = design.likes ?? 0;
     const nextLikes = Math.max(0, currentLikes - 1);
 
     const { error: updateError } = await (supabaseAdmin as any)

@@ -32,13 +32,18 @@ export async function DELETE(
       return NextResponse.json({ error: fetchError.message }, { status: 500 });
     }
 
-    const { error: deleteError } = await supabaseAdmin
+    const archivePayload: Database['public']['Tables']['designs']['Update'] = {
+      status: 'archived',
+      updated_at: new Date().toISOString(),
+    };
+
+    const { error: archiveError } = await supabaseAdmin
       .from('designs')
-      .delete()
+      .update(archivePayload as never)
       .eq('id', designId);
 
-    if (deleteError) {
-      return NextResponse.json({ error: deleteError.message }, { status: 500 });
+    if (archiveError) {
+      return NextResponse.json({ error: archiveError.message }, { status: 500 });
     }
 
     if (design?.image_url) {

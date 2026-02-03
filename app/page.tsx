@@ -19,6 +19,7 @@ export default async function HomePage({
   let query = supabaseServer
     .from('designs')
     .select('*')
+    .eq('status', 'published')
     .order('created_at', { ascending: false })
     .range(0, 11);
 

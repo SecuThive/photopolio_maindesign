@@ -28,6 +28,7 @@ export default async function MinimalistDashboardsPage() {
     .from('designs')
     .select('*')
     .eq('category', 'Dashboard')
+    .eq('status', 'published')
     .order('created_at', { ascending: false })
     .limit(12);
 

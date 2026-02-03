@@ -13,6 +13,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const { data: designs } = await supabase
     .from('designs')
     .select('id, title, created_at, category, slug')
+    .eq('status', 'published')
     .order('created_at', { ascending: false })
 
   // Static pages
