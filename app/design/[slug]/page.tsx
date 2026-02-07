@@ -11,6 +11,7 @@ import ViewCountBadge from '@/components/ViewCountBadge';
 import { supabaseServer } from '@/lib/supabase/server';
 import { extractDesignIdFromSlug, withDesignSlug, withDesignSlugs } from '@/lib/slug';
 import { Design, DesignWithSlug } from '@/types/database';
+import { buildReactComponentFromHtml } from '@/lib/codeTransform';
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://ui-syntax.com').replace(/\/$/, '');
 
@@ -228,6 +229,7 @@ export default async function DesignDetailPage({ params }: PageProps) {
   const initialViewCount = currentDesign.views ?? 0;
   const descriptionBlocks = parseDescriptionBlocks(currentDesign.description);
   const heroDescription = getHeroDescription(descriptionBlocks, currentDesign.description);
+  const reactCode = buildReactComponentFromHtml(currentDesign.code);
 
   return (
     <div className="min-h-screen bg-luxury-white overflow-x-hidden w-full">
@@ -349,7 +351,7 @@ export default async function DesignDetailPage({ params }: PageProps) {
             )}
 
             {currentDesign.code && (
-              <CodeBlock code={currentDesign.code} />
+              <CodeBlock htmlCode={currentDesign.code} reactCode={reactCode} />
             )}
           </div>
 
