@@ -153,7 +153,7 @@ export default function Footer() {
               UI SYNTAX
             </h2>
             <p className="text-gray-400 text-sm">
-              UI Syntax is your premier destination for AI-generated web design inspiration. We curate cutting-edge designs across landing pages, dashboards, e-commerce interfaces, and mobile applications. Explore modern design patterns, color palettes, and innovative layouts tailored for SaaS founders, product designers, developers, and creative professionals. Discover the future of web design with AI-powered creativity and human-curated quality.
+              UI Syntax is your premier destination for AI-generated web design inspiration. We curate cutting-edge designs across landing pages, dashboards, e-commerce interfaces, and mobile applications. Explore modern design patterns, color palettes, and innovative layouts tailored for SaaS founders, product designers, developers, and creative professionals. Every design ships with copy-ready HTML plus auto-generated React code so your team can go from inspiration to implementation without friction.
             </p>
           </div>
 

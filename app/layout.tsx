@@ -7,7 +7,7 @@ import CommandPalette from '@/components/CommandPalette';
 import "./globals.css";
 
 const siteUrl = 'https://ui-syntax.com';
-const siteDescription = 'UI Syntax is a Silicon Valley standard AI web design gallery for SaaS founders, product designers, and front-end engineers who need production-ready inspiration.';
+const siteDescription = 'UI Syntax is a Silicon Valley standard AI web design gallery for SaaS founders, product designers, and front-end engineers who need production-ready inspiration plus copy-ready HTML and React code blocks.';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -187,6 +187,9 @@ export default function RootLayout({
         />
       </head>
       <body>
+        <div className="bg-black/95 text-[12px] uppercase tracking-[0.25em] text-gray-200 text-center py-2 px-4 border-b border-white/10">
+          Every design detail page now includes both clean HTML and auto-generated React code for instant developer handoff.
+        </div>
         {children}
         <CommandPalette />
         <Analytics />

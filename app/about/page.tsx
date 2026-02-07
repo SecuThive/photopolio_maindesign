@@ -73,6 +73,9 @@ export default function AboutPage() {
               <li>
                 <strong>Launch Support:</strong> Implementation-ready notes so product and engineering teams move faster
               </li>
+              <li>
+                <strong>Instant Code Handoff:</strong> Every design detail page ships with clean HTML and auto-generated React code so engineers can copy and paste into production.
+              </li>
             </ul>
           </section>
 
