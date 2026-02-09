@@ -5,8 +5,7 @@ import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ShareLinkButton from '@/components/ShareLinkButton';
-import DesignPreview from '@/components/DesignPreview';
-import CodeBlock from '@/components/CodeBlock';
+import DesignDetailCustomizer from '@/components/DesignDetailCustomizer';
 import ViewCountBadge from '@/components/ViewCountBadge';
 import { supabaseServer } from '@/lib/supabase/server';
 import { extractDesignIdFromSlug, withDesignSlug, withDesignSlugs } from '@/lib/slug';
@@ -320,11 +319,12 @@ export default async function DesignDetailPage({ params }: PageProps) {
 
         <div className="grid gap-8 lg:gap-10 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] w-full overflow-hidden">
           <div className="space-y-6 sm:space-y-8 min-w-0 max-w-full overflow-hidden">
-            <DesignPreview 
-              imageUrl={currentDesign.image_url}
+            <DesignDetailCustomizer
               title={currentDesign.title}
-              colors={currentDesign.colors || undefined}
+              imageUrl={currentDesign.image_url}
               htmlCode={currentDesign.code}
+              reactCode={reactCode}
+              colors={currentDesign.colors || undefined}
             />
 
             {descriptionBlocks.length > 0 && (
@@ -350,9 +350,6 @@ export default async function DesignDetailPage({ params }: PageProps) {
               </section>
             )}
 
-            {currentDesign.code && (
-              <CodeBlock htmlCode={currentDesign.code} reactCode={reactCode} />
-            )}
           </div>
 
           <aside className="space-y-6 sm:space-y-8 w-full min-w-0 max-w-full overflow-hidden">
