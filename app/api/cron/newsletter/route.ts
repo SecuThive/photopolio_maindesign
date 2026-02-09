@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
-import { resend } from '@/lib/resend';
+import { resend, isResendEnabled } from '@/lib/resend';
 import { WeeklyDigestEmail } from '@/emails/WeeklyDigestEmail';
 
 // Vercel Cron Job - runs every Monday at 10:00 AM UTC
@@ -10,6 +10,13 @@ export async function GET(request: NextRequest) {
     const authHeader = request.headers.get('authorization');
     if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const resendClient = resend;
+
+    if (!isResendEnabled || !resendClient) {
+      console.warn('Resend API key missing — skipping weekly digest send.');
+      return NextResponse.json({ message: 'Email delivery disabled' }, { status: 200 });
     }
 
     console.log('Starting weekly newsletter cron job...');
@@ -81,7 +88,7 @@ export async function GET(request: NextRequest) {
       
       const emailPromises = batch.map(async (subscriber: { email: string }) => {
         try {
-          await resend.emails.send({
+          await resendClient.emails.send({
             from: 'UI Syntax <newsletter@uisyntax.com>',
             to: subscriber.email,
             subject: `✨ This Week's AI Design Inspiration - UI Syntax`,

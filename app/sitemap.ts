@@ -1,11 +1,14 @@
 import { MetadataRoute } from 'next'
 import { supabaseServer } from '@/lib/supabase/server'
 import { createDesignSlug } from '@/lib/slug'
+import { Database } from '@/types/database'
 
 export const revalidate = 0
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://ui-syntax.com').replace(/\/$/, '')
+
+  type DesignRow = Pick<Database['public']['Tables']['designs']['Row'], 'id' | 'title' | 'slug' | 'updated_at'>
 
   const { data: designs } = await supabaseServer
     .from('designs')
@@ -78,7 +81,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ]
 
-  const designPages: MetadataRoute.Sitemap = (designs || []).map((design) => ({
+  const designPages: MetadataRoute.Sitemap = (designs ?? []).map((design: DesignRow) => ({
     url: `${baseUrl}/design/${design.slug || createDesignSlug(design.title, design.id)}`,
     lastModified: design.updated_at ? new Date(design.updated_at) : now,
     changeFrequency: 'daily' as const,

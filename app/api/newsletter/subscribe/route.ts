@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
-import { resend } from '@/lib/resend';
+import { resend, isResendEnabled } from '@/lib/resend';
 import { WelcomeEmail } from '@/emails/WelcomeEmail';
-import type { Database } from '@/types/database';
 
 export async function POST(request: NextRequest) {
   try {
@@ -55,20 +54,19 @@ export async function POST(request: NextRequest) {
         { error: 'An error occurred while processing your subscription.' },
         { status: 500 }
       );
-    // Send welcome email
-    try {
-      await resend.emails.send({
-        from: 'UI Syntax <newsletter@uisyntax.com>',
-        to: email.toLowerCase().trim(),
-        subject: 'Welcome to UI Syntax - Your Weekly AI Design Digest',
-        react: WelcomeEmail({ email: email.toLowerCase().trim() }),
-      });
-    } catch (emailError) {
-      // Log error but don't fail the subscription
-      console.error('Failed to send welcome email:', emailError);
-      // Subscription still successful, just email failed
     }
 
+    if (isResendEnabled && resend) {
+      try {
+        await resend.emails.send({
+          from: 'UI Syntax <newsletter@uisyntax.com>',
+          to: email.toLowerCase().trim(),
+          subject: 'Welcome to UI Syntax - Your Weekly AI Design Digest',
+          react: WelcomeEmail({ email: email.toLowerCase().trim() }),
+        });
+      } catch (emailError) {
+        console.error('Failed to send welcome email:', emailError);
+      }
     }
 
     return NextResponse.json(
