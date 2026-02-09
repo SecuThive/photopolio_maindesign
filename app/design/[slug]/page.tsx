@@ -232,7 +232,7 @@ export default async function DesignDetailPage({ params }: PageProps) {
 
   return (
     <div className="min-h-screen bg-luxury-white overflow-x-hidden w-full">
-      <Header selectedCategory={currentDesign.category} />
+      <Header />
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 space-y-8 sm:space-y-10 w-full overflow-hidden">
         {/* Hero Section with Background */}
         <div className="relative w-full bg-gradient-to-br from-gray-50 via-white to-gray-50 border border-gray-200 rounded-3xl p-6 sm:p-8 md:p-12 shadow-sm overflow-hidden">

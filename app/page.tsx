@@ -3,6 +3,7 @@ import DesignGallery from '@/components/DesignGallery';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import EzoicPlacements from '@/components/EzoicPlacements';
+import CategoryFilterBar from '@/components/CategoryFilterBar';
 import { getPlacementIds } from '@/lib/ezoic';
 import { withDesignSlugs } from '@/lib/slug';
 
@@ -32,10 +33,10 @@ export default async function HomePage({
 
   return (
     <div className="min-h-screen bg-luxury-white">
-      <Header selectedCategory={category || null} />
+      <Header />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <section className="mb-16 space-y-6 text-center md:text-left">
+        <section className="mb-8 space-y-6 text-center md:text-left">
           <p className="text-xs uppercase tracking-[0.35em] text-gray-500">
             United States · AI Product Design
           </p>
@@ -59,6 +60,10 @@ export default async function HomePage({
             ))}
           </div>
         </section>
+
+        <div className="mb-12">
+          <CategoryFilterBar selectedCategory={category || null} />
+        </div>
 
         <DesignGallery initialDesigns={designsWithSlugs} initialCategory={category || null} />
 

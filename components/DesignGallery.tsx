@@ -253,6 +253,7 @@ export default function DesignGallery({ initialDesigns, initialCategory }: Desig
                 liked={likedIds.has(design.id)}
                 onToggleLike={() => handleToggleLike(design.id)}
                 likeDisabled={!likeToken || !!pendingLikes[design.id]}
+                priority={index < 4}
               />
             </div>
           ))}
@@ -273,8 +274,18 @@ export default function DesignGallery({ initialDesigns, initialCategory }: Desig
           {Array.from({ length: 4 }).map((_, index) => (
             <div
               key={`skeleton-${index}`}
-              className="h-72 rounded-[28px] border border-gray-200 bg-gradient-to-b from-gray-100 to-gray-200 animate-pulse"
-            />
+              className="flex h-80 flex-col rounded-[32px] border border-gray-200 bg-white/80 p-4 shadow-sm"
+            >
+              <div className="h-48 rounded-2xl bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100 animate-pulse" />
+              <div className="mt-6 space-y-3">
+                <div className="h-4 w-3/4 rounded bg-gray-100 animate-pulse" />
+                <div className="h-4 w-1/2 rounded bg-gray-100 animate-pulse" />
+                <div className="flex items-center justify-between pt-4">
+                  <div className="h-3 w-16 rounded-full bg-gray-100 animate-pulse" />
+                  <div className="h-3 w-20 rounded-full bg-gray-100 animate-pulse" />
+                </div>
+              </div>
+            </div>
           ))}
         </div>
       )}

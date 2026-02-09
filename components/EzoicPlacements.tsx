@@ -32,12 +32,12 @@ export default function EzoicPlacements({ placementIds, wrapperClassName }: Ezoi
           ez.showAds(...uniqueIds);
         }
       } catch (error) {
-        // Ezoic 스크립트 로딩 오류 무시
+        // Ignore transient Ezoic script loading errors
         console.debug('Ezoic ads not ready:', error);
       }
     };
 
-    // 약간의 지연을 두고 실행
+    // Run after a short delay so the SDK can initialize
     const timer = setTimeout(() => {
       if (ez.cmd) {
         ez.cmd.push(enqueueShowAds);

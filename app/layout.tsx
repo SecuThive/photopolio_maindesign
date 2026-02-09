@@ -132,13 +132,13 @@ export default function RootLayout({
           `}
         </Script>
 
-        {/* DNS Prefetch & Preconnect - 최우선 최적화 */}
+        {/* DNS Prefetch & Preconnect - highest priority optimization */}
         <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
         <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         
-        {/* Preload Critical Fonts - LCP 개선 (h1용 Inter 600) */}
+        {/* Preload Critical Fonts - improve LCP (Inter 600 for hero headings) */}
         <link 
           rel="preload" 
           href="https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiA.woff2" 
@@ -147,13 +147,13 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
         
-        {/* Google Fonts with display=optional - 더 적극적인 폴백 */}
+        {/* Google Fonts with display=optional - more aggressive fallback */}
         <link 
           href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=optional" 
           rel="stylesheet"
         />
         
-        {/* Critical CSS - 첫 화면 렌더링 최적화 */}
+        {/* Critical CSS - optimize above-the-fold rendering */}
         <style dangerouslySetInnerHTML={{ __html: `
           body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
           .min-h-screen{min-height:100vh}
@@ -166,7 +166,7 @@ export default function RootLayout({
           @media(min-width:768px){.md\\:text-5xl{font-size:3rem;line-height:1}}
         ` }} />
         
-        {/* AdSense - async로 차단 방지 */}
+        {/* AdSense - keep async to avoid blocking */}
         <Script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2091277631590195"

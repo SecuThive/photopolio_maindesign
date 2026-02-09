@@ -6,7 +6,7 @@ export async function POST(request: NextRequest) {
     const { path } = await request.json();
     const secretPath = process.env.ADMIN_SECRET_PATH || 'secret-admin-dashboard-x9k2p';
     
-    // 비밀 경로 검증
+    // Validate that the requested path matches the secret slug
     if (path !== secretPath) {
       return NextResponse.json({ error: 'Invalid path' }, { status: 404 });
     }

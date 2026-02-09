@@ -1,53 +1,18 @@
 "use client";
 
-import React, { useEffect, useState, useTransition } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 
-interface HeaderProps {
-  selectedCategory: string | null;
-}
-
-const categories = [
-  { value: null, label: 'All' },
-  { value: 'Landing Page', label: 'Landing Page' },
-  { value: 'Dashboard', label: 'Dashboard' },
-  { value: 'E-commerce', label: 'E-commerce' },
-  { value: 'Portfolio', label: 'Portfolio' },
-  { value: 'Blog', label: 'Blog' },
-  { value: 'Components', label: 'Components' },
-];
-
-export default function Header({ selectedCategory }: HeaderProps) {
-  const router = useRouter();
-  const normalizedSelected = selectedCategory ?? null;
+export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [optimisticCategory, setOptimisticCategory] = useState<string | null>(normalizedSelected);
-  const [isPending, startTransition] = useTransition();
   const openCommandPalette = () => {
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new Event('open-command-palette'));
     }
   };
 
-  useEffect(() => {
-    setOptimisticCategory(normalizedSelected);
-  }, [normalizedSelected]);
-
-  const navigateToCategory = (value: string | null) => {
-    const href = value ? `/?category=${encodeURIComponent(value)}` : '/';
-    setOptimisticCategory(value);
-    setMobileMenuOpen(false);
-    startTransition(() => {
-      router.push(href, { scroll: false });
-    });
-  };
-
   return (
     <header className="relative bg-black border-b border-gray-900 sticky top-0 z-40 backdrop-blur-sm bg-opacity-95">
-      {isPending && (
-        <div className="absolute inset-x-0 top-0 h-0.5 bg-white/70 animate-pulse" />
-      )}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-wrap items-center justify-between gap-4 py-6">
           <div className="flex items-center gap-3">
@@ -67,6 +32,13 @@ export default function Header({ selectedCategory }: HeaderProps) {
             </Link>
             <Link href="/contact" className="hover:text-white transition-colors">
               Contact
+            </Link>
+            <Link
+              href="/code-match"
+              className="inline-flex items-center gap-2 rounded-full bg-white/95 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.35em] text-gray-900 transition hover:bg-white"
+            >
+              <span>Code Match</span>
+              <span className="text-[9px] font-bold text-emerald-600">NEW</span>
             </Link>
             <button
               type="button"
@@ -97,52 +69,6 @@ export default function Header({ selectedCategory }: HeaderProps) {
                 )}
               </svg>
             </button>
-          </div>
-        </div>
-
-        {/* Desktop Category Filter */}
-        <div className="pb-6 overflow-x-auto scrollbar-hide hidden lg:block">
-          <div className="flex space-x-3">
-            {categories.map((category) => {
-              return (
-                <button
-                  key={category.value || 'all'}
-                  type="button"
-                  onClick={() => navigateToCategory(category.value)}
-                  className={`px-5 py-2 text-sm whitespace-nowrap transition-all duration-300 font-light tracking-wide ${
-                    optimisticCategory === category.value
-                      ? 'bg-white text-black'
-                      : 'bg-transparent text-gray-400 hover:text-white border border-gray-800 hover:border-gray-600'
-                  } rounded-sm ${isPending && optimisticCategory === category.value ? 'opacity-80' : ''}`}
-                  disabled={isPending && optimisticCategory === category.value}
-                >
-                  {category.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Mobile Category Filter - Always Visible on Mobile */}
-        <div className="pb-4 overflow-x-auto scrollbar-hide lg:hidden">
-          <div className="flex space-x-2">
-            {categories.map((category) => {
-              return (
-                <button
-                  key={category.value || 'all'}
-                  type="button"
-                  onClick={() => navigateToCategory(category.value)}
-                  className={`px-4 py-2 text-xs whitespace-nowrap transition-all duration-300 font-light tracking-wide ${
-                    optimisticCategory === category.value
-                      ? 'bg-white text-black'
-                      : 'bg-transparent text-gray-400 hover:text-white border border-gray-800 hover:border-gray-600'
-                  } rounded-sm ${isPending && optimisticCategory === category.value ? 'opacity-80' : ''}`}
-                  disabled={isPending && optimisticCategory === category.value}
-                >
-                  {category.label}
-                </button>
-              );
-            })}
           </div>
         </div>
       </div>
@@ -192,6 +118,13 @@ export default function Header({ selectedCategory }: HeaderProps) {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Contact
+                </Link>
+                <Link 
+                  href="/code-match" 
+                  className="block text-gray-200 bg-gradient-to-r from-emerald-500/80 to-cyan-500/80 hover:from-emerald-400 hover:to-cyan-400 transition-[colors,transform] py-3 px-4 rounded-xl text-sm font-semibold tracking-[0.3em] uppercase"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Code Match
                 </Link>
                 <Link 
                   href="/privacy-policy" 

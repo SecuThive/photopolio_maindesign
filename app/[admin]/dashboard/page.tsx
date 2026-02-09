@@ -37,7 +37,7 @@ export default function AdminDashboardPage() {
   const normalizedDailyMax = Math.max(maxDailyValue, 1);
 
   useEffect(() => {
-    // 비밀 경로 검증
+    // Validate the secret path before allowing dashboard access
     const checkPath = async () => {
       const response = await fetch('/api/admin/verify', {
         method: 'POST',
@@ -127,7 +127,7 @@ export default function AdminDashboardPage() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
-          <p className="mt-4 text-gray-600">확인 중...</p>
+          <p className="mt-4 text-gray-600">Verifying...</p>
         </div>
       </div>
     );

@@ -19,12 +19,12 @@ export default function DesignPreview({ imageUrl, title, colors, htmlCode }: Des
   const DESIGN_HEIGHT = Math.round((1920 * 2) / 3); // keep 3:2 aspect
   const [contentSize, setContentSize] = useState({ width: DESIGN_WIDTH, height: DESIGN_HEIGHT });
 
-  // 컨테이너 크기에 맞춰 스케일 계산
+  // Calculate the scale based on the current container width
   useEffect(() => {
     const updateScale = () => {
       if (containerRef.current) {
         const containerWidth = containerRef.current.clientWidth;
-        // 약간의 마진을 두어 확실히 컨테이너 안에 들어오도록
+        // Leave a small margin so the preview always fits inside
         const safeWidth = containerWidth - 2;
         const nextScale = Math.min(Math.max(safeWidth / contentSize.width, 0.05), 1);
         setScale(nextScale);
@@ -44,7 +44,7 @@ export default function DesignPreview({ imageUrl, title, colors, htmlCode }: Des
     };
   }, [contentSize.width]);
 
-  // iframe에 HTML 주입
+  // Inject HTML into the iframe for live previewing
   useEffect(() => {
     if (iframeRef.current && htmlCode) {
       const iframeDoc = iframeRef.current.contentDocument;

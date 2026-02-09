@@ -1,6 +1,9 @@
-import React from 'react';
+"use client";
+
+import { MouseEvent, useMemo, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { DesignWithSlug } from '@/types/database';
 import LikeButton from './LikeButton';
 
@@ -10,9 +13,29 @@ interface DesignCardProps {
   liked: boolean;
   onToggleLike: () => void;
   likeDisabled?: boolean;
+  priority?: boolean;
 }
 
-export default function DesignCard({ design, likes, liked, onToggleLike, likeDisabled }: DesignCardProps) {
+const categoryGlyphs: Record<string, string> = {
+  'Landing Page': 'LP',
+  'Dashboard': 'DB',
+  'E-commerce': 'EC',
+  'Portfolio': 'PF',
+  'Blog': 'BG',
+  'Components': 'CP',
+};
+
+export default function DesignCard({
+  design,
+  likes,
+  liked,
+  onToggleLike,
+  likeDisabled,
+  priority = false,
+}: DesignCardProps) {
+  const [copied, setCopied] = useState(false);
+  const router = useRouter();
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
@@ -22,54 +45,106 @@ export default function DesignCard({ design, likes, liked, onToggleLike, likeDis
     });
   };
 
-  const buildSnippet = (text: string) => {
-    const sentences = text
+  const buildSnippet = useMemo(() => {
+    if (!design.description) return null;
+    const trimmed = design.description.trim();
+    if (!trimmed) return null;
+    const sentences = trimmed
       .split(/(?<=[.!?])\s+/)
       .map((segment) => segment.trim())
       .filter(Boolean);
-    const preview = sentences.slice(0, 2).join(' ') || text;
-    return preview.length > 220 ? `${preview.slice(0, 220)}…` : preview;
+    const preview = sentences.slice(0, 2).join(' ') || trimmed;
+    return preview.length > 160 ? `${preview.slice(0, 160)}…` : preview;
+  }, [design.description]);
+
+  const glyph = design.category ? categoryGlyphs[design.category] ?? 'ALL' : 'ALL';
+  const href = `/design/${design.slug}`;
+
+  const handleCopyHtml = async (event: MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (!design.code) return;
+
+    try {
+      await navigator.clipboard.writeText(design.code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1600);
+    } catch (error) {
+      console.error('Failed to copy HTML code', error);
+    }
   };
 
-  const href = `/design/${design.slug}`;
+  const handleViewDetail = (event: MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    router.push(href);
+  };
 
   return (
     <Link
       href={href}
-      className="block group cursor-pointer bg-white overflow-hidden transition-all duration-500 hover:luxury-shadow-lg"
+      className="group block h-full cursor-pointer"
+      aria-label={`${design.title} design details`}
     >
-      <div className="relative aspect-[3/4] overflow-hidden bg-gray-100">
-        <Image
-          src={design.image_url}
-          alt={design.title}
-          fill
-          className="object-cover object-top group-hover:scale-105 transition-transform duration-700 ease-out"
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-        />
-        <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-500"></div>
-        <LikeButton likes={likes} liked={liked} onToggle={onToggleLike} disabled={likeDisabled} />
-      </div>
-      
-      <div className="p-6 border-t border-gray-100">
-        <h3 className="font-display text-xl text-black line-clamp-1 mb-2 tracking-tight">
-          {design.title}
-        </h3>
-        
-        {design.description && (
-          <p className="text-sm text-gray-500 line-clamp-2 mb-3 font-light leading-relaxed">
-            {buildSnippet(design.description)}
-          </p>
-        )}
-        
-        <div className="flex items-center justify-between text-xs text-gray-400 font-light tracking-wide">
-          <span>{formatDate(design.created_at)}</span>
-          {design.category && (
-            <span className="px-3 py-1 bg-black text-white text-[10px] uppercase tracking-widest">
-              {design.category}
-            </span>
-          )}
+      <article className="flex h-full flex-col overflow-hidden rounded-[32px] border border-gray-100 bg-white/95 shadow-[0_12px_35px_rgba(15,23,42,0.08)] transition-transform duration-500 hover:-translate-y-1 hover:shadow-[0_35px_90px_rgba(15,23,42,0.14)]">
+        <div className="relative h-64 w-full overflow-hidden bg-gray-100">
+          <Image
+            src={design.image_url}
+            alt={design.title}
+            fill
+            priority={priority}
+            loading={priority ? 'eager' : 'lazy'}
+            className="h-full w-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+          />
+          <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/70 to-transparent" aria-hidden />
+          <LikeButton likes={likes} liked={liked} onToggle={onToggleLike} disabled={likeDisabled} />
+          <button
+            type="button"
+            onClick={handleCopyHtml}
+            disabled={!design.code}
+            className={`absolute bottom-4 right-3 inline-flex items-center gap-2 rounded-full border border-white/60 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-white transition-colors ${
+              copied ? 'bg-emerald-500/90 border-emerald-300 text-white' : 'bg-black/60 hover:bg-black'
+            } disabled:opacity-40`}
+          >
+            {copied ? 'Copied' : 'Copy HTML'}
+          </button>
         </div>
-      </div>
+
+        <div className="flex flex-1 flex-col gap-4 p-6">
+          <h3 className="font-display text-lg font-semibold text-gray-900 line-clamp-1 tracking-tight">
+            {design.title}
+          </h3>
+
+          {buildSnippet && (
+            <p className="text-sm text-gray-500 leading-relaxed line-clamp-2">
+              {buildSnippet}
+            </p>
+          )}
+
+          <div className="mt-auto flex items-center justify-between text-xs font-medium text-gray-500">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold tracking-[0.25em] text-gray-600" aria-hidden>
+                {glyph}
+              </span>
+              <span className="uppercase tracking-[0.25em] text-gray-400">
+                {design.category || 'General'}
+              </span>
+            </div>
+            <time className="tracking-wide" dateTime={design.created_at} suppressHydrationWarning>
+              {formatDate(design.created_at)}
+            </time>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleViewDetail}
+            className="inline-flex items-center justify-center rounded-full border border-gray-200 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-700 transition-colors hover:border-black hover:text-black"
+          >
+            View Detail
+          </button>
+        </div>
+      </article>
     </Link>
   );
 }

@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  // 🧪 디버깅: API 호출 시 환경 변수 다시 확인
+  // 🧪 Debug: log environment configuration every time the API runs
   console.log('📊 [Metrics API Debug]');
   console.log('NEXT_PUBLIC_SUPABASE_URL:', process.env.NEXT_PUBLIC_SUPABASE_URL ? 'EXISTS' : 'MISSING');
   console.log('SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'EXISTS' : 'MISSING');
@@ -132,7 +132,7 @@ export async function GET(request: NextRequest) {
       dailyViews,
     });
   } catch (error) {
-    // 🧪 디버깅: 에러 상세 정보 출력
+    // 🧪 Debug: emit detailed error context for troubleshooting
     console.error('❌ [Metrics API Error]');
     console.error('Error type:', error?.constructor?.name);
     console.error('Error message:', error instanceof Error ? error.message : 'Unknown error');
