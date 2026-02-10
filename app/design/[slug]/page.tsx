@@ -5,7 +5,8 @@ import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ShareLinkButton from '@/components/ShareLinkButton';
-import DesignDetailCustomizer from '@/components/DesignDetailCustomizer';
+import DesignPreview from '@/components/DesignPreview';
+import CodeBlock from '@/components/CodeBlock';
 import ViewCountBadge from '@/components/ViewCountBadge';
 import { supabaseServer } from '@/lib/supabase/server';
 import { extractDesignIdFromSlug, withDesignSlug, withDesignSlugs } from '@/lib/slug';
@@ -229,6 +230,7 @@ export default async function DesignDetailPage({ params }: PageProps) {
   const descriptionBlocks = parseDescriptionBlocks(currentDesign.description);
   const heroDescription = getHeroDescription(descriptionBlocks, currentDesign.description);
   const reactCode = buildReactComponentFromHtml(currentDesign.code);
+  const htmlCode = currentDesign.code && currentDesign.code.trim().length ? currentDesign.code : null;
 
   return (
     <div className="min-h-screen bg-luxury-white overflow-x-hidden w-full">
@@ -319,6 +321,15 @@ export default async function DesignDetailPage({ params }: PageProps) {
 
         <div className="grid gap-8 lg:gap-10 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] w-full overflow-hidden">
           <div className="space-y-6 sm:space-y-8 min-w-0 max-w-full overflow-hidden">
+            <section className="space-y-6 sm:space-y-8">
+              <DesignPreview
+                title={currentDesign.title}
+                imageUrl={currentDesign.image_url}
+                htmlCode={htmlCode ?? undefined}
+                colors={currentDesign.colors || undefined}
+              />
+            </section>
+
             {descriptionBlocks.length > 0 && (
               <section className="bg-white border border-gray-200 p-6 sm:p-8 shadow-sm rounded-2xl space-y-5 sm:space-y-6 max-w-full overflow-hidden">
                 <div className="space-y-1">
@@ -342,13 +353,11 @@ export default async function DesignDetailPage({ params }: PageProps) {
               </section>
             )}
 
-            <DesignDetailCustomizer
-              title={currentDesign.title}
-              imageUrl={currentDesign.image_url}
-              htmlCode={currentDesign.code}
-              reactCode={reactCode}
-              colors={currentDesign.colors || undefined}
-            />
+            {htmlCode && (
+              <section>
+                <CodeBlock htmlCode={htmlCode} reactCode={reactCode ?? undefined} />
+              </section>
+            )}
           </div>
 
           <aside className="space-y-6 sm:space-y-8 w-full min-w-0 max-w-full overflow-hidden">
