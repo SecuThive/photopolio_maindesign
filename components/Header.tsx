@@ -33,6 +33,9 @@ export default function Header() {
             <Link href="/contact" className="hover:text-white transition-colors">
               Contact
             </Link>
+            <Link href="/blog" className="hover:text-white transition-colors">
+              Blog
+            </Link>
             <Link
               href="/code-match"
               className="inline-flex items-center gap-2 rounded-full bg-white/95 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.35em] text-gray-900 transition hover:bg-white"
@@ -118,6 +121,13 @@ export default function Header() {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Contact
+                </Link>
+                <Link 
+                  href="/blog" 
+                  className="block text-gray-300 hover:text-white hover:bg-gray-900 transition-colors py-3 px-4 rounded text-base"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Blog
                 </Link>
                 <Link 
                   href="/code-match" 

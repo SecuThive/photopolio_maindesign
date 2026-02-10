@@ -45,6 +45,24 @@ export type NewsletterSubscriber = {
   updated_at: string;
 };
 
+export type BlogPost = {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string | null;
+  content: string;
+  category: string | null;
+  author: string | null;
+  author_role: string | null;
+  author_avatar_url: string | null;
+  cover_image_url: string | null;
+  tags: string[] | null;
+  published_at: string | null;
+  status: 'draft' | 'published';
+  created_at: string;
+  updated_at: string;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -137,6 +155,43 @@ export type Database = {
           is_active?: boolean;
           ip_address?: string | null;
           user_agent?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      posts: {
+        Row: BlogPost;
+        Insert: {
+          id?: string;
+          slug: string;
+          title: string;
+          excerpt?: string | null;
+          content: string;
+          category?: string | null;
+          author?: string | null;
+          author_role?: string | null;
+          author_avatar_url?: string | null;
+          cover_image_url?: string | null;
+          tags?: string[] | null;
+          published_at?: string | null;
+          status?: 'draft' | 'published';
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          slug?: string;
+          title?: string;
+          excerpt?: string | null;
+          content?: string;
+          category?: string | null;
+          author?: string | null;
+          author_role?: string | null;
+          author_avatar_url?: string | null;
+          cover_image_url?: string | null;
+          tags?: string[] | null;
+          published_at?: string | null;
+          status?: 'draft' | 'published';
           created_at?: string;
           updated_at?: string;
         };
