@@ -4,6 +4,8 @@ import { resend, isResendEnabled } from '@/lib/resend';
 import { WeeklyDigestEmail } from '@/emails/WeeklyDigestEmail';
 
 // Vercel Cron Job - runs every Monday at 10:00 AM UTC
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     // Verify the request is from Vercel Cron

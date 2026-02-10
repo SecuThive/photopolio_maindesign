@@ -88,11 +88,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }))
 
-  const { data: posts } = await supabaseServer
+  type BlogRow = Pick<Database['public']['Tables']['posts']['Row'], 'slug' | 'published_at'>
+
+  const { data: posts } = (await supabaseServer
     .from('posts')
     .select('slug, published_at')
     .eq('status', 'published')
-    .order('published_at', { ascending: false })
+    .order('published_at', { ascending: false })) as { data: BlogRow[] | null }
 
   const blogPages: MetadataRoute.Sitemap = (posts ?? []).map((post) => ({
     url: `${baseUrl}/blog/${post.slug}`,

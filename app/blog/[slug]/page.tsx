@@ -6,6 +6,7 @@ import remarkGfm from 'remark-gfm';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { supabaseServer } from '@/lib/supabase/server';
+import type { Database } from '@/types/database';
 
 const siteUrl = 'https://ui-syntax.com';
 
@@ -16,12 +17,14 @@ type PageProps = {
 };
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { data: post } = await supabaseServer
+  type BlogMetaRow = Pick<Database['public']['Tables']['posts']['Row'], 'slug' | 'title' | 'excerpt' | 'status'>;
+
+  const { data: post } = (await supabaseServer
     .from('posts')
     .select('slug, title, excerpt, status')
     .eq('slug', params.slug)
     .eq('status', 'published')
-    .maybeSingle();
+    .maybeSingle()) as { data: BlogMetaRow | null };
 
   if (!post) {
     return {
@@ -32,20 +35,20 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return {
     title: post.title,
-    description: post.excerpt,
+    description: post.excerpt || 'UI Syntax journal entry.',
     alternates: {
       canonical: `${siteUrl}/blog/${post.slug}`,
     },
     openGraph: {
       title: post.title,
-      description: post.excerpt,
+      description: post.excerpt || 'UI Syntax journal entry.',
       url: `${siteUrl}/blog/${post.slug}`,
       type: 'article',
     },
     twitter: {
       card: 'summary_large_image',
       title: post.title,
-      description: post.excerpt,
+      description: post.excerpt || 'UI Syntax journal entry.',
     },
   };
 }
@@ -57,12 +60,14 @@ const calculateReadingTime = (content: string) => {
 };
 
 export default async function BlogPostPage({ params }: PageProps) {
-  const { data: post } = await supabaseServer
+  type BlogRow = Database['public']['Tables']['posts']['Row'];
+
+  const { data: post } = (await supabaseServer
     .from('posts')
     .select('slug, title, excerpt, content, category, author, author_role, author_avatar_url, cover_image_url, tags, published_at, status')
     .eq('slug', params.slug)
     .eq('status', 'published')
-    .maybeSingle();
+    .maybeSingle()) as { data: BlogRow | null };
 
   if (!post) {
     notFound();
