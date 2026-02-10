@@ -10,7 +10,7 @@ import type { Database } from '@/types/database';
 
 const siteUrl = 'https://ui-syntax.com';
 
-export const revalidate = 300;
+export const revalidate = 0;
 
 type PageProps = {
   params: { slug: string };

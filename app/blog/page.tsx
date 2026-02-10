@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   },
 };
 
-export const revalidate = 300;
+export const revalidate = 0;
 
 const calculateReadingTime = (content: string) => {
   const words = content.trim().split(/\s+/).filter(Boolean).length;

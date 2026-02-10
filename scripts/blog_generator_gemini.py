@@ -92,8 +92,25 @@ def parse_gemini_json(response: Any) -> Dict[str, Any]:
     raise ValueError("Gemini did not return valid JSON.")
 
 
+def _derive_fallback_tags(title: str, category: str) -> List[str]:
+    words = [
+        word.title()
+        for word in re.split(r"[^a-z0-9]+", title.lower())
+        if len(word) >= 4
+    ]
+    deduped: List[str] = []
+    for word in words:
+        if word not in deduped:
+            deduped.append(word)
+        if len(deduped) >= 4:
+            break
+    if category not in deduped:
+        deduped.insert(0, category)
+    return deduped[:6] or [category]
+
+
 def ensure_payload_shape(payload: Dict[str, Any]) -> Dict[str, Any]:
-    required = ["title", "excerpt", "content", "category", "tags"]
+    required = ["title", "excerpt", "content"]
     missing = [key for key in required if key not in payload]
     if missing:
         raise ValueError(f"Missing fields: {', '.join(missing)}")
@@ -101,9 +118,17 @@ def ensure_payload_shape(payload: Dict[str, Any]) -> Dict[str, Any]:
     title = str(payload["title"]).strip() or "Untitled Post"
     excerpt = str(payload["excerpt"]).strip()
     content = str(payload["content"]).strip()
-    category = str(payload["category"]).strip() or "Frontend"
+    category = str(payload.get("category", "")).strip() or random.choice(CATEGORIES)
+
     tags_raw = payload.get("tags", [])
-    tags = [str(tag).strip() for tag in tags_raw if isinstance(tag, str)]
+    tags: List[str] = []
+    if isinstance(tags_raw, list):
+        tags = [str(tag).strip() for tag in tags_raw if isinstance(tag, str) and str(tag).strip()]
+    elif isinstance(tags_raw, str):
+        tags = [segment.strip() for segment in tags_raw.split(',') if segment.strip()]
+
+    if not tags:
+        tags = _derive_fallback_tags(title, category)
 
     return {
         "title": title,
