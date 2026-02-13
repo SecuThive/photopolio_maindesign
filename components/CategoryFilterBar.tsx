@@ -15,9 +15,10 @@ const categories = [
 
 interface CategoryFilterBarProps {
   selectedCategory: string | null;
+  className?: string;
 }
 
-export default function CategoryFilterBar({ selectedCategory }: CategoryFilterBarProps) {
+export default function CategoryFilterBar({ selectedCategory, className }: CategoryFilterBarProps) {
   const router = useRouter();
   const [optimisticCategory, setOptimisticCategory] = useState<string | null>(selectedCategory ?? null);
   const [isPending, startTransition] = useTransition();
@@ -34,8 +35,15 @@ export default function CategoryFilterBar({ selectedCategory }: CategoryFilterBa
     });
   };
 
+  const rootClassName = [
+    'sticky top-16 md:top-20 z-30 border-y border-gray-200 bg-white/90 backdrop-blur-md',
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ');
+
   return (
-    <div className="sticky top-16 md:top-20 z-30 border-y border-gray-200 bg-white/90 backdrop-blur-md">
+    <div className={rootClassName}>
       {isPending && <div className="h-1 w-full bg-gradient-to-r from-gray-900 via-gray-600 to-gray-900 animate-[pulse_1.4s_ease-in-out_infinite]" aria-hidden />}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="text-[11px] uppercase tracking-[0.35em] text-gray-400 mb-3 flex items-center gap-3">

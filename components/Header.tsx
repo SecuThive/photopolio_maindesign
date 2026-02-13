@@ -81,8 +81,7 @@ export default function Header() {
         <>
           {/* Dropdown Menu - slide-down animation */}
           <div className="lg:hidden bg-gray-950 border-t border-gray-800 shadow-lg animate-slideDown">
-            <div className="px-4 py-6 max-w-7xl mx-auto space-y-4">
-              
+            <nav className="space-y-1 px-4 py-6 max-w-7xl mx-auto">
               {/* Search Button in Mobile Menu */}
               <button
                 type="button"
@@ -90,7 +89,7 @@ export default function Header() {
                   openCommandPalette();
                   setMobileMenuOpen(false);
                 }}
-                className="flex w-full items-center gap-3 rounded-lg border border-gray-800 px-4 py-3 text-sm text-gray-200 hover:bg-gray-900 transition-colors"
+                className="mb-3 flex w-full items-center gap-3 rounded-lg border border-gray-800 px-4 py-3 text-sm text-gray-200 hover:bg-gray-900 transition-colors"
               >
                 <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="11" cy="11" r="7" />
@@ -100,59 +99,57 @@ export default function Header() {
                 <span className="text-xs text-gray-500">⌘K</span>
               </button>
 
-              <nav className="space-y-1">
-                <Link 
-                  href="/" 
-                  className="block text-gray-300 hover:text-white hover:bg-gray-900 transition-colors py-3 px-4 rounded text-base"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Home
-                </Link>
-                <Link 
-                  href="/about" 
-                  className="block text-gray-300 hover:text-white hover:bg-gray-900 transition-colors py-3 px-4 rounded text-base"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  About
-                </Link>
-                <Link 
-                  href="/contact" 
-                  className="block text-gray-300 hover:text-white hover:bg-gray-900 transition-colors py-3 px-4 rounded text-base"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Contact
-                </Link>
-                <Link 
-                  href="/blog" 
-                  className="block text-gray-300 hover:text-white hover:bg-gray-900 transition-colors py-3 px-4 rounded text-base"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Blog
-                </Link>
-                <Link 
-                  href="/code-match" 
-                  className="block text-gray-200 bg-gradient-to-r from-emerald-500/80 to-cyan-500/80 hover:from-emerald-400 hover:to-cyan-400 transition-[colors,transform] py-3 px-4 rounded-xl text-sm font-semibold tracking-[0.3em] uppercase"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Code Match
-                </Link>
-                <Link 
-                  href="/privacy-policy" 
-                  className="block text-gray-300 hover:text-white hover:bg-gray-900 transition-colors py-3 px-4 rounded text-base"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Privacy Policy
-                </Link>
-                <a 
-                  href="/feed.xml" 
-                  className="block text-gray-300 hover:text-white hover:bg-gray-900 transition-colors py-3 px-4 rounded text-base"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  RSS Feed
-                </a>
-              </nav>
-            </div>
+              <Link 
+                href="/" 
+                className="block text-gray-300 hover:text-white hover:bg-gray-900 transition-colors py-3 px-4 rounded text-base"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Home
+              </Link>
+              <Link 
+                href="/about" 
+                className="block text-gray-300 hover:text-white hover:bg-gray-900 transition-colors py-3 px-4 rounded text-base"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                About
+              </Link>
+              <Link 
+                href="/contact" 
+                className="block text-gray-300 hover:text-white hover:bg-gray-900 transition-colors py-3 px-4 rounded text-base"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Contact
+              </Link>
+              <Link 
+                href="/blog" 
+                className="block text-gray-300 hover:text-white hover:bg-gray-900 transition-colors py-3 px-4 rounded text-base"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Blog
+              </Link>
+              <Link 
+                href="/code-match" 
+                className="block text-gray-200 bg-gradient-to-r from-emerald-500/80 to-cyan-500/80 hover:from-emerald-400 hover:to-cyan-400 transition-[colors,transform] py-3 px-4 rounded-xl text-sm font-semibold tracking-[0.3em] uppercase"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Code Match
+              </Link>
+              <Link 
+                href="/privacy-policy" 
+                className="block text-gray-300 hover:text-white hover:bg-gray-900 transition-colors py-3 px-4 rounded text-base"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Privacy Policy
+              </Link>
+              <a 
+                href="/feed.xml" 
+                className="block text-gray-300 hover:text-white hover:bg-gray-900 transition-colors py-3 px-4 rounded text-base"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                RSS Feed
+              </a>
+            </nav>
           </div>
         </>
       )}
