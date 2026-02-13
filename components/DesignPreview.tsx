@@ -101,49 +101,44 @@ export default function DesignPreview({ imageUrl, title, colors, htmlCode }: Des
   const hasLivePreview = htmlCode && htmlCode.trim().length > 0;
 
   return (
-    <div className="space-y-6 max-w-full">
-      {/* Preview Container */}
-      <div 
-        ref={containerRef}
-        className="relative w-full max-w-full overflow-hidden rounded-[32px] border border-gray-200 shadow-[0_25px_70px_rgba(0,0,0,0.12)] bg-white"
-      >
-        {hasLivePreview ? (
-          <div className="relative w-full" style={{ paddingBottom: `${(contentSize.height / contentSize.width) * 100}%` }}>
-            <div className="absolute inset-0 overflow-hidden">
-              <div className="w-full h-full overflow-hidden">
-                <iframe
-                  ref={iframeRef}
-                  className="border-0 origin-top-left block"
-                  style={{
-                    transform: `scale(${scale})`,
-                    transformOrigin: 'top left',
-                    width: contentSize.width,
-                    height: contentSize.height,
-                    maxWidth: 'none',
-                    maxHeight: 'none',
-                    border: 'none',
-                    display: 'block',
-                  }}
-                  title="Live Design Preview"
-                  sandbox="allow-same-origin allow-forms allow-scripts"
-                  scrolling="no"
-                />
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="relative aspect-[3/2]">
-            <Image
-              src={imageUrl}
-              alt={title}
-              fill
-              className="object-cover object-top"
-              sizes="(max-width: 1024px) 100vw, 70vw"
-              priority
+    <div
+      ref={containerRef}
+      className="relative w-full max-w-full overflow-hidden rounded-[32px] border border-gray-200 bg-white shadow-[0_25px_70px_rgba(0,0,0,0.12)]"
+    >
+      {hasLivePreview ? (
+        <div className="relative w-full" style={{ paddingBottom: `${(contentSize.height / contentSize.width) * 100}%` }}>
+          <div className="absolute inset-0 overflow-hidden">
+            <iframe
+              ref={iframeRef}
+              className="border-0 origin-top-left block"
+              style={{
+                transform: `scale(${scale})`,
+                transformOrigin: 'top left',
+                width: contentSize.width,
+                height: contentSize.height,
+                maxWidth: 'none',
+                maxHeight: 'none',
+                border: 'none',
+                display: 'block',
+              }}
+              title="Live Design Preview"
+              sandbox="allow-same-origin allow-forms allow-scripts"
+              scrolling="no"
             />
           </div>
-        )}
-      </div>
+        </div>
+      ) : (
+        <div className="relative aspect-[3/2]">
+          <Image
+            src={imageUrl}
+            alt={title}
+            fill
+            className="object-cover object-top"
+            sizes="(max-width: 1024px) 100vw, 70vw"
+            priority
+          />
+        </div>
+      )}
     </div>
   );
 }

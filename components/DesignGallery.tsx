@@ -242,20 +242,17 @@ export default function DesignGallery({ initialDesigns, initialCategory }: Desig
           aria-live="polite"
         >
           {designs.map((design, index) => (
-            <div
+            <DesignCard
               key={design.id}
+              design={design}
+              likes={likesMap[design.id] ?? design.likes ?? 0}
+              liked={likedIds.has(design.id)}
+              onToggleLike={() => handleToggleLike(design.id)}
+              likeDisabled={!likeToken || !!pendingLikes[design.id]}
+              priority={index < 4}
               className="animate-slide-up"
               style={{ animationDelay: `${index * 0.05}s` }}
-            >
-              <DesignCard
-                design={design}
-                likes={likesMap[design.id] ?? design.likes ?? 0}
-                liked={likedIds.has(design.id)}
-                onToggleLike={() => handleToggleLike(design.id)}
-                likeDisabled={!likeToken || !!pendingLikes[design.id]}
-                priority={index < 4}
-              />
-            </div>
+            />
           ))}
         </div>
 

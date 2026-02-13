@@ -212,27 +212,25 @@ export default function DesignModal({ design, onClose, likes, liked, onToggleLik
             </span>
           </div>
 
-          <div className="mt-8 flex justify-center">
-            <div
-              className="relative overflow-hidden rounded-[32px] border border-gray-200 bg-white shadow-[0_20px_60px_rgba(0,0,0,0.12)]"
-              style={{ width: previewMode === 'desktop' ? '100%' : previewMode === 'tablet' ? '768px' : '375px' }}
-            >
-              {isLoadingPreview && (
-                <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-10">
-                  <div className="text-center">
-                    <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-black mx-auto mb-3"></div>
-                    <p className="text-xs uppercase tracking-[0.3em] text-gray-500">Updating</p>
-                  </div>
+          <div
+            className="relative mt-8 mx-auto overflow-hidden rounded-[32px] border border-gray-200 bg-white shadow-[0_20px_60px_rgba(0,0,0,0.12)]"
+            style={{ width: previewMode === 'desktop' ? '100%' : previewMode === 'tablet' ? '768px' : '375px' }}
+          >
+            {isLoadingPreview && (
+              <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-10">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-black mx-auto mb-3"></div>
+                  <p className="text-xs uppercase tracking-[0.3em] text-gray-500">Updating</p>
                 </div>
-              )}
-              <iframe
-                srcDoc={previewCode || design.code || ''}
-                className="w-full border-0"
-                style={{ minHeight: '640px' }}
-                title="Design Preview"
-                sandbox="allow-scripts"
-              />
-            </div>
+              </div>
+            )}
+            <iframe
+              srcDoc={previewCode || design.code || ''}
+              className="w-full border-0"
+              style={{ minHeight: '640px' }}
+              title="Design Preview"
+              sandbox="allow-scripts"
+            />
           </div>
         </div>
 

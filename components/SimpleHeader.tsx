@@ -53,47 +53,44 @@ export default function SimpleHeader() {
         <>
           {/* Dropdown Menu - slide-down animation */}
           <div className="lg:hidden bg-gray-950 border-t border-gray-800 shadow-lg animate-slideDown">
-            <div className="px-4 py-6 max-w-7xl mx-auto">
-
-              <nav className="space-y-1">
-                <Link 
-                  href="/" 
-                  className="block text-gray-300 hover:text-white hover:bg-gray-900 transition-colors py-3 px-4 rounded text-base"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Home
-                </Link>
-                <Link 
-                  href="/about" 
-                  className="block text-gray-300 hover:text-white hover:bg-gray-900 transition-colors py-3 px-4 rounded text-base"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  About
-                </Link>
-                <Link 
-                  href="/contact" 
-                  className="block text-gray-300 hover:text-white hover:bg-gray-900 transition-colors py-3 px-4 rounded text-base"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Contact
-                </Link>
-                <Link 
-                  href="/privacy-policy" 
-                  className="block text-gray-300 hover:text-white hover:bg-gray-900 transition-colors py-3 px-4 rounded text-base"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Privacy Policy
-                </Link>
-                <a 
-                  href="/feed.xml" 
-                  className="block text-gray-300 hover:text-white hover:bg-gray-900 transition-colors py-3 px-4 rounded text-base"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  RSS Feed
-                </a>
-              </nav>
-            </div>
+            <nav className="space-y-1 px-4 py-6 max-w-7xl mx-auto">
+              <Link 
+                href="/" 
+                className="block text-gray-300 hover:text-white hover:bg-gray-900 transition-colors py-3 px-4 rounded text-base"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Home
+              </Link>
+              <Link 
+                href="/about" 
+                className="block text-gray-300 hover:text-white hover:bg-gray-900 transition-colors py-3 px-4 rounded text-base"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                About
+              </Link>
+              <Link 
+                href="/contact" 
+                className="block text-gray-300 hover:text-white hover:bg-gray-900 transition-colors py-3 px-4 rounded text-base"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Contact
+              </Link>
+              <Link 
+                href="/privacy-policy" 
+                className="block text-gray-300 hover:text-white hover:bg-gray-900 transition-colors py-3 px-4 rounded text-base"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Privacy Policy
+              </Link>
+              <a 
+                href="/feed.xml" 
+                className="block text-gray-300 hover:text-white hover:bg-gray-900 transition-colors py-3 px-4 rounded text-base"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                RSS Feed
+              </a>
+            </nav>
           </div>
         </>
       )}

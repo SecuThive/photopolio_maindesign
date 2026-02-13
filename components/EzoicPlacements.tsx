@@ -54,9 +54,7 @@ export default function EzoicPlacements({ placementIds, wrapperClassName }: Ezoi
   return (
     <div className={wrapperClassName} aria-label="Sponsored placements">
       {placementIds.map((id) => (
-        <div key={id} className="py-8">
-          <div id={`ezoic-pub-ad-placeholder-${id}`} />
-        </div>
+        <div key={id} id={`ezoic-pub-ad-placeholder-${id}`} className="py-8" />
       ))}
     </div>
   );

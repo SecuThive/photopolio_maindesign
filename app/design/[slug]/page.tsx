@@ -318,24 +318,16 @@ export default async function DesignDetailPage({ params }: PageProps) {
         </div>
 
         <div className="grid gap-8 lg:gap-10 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] w-full overflow-hidden">
-          <div className="space-y-6 sm:space-y-8 min-w-0 max-w-full overflow-hidden">
-            <DesignDetailCustomizer
-              title={currentDesign.title}
-              imageUrl={currentDesign.image_url}
-              htmlCode={currentDesign.code}
-              reactCode={reactCode}
-              colors={currentDesign.colors || undefined}
-            />
-
+          <div className="space-y-10 sm:space-y-12 min-w-0 max-w-full overflow-hidden">
             {descriptionBlocks.length > 0 && (
               <section className="bg-white border border-gray-200 p-6 sm:p-8 shadow-sm rounded-2xl space-y-5 sm:space-y-6 max-w-full overflow-hidden">
                 <div className="space-y-1">
                   <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Design Narrative</p>
                   <h2 className="text-2xl font-semibold text-gray-900">Full Context</h2>
                 </div>
-                <div className="space-y-5 sm:space-y-6">
+                <div className="divide-y divide-gray-100">
                   {descriptionBlocks.map((block, index) => (
-                    <div key={`${block.title ?? 'block'}-${index}`} className="space-y-2">
+                    <div key={`${block.title ?? 'block'}-${index}`} className="space-y-2 pt-5 first:pt-0">
                       {block.title && (
                         <p className="text-xs font-semibold uppercase tracking-[0.3em] text-gray-500">
                           {block.title}
@@ -350,6 +342,19 @@ export default async function DesignDetailPage({ params }: PageProps) {
               </section>
             )}
 
+            <section className="space-y-4">
+              <div className="space-y-1">
+                <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Preview</p>
+                <h2 className="text-2xl font-semibold text-gray-900">Design Preview & Code</h2>
+              </div>
+              <DesignDetailCustomizer
+                title={currentDesign.title}
+                imageUrl={currentDesign.image_url}
+                htmlCode={currentDesign.code}
+                reactCode={reactCode}
+                colors={currentDesign.colors || undefined}
+              />
+            </section>
           </div>
 
           <aside className="space-y-6 sm:space-y-8 w-full min-w-0 max-w-full overflow-hidden">

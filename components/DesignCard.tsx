@@ -1,6 +1,6 @@
 "use client";
 
-import { MouseEvent, useMemo, useState } from 'react';
+import { CSSProperties, MouseEvent, useMemo, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -14,6 +14,8 @@ interface DesignCardProps {
   onToggleLike: () => void;
   likeDisabled?: boolean;
   priority?: boolean;
+  className?: string;
+  style?: CSSProperties;
 }
 
 const categoryGlyphs: Record<string, string> = {
@@ -32,6 +34,8 @@ export default function DesignCard({
   onToggleLike,
   likeDisabled,
   priority = false,
+  className,
+  style,
 }: DesignCardProps) {
   const [copied, setCopied] = useState(false);
   const router = useRouter();
@@ -80,10 +84,15 @@ export default function DesignCard({
     router.push(href);
   };
 
+  const cardClassName = ['group block h-full cursor-pointer', className]
+    .filter(Boolean)
+    .join(' ');
+
   return (
     <Link
       href={href}
-      className="group block h-full cursor-pointer"
+      className={cardClassName}
+      style={style}
       aria-label={`${design.title} design details`}
     >
       <article className="flex h-full flex-col overflow-hidden rounded-[32px] border border-gray-100 bg-white/95 shadow-[0_12px_35px_rgba(15,23,42,0.08)] transition-transform duration-500 hover:-translate-y-1 hover:shadow-[0_35px_90px_rgba(15,23,42,0.14)]">

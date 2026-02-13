@@ -61,9 +61,7 @@ export default async function HomePage({
           </div>
         </section>
 
-        <div className="mb-12">
-          <CategoryFilterBar selectedCategory={category || null} />
-        </div>
+        <CategoryFilterBar selectedCategory={category || null} className="mb-12" />
 
         <DesignGallery initialDesigns={designsWithSlugs} initialCategory={category || null} />
 
