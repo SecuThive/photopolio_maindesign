@@ -61,6 +61,24 @@ export default async function HomePage({
           </div>
         </section>
 
+        <section className="mb-12 rounded-3xl border border-gray-200 bg-white/90 p-6 sm:p-8 text-gray-700 shadow-sm">
+          <h2 className="text-2xl font-semibold text-gray-900">What you will find inside UI Syntax</h2>
+          <p className="mt-4 text-base leading-relaxed">
+            UI Syntax is a curated library of AI-generated web layouts built for teams that ship fast. Each design is
+            reviewed for hierarchy, accessibility, and conversion-ready copy so product and engineering teams can move
+            from inspiration to implementation without guesswork.
+          </p>
+          <p className="mt-4 text-base leading-relaxed">
+            Browse by category, open a detail page, and copy the HTML or React code to jump-start your next release. The
+            collection is continuously updated with layouts for modern SaaS, fintech, e-commerce, and developer tools.
+          </p>
+          <ul className="mt-5 space-y-2 text-sm text-gray-600">
+            <li>Production-grade landing pages with proven hero, social proof, and pricing patterns.</li>
+            <li>Dashboard and admin templates that prioritize clarity, density, and fast scanning.</li>
+            <li>Component-focused references for cards, navs, and CTA sections you can reuse.</li>
+          </ul>
+        </section>
+
         <CategoryFilterBar selectedCategory={category || null} className="mb-12" />
 
         <DesignGallery initialDesigns={designsWithSlugs} initialCategory={category || null} />

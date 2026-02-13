@@ -6,6 +6,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ShareLinkButton from '@/components/ShareLinkButton';
 import DesignDetailCustomizer from '@/components/DesignDetailCustomizer';
+import LazyRender from '@/components/LazyRender';
 import ViewCountBadge from '@/components/ViewCountBadge';
 import { supabaseServer } from '@/lib/supabase/server';
 import { extractDesignIdFromSlug, withDesignSlug, withDesignSlugs } from '@/lib/slug';
@@ -342,7 +343,7 @@ export default async function DesignDetailPage({ params }: PageProps) {
                 </div>
               </section>
             )}
-            <section className="space-y-4">
+            <LazyRender className="space-y-4">
               <div className="space-y-1">
                 <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Preview</p>
                 <h2 className="text-2xl font-semibold text-gray-900">Design Preview & Code</h2>
@@ -354,7 +355,7 @@ export default async function DesignDetailPage({ params }: PageProps) {
                 reactCode={reactCode ?? undefined}
                 colors={currentDesign.colors || undefined}
               />
-            </section>
+            </LazyRender>
           </div>
 
           <aside className="space-y-6 sm:space-y-8 w-full min-w-0 max-w-full overflow-hidden">
