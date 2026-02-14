@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { supabaseServer } from '@/lib/supabase/server';
 import DesignGallery from '@/components/DesignGallery';
 import Header from '@/components/Header';
@@ -6,8 +7,27 @@ import EzoicPlacements from '@/components/EzoicPlacements';
 import CategoryFilterBar from '@/components/CategoryFilterBar';
 import { getPlacementIds } from '@/lib/ezoic';
 import { withDesignSlugs } from '@/lib/slug';
+import { createPageMetadata } from '@/lib/seo';
 
 export const revalidate = 0;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const { count } = await supabaseServer
+    .from('designs')
+    .select('id', { count: 'exact', head: true })
+    .eq('status', 'published');
+
+  const totalDesigns = count ?? 0;
+  const description = totalDesigns > 0
+    ? `Browse ${totalDesigns}+ production-ready AI-generated web designs spanning landing pages, dashboards, and e-commerce flows.`
+    : 'Browse production-ready AI-generated web designs spanning landing pages, dashboards, and e-commerce flows.';
+
+  return createPageMetadata({
+    title: 'AI design inspiration for modern engineering teams',
+    description,
+    path: '/',
+  });
+}
 
 export default async function HomePage({
   searchParams,

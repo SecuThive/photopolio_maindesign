@@ -1,6 +1,12 @@
 "use client";
 
 import { useEffect } from 'react';
+import {
+  isThirdPartyBlocked,
+  prefersReducedMotion,
+  shouldThrottleThirdPartyLoading,
+  syncThirdPartyBlockFlag,
+} from '@/lib/thirdPartyGuard';
 
 interface EzoicPlacementsProps {
   placementIds: number[];
@@ -19,6 +25,22 @@ declare global {
 export default function EzoicPlacements({ placementIds, wrapperClassName }: EzoicPlacementsProps) {
   useEffect(() => {
     if (typeof window === 'undefined' || placementIds.length === 0) {
+      return;
+    }
+
+    const snapshot = syncThirdPartyBlockFlag();
+
+    if (isThirdPartyBlocked()) {
+      if (process.env.NODE_ENV === 'development') {
+        console.info('Skipping Ezoic placements: third-party guard active.', snapshot);
+      }
+      return;
+    }
+
+    if (shouldThrottleThirdPartyLoading() || prefersReducedMotion()) {
+      if (process.env.NODE_ENV === 'development') {
+        console.info('Skipping Ezoic placements due to user network/motion preferences.');
+      }
       return;
     }
 

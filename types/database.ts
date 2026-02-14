@@ -13,6 +13,11 @@ export type Design = {
   slug?: string | null;
   colors?: string[] | null;
   status: 'published' | 'archived';
+  strategy_notes?: string | null;
+  psychology_notes?: string | null;
+  usage_notes?: string | null;
+  performance_notes?: string | null;
+  accessibility_notes?: string | null;
   colorable_regions?: Array<{
     id: string;
     name: string;
@@ -31,6 +36,22 @@ export type PageView = {
   created_at: string;
   page: string | null;
   referer: string | null;
+  user_agent: string | null;
+};
+
+export type WebVitalsEvent = {
+  id: string;
+  created_at: string;
+  metric: string;
+  rating: string | null;
+  value: number;
+  delta: number | null;
+  label: string | null;
+  page: string | null;
+  session_id: string | null;
+  navigation_type: string | null;
+  blocked_third_party: boolean | null;
+  connection: string | null;
   user_agent: string | null;
 };
 
@@ -82,6 +103,11 @@ export type Database = {
           views?: number | null;
           colors?: string[] | null;
           status?: 'published' | 'archived';
+          strategy_notes?: string | null;
+          psychology_notes?: string | null;
+          usage_notes?: string | null;
+          performance_notes?: string | null;
+          accessibility_notes?: string | null;
         };
         Update: {
           id?: string;
@@ -97,6 +123,11 @@ export type Database = {
           views?: number | null;
           colors?: string[] | null;
           status?: 'published' | 'archived';
+          strategy_notes?: string | null;
+          psychology_notes?: string | null;
+          usage_notes?: string | null;
+          performance_notes?: string | null;
+          accessibility_notes?: string | null;
         };
       };
       design_likes: {
@@ -133,6 +164,39 @@ export type Database = {
           created_at?: string;
           page?: string | null;
           referer?: string | null;
+          user_agent?: string | null;
+        };
+      };
+      web_vitals_events: {
+        Row: WebVitalsEvent;
+        Insert: {
+          id?: string;
+          created_at?: string;
+          metric: string;
+          rating?: string | null;
+          value: number;
+          delta?: number | null;
+          label?: string | null;
+          page?: string | null;
+          session_id?: string | null;
+          navigation_type?: string | null;
+          blocked_third_party?: boolean | null;
+          connection?: string | null;
+          user_agent?: string | null;
+        };
+        Update: {
+          id?: string;
+          created_at?: string;
+          metric?: string;
+          rating?: string | null;
+          value?: number;
+          delta?: number | null;
+          label?: string | null;
+          page?: string | null;
+          session_id?: string | null;
+          navigation_type?: string | null;
+          blocked_third_party?: boolean | null;
+          connection?: string | null;
           user_agent?: string | null;
         };
       };

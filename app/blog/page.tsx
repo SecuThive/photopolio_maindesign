@@ -4,27 +4,26 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { supabaseServer } from '@/lib/supabase/server';
 import type { Database } from '@/types/database';
+import { createPageMetadata } from '@/lib/seo';
+import { buildBlogItemListSchema } from '@/lib/structuredData';
 
-const siteUrl = 'https://ui-syntax.com';
+export async function generateMetadata(): Promise<Metadata> {
+  const { count } = await supabaseServer
+    .from('posts')
+    .select('id', { count: 'exact', head: true })
+    .eq('status', 'published');
 
-export const metadata: Metadata = {
-  title: 'Blog',
-  description: 'Deep dives, engineering notes, and UI system guides from UI Syntax.',
-  alternates: {
-    canonical: `${siteUrl}/blog`,
-  },
-  openGraph: {
-    title: 'UI Syntax Blog',
-    description: 'Deep dives, engineering notes, and UI system guides from UI Syntax.',
-    url: `${siteUrl}/blog`,
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'UI Syntax Blog',
-    description: 'Deep dives, engineering notes, and UI system guides from UI Syntax.',
-  },
-};
+  const totalPosts = count ?? 0;
+  const description = totalPosts > 0
+    ? `Read ${totalPosts}+ engineering notes, UI breakdowns, and implementation guides curated by UI Syntax.`
+    : 'Read engineering notes, UI breakdowns, and implementation guides curated by UI Syntax.';
+
+  return createPageMetadata({
+    title: 'UI Syntax Journal',
+    description,
+    path: '/blog',
+  });
+}
 
 export const revalidate = 0;
 
@@ -39,17 +38,24 @@ type BlogRow = Database['public']['Tables']['posts']['Row'];
 export default async function BlogPage() {
   const { data: posts } = await supabaseServer
     .from('posts')
-    .select('slug, title, excerpt, content, category, author, author_role, author_avatar_url, cover_image_url, tags, published_at, status')
+    .select('slug, title, excerpt, content, category, author, author_role, author_avatar_url, cover_image_url, tags, published_at, updated_at, status')
     .eq('status', 'published')
     .order('published_at', { ascending: false });
 
   const publishedPosts = (posts ?? []) as BlogRow[];
+  const blogListSchema = buildBlogItemListSchema(publishedPosts);
 
   return (
     <div className="min-h-screen bg-luxury-white">
       <Header />
 
       <main className="relative overflow-hidden">
+        {blogListSchema && (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(blogListSchema) }}
+          />
+        )}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(10,10,10,0.08),_transparent_55%)]" aria-hidden />
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <section className="mb-16 space-y-5">

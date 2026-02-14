@@ -77,6 +77,27 @@ CREATE TABLE page_views (
 CREATE INDEX idx_page_views_created_at ON page_views(created_at DESC);
 ALTER TABLE page_views ENABLE ROW LEVEL SECURITY;
 -- No public policies are created so only the service role can write/read
+
+-- Track Core Web Vitals samples reported from the frontend
+CREATE TABLE web_vitals_events (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW()),
+  metric TEXT NOT NULL,
+  rating TEXT,
+  value NUMERIC NOT NULL,
+  delta NUMERIC,
+  label TEXT,
+  page TEXT,
+  session_id TEXT,
+  navigation_type TEXT,
+  blocked_third_party BOOLEAN DEFAULT FALSE,
+  connection TEXT,
+  user_agent TEXT
+);
+
+CREATE INDEX idx_web_vitals_created_at ON web_vitals_events(created_at DESC);
+ALTER TABLE web_vitals_events ENABLE ROW LEVEL SECURITY;
+-- Only the service role writes telemetry, so no public policies are required
 ```
 
 ## 3. Create the storage bucket

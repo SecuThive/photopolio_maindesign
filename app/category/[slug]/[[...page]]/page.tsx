@@ -8,6 +8,7 @@ import { supabaseServer } from '@/lib/supabase/server';
 import { withDesignSlugs } from '@/lib/slug';
 import type { Design, DesignWithSlug } from '@/types/database';
 import { CATEGORY_SLUGS, getCategoryDefinition } from '@/lib/categories';
+import { createPageMetadata } from '@/lib/seo';
 
 const PAGE_SIZE = 12;
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://ui-syntax.com').replace(/\/$/, '');
@@ -125,34 +126,19 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
     };
   }
 
-  const baseTitle = `${definition.label} UI Design Inspiration`;
-  const pageQualifier = pageNumber > 1 ? ` · Page ${pageNumber}` : '';
-  const title = `${baseTitle}${pageQualifier} · UI Syntax`;
+  const baseTitle = `${definition.label} UI design inspiration`;
+  const pageQualifier = pageNumber > 1 ? ` (Page ${pageNumber})` : '';
+  const metadataTitle = `${baseTitle}${pageQualifier}`;
   const description = pageNumber > 1
     ? `${definition.description} Browse page ${pageNumber} of the ${definition.label.toLowerCase()} gallery curated by UI Syntax.`
     : definition.description;
 
   const canonicalPath = buildCanonicalPath(definition.slug, pageNumber);
-  const canonicalUrl = `${SITE_URL}${canonicalPath}`;
-
-  const metadata: Metadata = {
-    title,
+  const metadata = createPageMetadata({
+    title: metadataTitle,
     description,
-    alternates: {
-      canonical: canonicalUrl,
-    },
-    openGraph: {
-      title,
-      description,
-      url: canonicalUrl,
-      type: 'website',
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-    },
-  };
+    path: canonicalPath,
+  });
 
   const paginationLinks: Record<string, string> = {};
 

@@ -11,7 +11,7 @@ interface DesignCardProps {
   design: DesignWithSlug;
   likes: number;
   liked: boolean;
-  onToggleLike: () => void;
+  onToggleLike?: () => void;
   likeDisabled?: boolean;
   priority?: boolean;
   className?: string;
@@ -107,7 +107,12 @@ export default function DesignCard({
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
           />
           <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/70 to-transparent" aria-hidden />
-          <LikeButton likes={likes} liked={liked} onToggle={onToggleLike} disabled={likeDisabled} />
+          <LikeButton
+            likes={likes}
+            liked={liked}
+            onToggle={onToggleLike}
+            disabled={likeDisabled || !onToggleLike}
+          />
           <button
             type="button"
             onClick={handleCopyHtml}

@@ -1,7 +1,5 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import DesignCard from '@/components/DesignCard';
 import { supabaseServer } from '@/lib/supabase/server';
 import { withDesignSlugs } from '@/lib/slug';
@@ -35,24 +33,22 @@ export default async function BestSaaSLandingPagesPage() {
   const designsWithSlugs = designs ? withDesignSlugs(designs) : [];
 
   return (
-    <div className="min-h-screen bg-white">
-      <Header />
+    <section className="space-y-16">
+      {/* Hero Section */}
+      <div className="space-y-6">
+        <nav className="text-sm text-gray-500">
+          <Link href="/" className="hover:text-gray-900">Home</Link>
+          <span className="mx-2">/</span>
+          <Link href="/collections" className="hover:text-gray-900">Collections</Link>
+          <span className="mx-2">/</span>
+          <span className="text-gray-900">Best SaaS Landing Pages</span>
+        </nav>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        {/* Hero Section */}
-        <div className="mb-16">
-          <nav className="text-sm text-gray-500 mb-4">
-            <Link href="/" className="hover:text-gray-900">Home</Link>
-            <span className="mx-2">/</span>
-            <Link href="/collections" className="hover:text-gray-900">Collections</Link>
-            <span className="mx-2">/</span>
-            <span className="text-gray-900">Best SaaS Landing Pages</span>
-          </nav>
-
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+        <div className="space-y-4">
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900">
             Best SaaS Landing Pages
           </h1>
-          
+
           <div className="prose prose-lg max-w-none text-gray-700">
             <p className="text-xl leading-relaxed mb-6">
               These AI-generated SaaS landing pages represent the gold standard for B2B software companies 
@@ -145,56 +141,57 @@ export default async function BestSaaSLandingPagesPage() {
             </p>
           </div>
         </div>
+      </div>
 
-        {/* Design Grid */}
-        {designsWithSlugs.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {designsWithSlugs.map((design) => (
-              <DesignCard 
-                key={design.id} 
-                design={design} 
-                likes={0} 
-                liked={false} 
-                onToggleLike={() => {}} 
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-16">
-            <p className="text-gray-500 text-lg">No designs found in this collection yet.</p>
-            <Link href="/" className="text-blue-600 hover:text-blue-800 mt-4 inline-block">
-              Browse all designs
-            </Link>
-          </div>
-        )}
-
-        {/* Related Collections CTA */}
-        <div className="mt-24 pt-16 border-t border-gray-200">
-          <h2 className="text-2xl font-semibold text-gray-900 mb-6">Explore More Collections</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Link href="/collections/minimalist-dashboards" 
-                  className="group p-6 border border-gray-200 rounded-lg hover:border-gray-400 transition-colors">
-              <h3 className="text-xl font-semibold text-gray-900 mb-2 group-hover:text-blue-600">
-                Minimalist Dashboards
-              </h3>
-              <p className="text-gray-600">
-                Clean, data-focused dashboard designs that prioritize usability over decoration.
-              </p>
-            </Link>
-            <Link href="/" 
-                  className="group p-6 border border-gray-200 rounded-lg hover:border-gray-400 transition-colors">
-              <h3 className="text-xl font-semibold text-gray-900 mb-2 group-hover:text-blue-600">
-                All Designs
-              </h3>
-              <p className="text-gray-600">
-                Browse our complete gallery of AI-generated web designs across all categories.
-              </p>
-            </Link>
-          </div>
+      {/* Design Grid */}
+      {designsWithSlugs.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {designsWithSlugs.map((design) => (
+            <DesignCard 
+              key={design.id} 
+              design={design} 
+              likes={0} 
+              liked={false} 
+            />
+          ))}
         </div>
-      </main>
+      ) : (
+        <div className="text-center py-16">
+          <p className="text-gray-500 text-lg">No designs found in this collection yet.</p>
+          <Link href="/" className="text-blue-600 hover:text-blue-800 mt-4 inline-block">
+            Browse all designs
+          </Link>
+        </div>
+      )}
 
-      <Footer />
-    </div>
+      {/* Related Collections CTA */}
+      <div className="pt-16 border-t border-gray-200">
+        <h2 className="text-2xl font-semibold text-gray-900 mb-6">Explore More Collections</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Link
+            href="/collections/minimalist-dashboards"
+            className="group p-6 border border-gray-200 rounded-lg hover:border-gray-400 transition-colors"
+          >
+            <h3 className="text-xl font-semibold text-gray-900 mb-2 group-hover:text-blue-600">
+              Minimalist Dashboards
+            </h3>
+            <p className="text-gray-600">
+              Clean, data-focused dashboard designs that prioritize usability over decoration.
+            </p>
+          </Link>
+          <Link
+            href="/"
+            className="group p-6 border border-gray-200 rounded-lg hover:border-gray-400 transition-colors"
+          >
+            <h3 className="text-xl font-semibold text-gray-900 mb-2 group-hover:text-blue-600">
+              All Designs
+            </h3>
+            <p className="text-gray-600">
+              Browse our complete gallery of AI-generated web designs across all categories.
+            </p>
+          </Link>
+        </div>
+      </div>
+    </section>
   );
 }

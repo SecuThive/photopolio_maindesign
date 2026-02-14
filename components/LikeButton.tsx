@@ -3,7 +3,7 @@ import React from 'react';
 interface LikeButtonProps {
   likes: number;
   liked: boolean;
-  onToggle: () => void;
+  onToggle?: () => void;
   disabled?: boolean;
   variant?: 'card' | 'modal';
 }
@@ -15,6 +15,7 @@ export default function LikeButton({ likes, liked, onToggle, disabled, variant =
       : 'flex items-center gap-3 rounded-full border border-gray-200 px-4 py-2 text-sm';
 
   const heartColor = liked ? 'text-rose-500' : 'text-gray-400';
+  const isDisabled = disabled || !onToggle;
 
   return (
     <button
@@ -22,13 +23,13 @@ export default function LikeButton({ likes, liked, onToggle, disabled, variant =
       onClick={(event) => {
         event.preventDefault();
         event.stopPropagation();
-        if (!disabled) {
+        if (!isDisabled && onToggle) {
           onToggle();
         }
       }}
-      className={`${baseClasses} transition-colors ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`}
+      className={`${baseClasses} transition-colors ${isDisabled ? 'opacity-60 cursor-not-allowed' : ''}`}
       aria-pressed={liked}
-      disabled={disabled}
+      disabled={isDisabled}
     >
       <svg
         className={`w-4 h-4 ${heartColor}`}

@@ -15,6 +15,47 @@ interface MetricsSummary {
   dailyViews: { date: string; count: number }[];
 }
 
+const NOTE_FIELD_CONFIG = [
+  {
+    name: 'strategy_notes',
+    label: 'Strategy Notes',
+    helper: 'Value prop structure, ICP, conversion promise.',
+    placeholder: 'Hero promise, CTA framing, laddered narrative…',
+  },
+  {
+    name: 'psychology_notes',
+    label: 'Psychology Notes',
+    helper: 'Behavioral cues, trust signals, bias levers.',
+    placeholder: 'Social proof orbit, urgency pattern, reciprocity cues…',
+  },
+  {
+    name: 'usage_notes',
+    label: 'Usage Notes',
+    helper: 'Interaction model, density, navigation guidance.',
+    placeholder: 'Primary flows, command palette behavior, responsive states…',
+  },
+  {
+    name: 'performance_notes',
+    label: 'Performance Notes',
+    helper: 'Core Web Vitals guardrails, rendering strategy.',
+    placeholder: 'LCP budget, streaming/lazy load plan, asset compression…',
+  },
+  {
+    name: 'accessibility_notes',
+    label: 'Accessibility Notes',
+    helper: 'Contrast, focus, motion, language considerations.',
+    placeholder: 'ARIA hooks, focus outlines, reduced motion handling…',
+  },
+] as const;
+
+const normalizeOptionalText = (value: FormDataEntryValue | null) => {
+  if (typeof value !== 'string') {
+    return null;
+  }
+  const trimmed = value.trim();
+  return trimmed.length ? trimmed : null;
+};
+
 export default function AdminDashboardPage() {
   const [designs, setDesigns] = useState<Design[]>([]);
   const [loading, setLoading] = useState(true);
@@ -214,10 +255,23 @@ export default function AdminDashboardPage() {
 
     const formData = new FormData(e.currentTarget);
     const file = formData.get('file') as File;
-    const title = formData.get('title') as string;
-    const description = formData.get('description') as string;
-    const category = formData.get('category') as string;
-    const code = formData.get('code') as string;
+    const titleValue = formData.get('title');
+    const description = normalizeOptionalText(formData.get('description'));
+    const category = normalizeOptionalText(formData.get('category'));
+    const code = normalizeOptionalText(formData.get('code'));
+    const notePayload: Record<string, string | null> = {};
+
+    NOTE_FIELD_CONFIG.forEach((field) => {
+      notePayload[field.name] = normalizeOptionalText(formData.get(field.name));
+    });
+
+    const title = typeof titleValue === 'string' ? titleValue.trim() : '';
+
+    if (!title) {
+      alert('Title is required.');
+      setUploading(false);
+      return;
+    }
 
     try {
       // Upload to Supabase Storage
@@ -236,10 +290,11 @@ export default function AdminDashboardPage() {
       // Insert into database
       const designData = {
         title,
-        description: description || null,
+        description,
         category,
-        code: code || null,
+        code,
         image_url: publicUrl,
+        ...notePayload,
       };
 
       const { error: dbError } = await (supabase as any)
@@ -414,6 +469,34 @@ export default function AdminDashboardPage() {
                   rows={3}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 />
+              </div>
+
+              <div className="md:col-span-2 border border-gray-200 rounded-xl p-4">
+                <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-gray-400">
+                      Strategy fields
+                    </p>
+                    <h3 className="text-lg font-semibold text-gray-900">Execution notes</h3>
+                  </div>
+                  <p className="text-xs text-gray-500">Shown on the public detail page</p>
+                </div>
+                <div className="mt-4 grid gap-4 md:grid-cols-2">
+                  {NOTE_FIELD_CONFIG.map((field) => (
+                    <label key={field.name} className="flex flex-col gap-2">
+                      <div>
+                        <span className="text-sm font-medium text-gray-700">{field.label}</span>
+                        <p className="text-xs text-gray-500">{field.helper}</p>
+                      </div>
+                      <textarea
+                        name={field.name}
+                        rows={4}
+                        placeholder={field.placeholder}
+                        className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+                      />
+                    </label>
+                  ))}
+                </div>
               </div>
 
               <div className="md:col-span-2">

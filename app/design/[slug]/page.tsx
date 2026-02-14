@@ -12,6 +12,8 @@ import { supabaseServer } from '@/lib/supabase/server';
 import { extractDesignIdFromSlug, withDesignSlug, withDesignSlugs } from '@/lib/slug';
 import { Design, DesignWithSlug } from '@/types/database';
 import { buildReactComponentFromHtml } from '@/lib/codeTransform';
+import { buildDesignCreativeWorkSchema } from '@/lib/structuredData';
+import { getCategoryLinkTargets } from '@/lib/content/linkMatrix';
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://ui-syntax.com').replace(/\/$/, '');
 
@@ -20,6 +22,65 @@ export const revalidate = 0;
 type PageProps = {
   params: { slug: string };
 };
+
+type BreadcrumbItem = {
+  label: string;
+  href?: string;
+};
+
+type NoteFieldKey =
+  | 'strategy_notes'
+  | 'psychology_notes'
+  | 'usage_notes'
+  | 'performance_notes'
+  | 'accessibility_notes';
+
+const NOTE_SECTION_CONFIG = [
+  {
+    key: 'strategy_notes',
+    eyebrow: 'UX Strategy',
+    title: 'Narrative & Positioning',
+    accentBorder: 'border-blue-100',
+    accentBackground: 'from-blue-50/80 via-cyan-50/60 to-white',
+  },
+  {
+    key: 'psychology_notes',
+    eyebrow: 'Psychology',
+    title: 'Behavioral Cues',
+    accentBorder: 'border-rose-100',
+    accentBackground: 'from-rose-50/80 via-pink-50/60 to-white',
+  },
+  {
+    key: 'usage_notes',
+    eyebrow: 'Usage',
+    title: 'Interaction Patterns',
+    accentBorder: 'border-amber-100',
+    accentBackground: 'from-amber-50/80 via-orange-50/60 to-white',
+  },
+  {
+    key: 'performance_notes',
+    eyebrow: 'Performance',
+    title: 'Speed & Stability',
+    accentBorder: 'border-emerald-100',
+    accentBackground: 'from-emerald-50/80 via-lime-50/60 to-white',
+  },
+  {
+    key: 'accessibility_notes',
+    eyebrow: 'Accessibility',
+    title: 'Inclusive Details',
+    accentBorder: 'border-indigo-100',
+    accentBackground: 'from-indigo-50/80 via-purple-50/60 to-white',
+  },
+] as const satisfies ReadonlyArray<{
+  key: NoteFieldKey;
+  eyebrow: string;
+  title: string;
+  accentBorder: string;
+  accentBackground: string;
+}>;
+
+type NoteSectionConfig = (typeof NOTE_SECTION_CONFIG)[number];
+type ResolvedNoteSection = NoteSectionConfig & { content: string[] };
 
 async function fetchDesignBySlug(slug: string): Promise<DesignWithSlug | null> {
   let resolved: Design | null = null;
@@ -98,27 +159,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const description = design.description || 'AI-generated design inspiration from UI Syntax.';
   const canonical = `${SITE_URL}/design/${design.slug}`;
 
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'CreativeWork',
-    name: design.title || 'UI Design',
-    description: description,
-    image: design.image_url,
-    author: {
-      '@type': 'Organization',
-      name: 'UI Syntax',
-      url: 'https://ui-syntax.com'
-    },
-    datePublished: design.created_at,
-    dateModified: design.updated_at,
-    inLanguage: 'en-US',
-    thumbnailUrl: design.image_url,
-    ...(design.category && {
-      genre: design.category,
-      keywords: design.category
-    })
-  };
-
   return {
     title: `${design.title} · UI Syntax`,
     description,
@@ -143,9 +183,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description,
       images: design.image_url ? [design.image_url] : undefined,
     },
-    other: {
-      'script:ld+json': JSON.stringify(jsonLd)
-    }
   };
 }
 
@@ -211,6 +248,56 @@ function getHeroDescription(blocks: DescriptionBlock[], fallback?: string | null
   return base.length > 220 ? `${base.substring(0, 220).trim()}…` : base;
 }
 
+function toAbsoluteUrl(path?: string | null) {
+  if (!path) {
+    return null;
+  }
+  if (path.startsWith('http')) {
+    return path;
+  }
+  const normalized = path.startsWith('/') ? path : `/${path}`;
+  return `${SITE_URL}${normalized}`;
+}
+
+function parseNoteContent(note?: string | null): string[] {
+  if (!note) {
+    return [];
+  }
+
+  const normalized = note.replace(/\r\n/g, '\n').trim();
+  if (!normalized) {
+    return [];
+  }
+
+  const blocks = normalized.split(/\n{2,}/);
+  const segments: string[] = [];
+
+  for (const block of blocks) {
+    const trimmed = block.trim();
+    if (!trimmed) {
+      continue;
+    }
+
+    if (/^-+\s+/.test(trimmed) || trimmed.includes('\n- ')) {
+      const lines = trimmed
+        .split('\n')
+        .map((line) => line.trim())
+        .filter(Boolean);
+
+      for (const line of lines) {
+        const cleaned = line.replace(/^-+\s*/, '').trim();
+        if (cleaned) {
+          segments.push(cleaned);
+        }
+      }
+    } else {
+      segments.push(trimmed.replace(/\n+/g, ' ').trim());
+    }
+  }
+
+  return segments;
+}
+
 export default async function DesignDetailPage({ params }: PageProps) {
   const design = await fetchDesignBySlug(params.slug);
 
@@ -223,19 +310,81 @@ export default async function DesignDetailPage({ params }: PageProps) {
   }
 
   const currentDesign = design;
+  const shareUrl = `${SITE_URL}/design/${currentDesign.slug}`;
+  const categoryTargets = getCategoryLinkTargets(currentDesign.category);
+  const collectionTarget = categoryTargets?.collection ?? null;
+  const pillarTarget = categoryTargets?.pillar ?? null;
+  const collectionHref = collectionTarget ? `/collections/${collectionTarget.slug}` : null;
+  const pillarHref = pillarTarget ? `/playbooks/${pillarTarget.slug}` : null;
+  const collectionAbsoluteUrl = collectionHref ? toAbsoluteUrl(collectionHref) : null;
+  const pillarAbsoluteUrl = pillarHref ? toAbsoluteUrl(pillarHref) : null;
+  const breadcrumbItems: BreadcrumbItem[] = [{ label: 'Home', href: '/' }];
+
+  if (pillarHref && pillarTarget) {
+    breadcrumbItems.push({
+      label: pillarTarget.title,
+      href: pillarHref,
+    });
+  }
+
+  if (collectionHref && collectionTarget) {
+    breadcrumbItems.push({
+      label: collectionTarget.title,
+      href: collectionHref,
+    });
+  }
+
+  breadcrumbItems.push({ label: currentDesign.title });
+
   const relatedDesigns = await fetchRelatedDesigns(currentDesign);
   const sidebarSuggestions = relatedDesigns.slice(0, 3);
-  const shareUrl = `${SITE_URL}/design/${currentDesign.slug}`;
   const initialViewCount = currentDesign.views ?? 0;
   const descriptionBlocks = parseDescriptionBlocks(currentDesign.description);
   const heroDescription = getHeroDescription(descriptionBlocks, currentDesign.description);
   const reactCode = buildReactComponentFromHtml(currentDesign.code);
   const htmlCode = currentDesign.code && currentDesign.code.trim().length ? currentDesign.code : null;
+  const noteSections: ResolvedNoteSection[] = NOTE_SECTION_CONFIG.map((config) => {
+    const content = parseNoteContent(currentDesign[config.key]);
+    return content.length ? { ...config, content } : null;
+  }).filter(Boolean) as ResolvedNoteSection[];
+  const creativeWorkSchema = buildDesignCreativeWorkSchema({
+    title: currentDesign.title,
+    description: currentDesign.description,
+    imageUrl: currentDesign.image_url,
+    slug: currentDesign.slug,
+    category: currentDesign.category,
+    createdAt: currentDesign.created_at,
+    updatedAt: currentDesign.updated_at,
+    strategyNotes: currentDesign.strategy_notes,
+    usageNotes: currentDesign.usage_notes,
+    collectionUrl: collectionAbsoluteUrl ?? undefined,
+    pillarUrl: pillarAbsoluteUrl ?? undefined,
+  });
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: breadcrumbItems.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: item.label,
+      item: item.href ? toAbsoluteUrl(item.href) ?? shareUrl : shareUrl,
+    })),
+  };
+  const structuredDataPayloads = [creativeWorkSchema, breadcrumbSchema].filter(Boolean);
+  const serializeLdJson = (payload: unknown) => JSON.stringify(payload).replace(/</g, '\\u003c');
 
   return (
-    <div className="min-h-screen bg-luxury-white overflow-x-hidden w-full">
-      <Header />
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 space-y-8 sm:space-y-10 w-full overflow-hidden">
+    <>
+      {structuredDataPayloads.map((payload, index) => (
+        <script
+          key={index}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: serializeLdJson(payload) }}
+        />
+      ))}
+      <div className="min-h-screen bg-luxury-white overflow-x-hidden w-full">
+        <Header />
+        <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 space-y-8 sm:space-y-10 w-full overflow-hidden">
         {/* Hero Section with Background */}
         <div className="relative w-full bg-gradient-to-br from-gray-50 via-white to-gray-50 border border-gray-200 rounded-3xl p-6 sm:p-8 md:p-12 shadow-sm overflow-hidden">
           {/* Decorative Elements */}
@@ -245,27 +394,28 @@ export default async function DesignDetailPage({ params }: PageProps) {
           <div className="relative space-y-5 sm:space-y-6">
             {/* Breadcrumb */}
             <div className="flex justify-center md:justify-start">
-              <Link
-                href="/"
-                className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white/90 backdrop-blur-sm px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.3em] text-gray-600 shadow-sm transition-all hover:border-black hover:text-black hover:shadow-md hover:scale-105"
+              <nav
+                aria-label="Breadcrumb"
+                className="flex flex-wrap items-center justify-center md:justify-start gap-2 text-[10px] font-semibold uppercase tracking-[0.3em] text-gray-600"
               >
-                <svg
-                  aria-hidden="true"
-                  viewBox="0 0 20 20"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-3 w-3"
-                >
-                  <path
-                    d="M11.5 5.5 7 10l4.5 4.5"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                <span className="tracking-[0.4em]">Home</span>
-              </Link>
+                {breadcrumbItems.map((crumb, index) => (
+                  <div key={`${crumb.label}-${index}`} className="flex items-center gap-2">
+                    {index > 0 && <span className="text-gray-300">/</span>}
+                    {crumb.href ? (
+                      <Link
+                        href={crumb.href}
+                        className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white/90 backdrop-blur-sm px-3 py-1 shadow-sm transition-all hover:border-black hover:text-black hover:shadow-md"
+                      >
+                        {crumb.label}
+                      </Link>
+                    ) : (
+                      <span className="inline-flex items-center rounded-full border border-gray-100 bg-gray-50 px-3 py-1 text-gray-400">
+                        {crumb.label}
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </nav>
             </div>
 
             {/* Title Section */}
@@ -318,6 +468,56 @@ export default async function DesignDetailPage({ params }: PageProps) {
             </div>
           </div>
         </div>
+
+        {noteSections.length > 0 && (
+          <section className="bg-white border border-gray-200 rounded-3xl p-6 sm:p-8 shadow-sm">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="space-y-1">
+                <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Strategy field notes</p>
+                <h2 className="text-2xl font-semibold text-gray-900">Execution guardrails</h2>
+              </div>
+              {(collectionTarget || pillarTarget) && (
+                <div className="flex flex-wrap items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.3em]">
+                  {collectionTarget && collectionHref && (
+                    <Link
+                      href={collectionHref}
+                      className="inline-flex items-center rounded-full border border-gray-800 bg-gray-900 px-3 py-1 text-white shadow-sm transition hover:bg-black"
+                    >
+                      {collectionTarget.title}
+                    </Link>
+                  )}
+                  {pillarTarget && pillarHref && (
+                    <Link
+                      href={pillarHref}
+                      className="inline-flex items-center rounded-full border border-gray-200 bg-white px-3 py-1 text-gray-700 shadow-sm transition hover:border-black hover:text-black"
+                    >
+                      {pillarTarget.title}
+                    </Link>
+                  )}
+                </div>
+              )}
+            </div>
+            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {noteSections.map((section) => (
+                <div
+                  key={section.key}
+                  className={`rounded-2xl border ${section.accentBorder} bg-gradient-to-br ${section.accentBackground} p-5 sm:p-6 shadow-sm`}
+                >
+                  <p className="text-[10px] uppercase tracking-[0.35em] text-gray-500">{section.eyebrow}</p>
+                  <h3 className="mt-2 text-lg font-semibold text-gray-900">{section.title}</h3>
+                  <ul className="mt-4 space-y-2 text-sm text-gray-700 leading-relaxed">
+                    {section.content.map((item, index) => (
+                      <li key={`${section.key}-${index}`} className="flex gap-2">
+                        <span className="mt-1 h-1.5 w-1.5 rounded-full bg-gray-900" aria-hidden="true" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
 
         <div className="grid gap-8 lg:gap-10 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] w-full overflow-hidden">
           <div className="space-y-10 sm:space-y-12 min-w-0 max-w-full overflow-hidden">
@@ -412,6 +612,51 @@ export default async function DesignDetailPage({ params }: PageProps) {
                 )}
               </dl>
             </div>
+
+            {(collectionTarget || pillarTarget) && (
+              <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-black border border-gray-800 rounded-2xl p-6 shadow-lg text-white space-y-6">
+                <div className="space-y-2">
+                  <p className="text-xs uppercase tracking-[0.3em] text-white/70">Context anchor</p>
+                  <p className="text-sm text-white/60 leading-relaxed">
+                    Every design on UI Syntax is nested inside a collection and playbook cluster so crawlers (and humans) can trace strategy → pattern → execution.
+                  </p>
+                </div>
+                {collectionTarget && (
+                  <div className="space-y-3 rounded-2xl border border-white/10 bg-white/5 p-4">
+                    <div className="text-[11px] uppercase tracking-[0.3em] text-white/60">Collection</div>
+                    <div>
+                      <h3 className="text-lg font-semibold leading-tight">{collectionTarget.title}</h3>
+                      <p className="mt-2 text-sm text-white/80 leading-relaxed">{collectionTarget.heroSummary}</p>
+                    </div>
+                    {collectionHref && (
+                      <Link
+                        href={collectionHref}
+                        className="inline-flex items-center rounded-full bg-white px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.3em] text-gray-900 shadow-sm transition hover:bg-gray-100"
+                      >
+                        View Collection
+                      </Link>
+                    )}
+                  </div>
+                )}
+                {pillarTarget && (
+                  <div className="space-y-3 rounded-2xl border border-white/10 bg-white/5 p-4">
+                    <div className="text-[11px] uppercase tracking-[0.3em] text-white/60">Playbook</div>
+                    <div>
+                      <h3 className="text-lg font-semibold leading-tight">{pillarTarget.title}</h3>
+                      <p className="mt-2 text-sm text-white/80 leading-relaxed">{pillarTarget.summary}</p>
+                    </div>
+                    {pillarHref && (
+                      <Link
+                        href={pillarHref}
+                        className="inline-flex items-center rounded-full border border-white/50 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.3em] text-white/90 transition hover:border-white"
+                      >
+                        Read Playbook
+                      </Link>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
 
             {currentDesign.prompt && (
               <div className="bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200 rounded-2xl p-6 shadow-sm">
@@ -515,8 +760,9 @@ export default async function DesignDetailPage({ params }: PageProps) {
             </div>
           </section>
         )}
-      </main>
-      <Footer />
-    </div>
+        </main>
+        <Footer />
+      </div>
+    </>
   );
 }

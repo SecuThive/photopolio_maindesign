@@ -7,8 +7,8 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { supabaseServer } from '@/lib/supabase/server';
 import type { Database } from '@/types/database';
-
-const siteUrl = 'https://ui-syntax.com';
+import { createPageMetadata } from '@/lib/seo';
+import { buildBlogPostingSchema } from '@/lib/structuredData';
 
 export const revalidate = 0;
 
@@ -17,11 +17,11 @@ type PageProps = {
 };
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  type BlogMetaRow = Pick<Database['public']['Tables']['posts']['Row'], 'slug' | 'title' | 'excerpt' | 'status'>;
+  type BlogMetaRow = Pick<Database['public']['Tables']['posts']['Row'], 'slug' | 'title' | 'excerpt' | 'cover_image_url' | 'status'>;
 
   const { data: post } = (await supabaseServer
     .from('posts')
-    .select('slug, title, excerpt, status')
+    .select('slug, title, excerpt, cover_image_url, status')
     .eq('slug', params.slug)
     .eq('status', 'published')
     .maybeSingle()) as { data: BlogMetaRow | null };
@@ -33,24 +33,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
   }
 
-  return {
+  return createPageMetadata({
     title: post.title,
     description: post.excerpt || 'UI Syntax journal entry.',
-    alternates: {
-      canonical: `${siteUrl}/blog/${post.slug}`,
-    },
-    openGraph: {
-      title: post.title,
-      description: post.excerpt || 'UI Syntax journal entry.',
-      url: `${siteUrl}/blog/${post.slug}`,
-      type: 'article',
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: post.title,
-      description: post.excerpt || 'UI Syntax journal entry.',
-    },
-  };
+    path: `/blog/${post.slug}`,
+    openGraphType: 'article',
+    image: post.cover_image_url,
+  });
 }
 
 const calculateReadingTime = (content: string) => {
@@ -64,7 +53,7 @@ export default async function BlogPostPage({ params }: PageProps) {
 
   const { data: post } = (await supabaseServer
     .from('posts')
-    .select('slug, title, excerpt, content, category, author, author_role, author_avatar_url, cover_image_url, tags, published_at, status')
+    .select('slug, title, excerpt, content, category, author, author_role, author_avatar_url, cover_image_url, tags, published_at, updated_at, status')
     .eq('slug', params.slug)
     .eq('status', 'published')
     .maybeSingle()) as { data: BlogRow | null };
@@ -74,12 +63,17 @@ export default async function BlogPostPage({ params }: PageProps) {
   }
 
   const readingTime = calculateReadingTime(post.content);
+  const blogPostingSchema = buildBlogPostingSchema(post);
 
   return (
     <div className="min-h-screen bg-luxury-white">
       <Header />
 
       <main className="relative overflow-hidden">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(blogPostingSchema) }}
+        />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(10,10,10,0.08),_transparent_55%)]" aria-hidden />
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="mb-10">
