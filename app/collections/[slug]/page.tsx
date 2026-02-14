@@ -9,8 +9,130 @@ import { collectionConfigs, getCollectionConfig } from '@/lib/collections';
 import { createPageMetadata } from '@/lib/seo';
 import { buildCollectionItemListSchema, buildFaqSchema } from '@/lib/structuredData';
 import { getCollectionCluster } from '@/lib/content/linkMatrix';
+import SeoGEOContent from '@/components/SeoGEOContent';
 
 export const revalidate = 0;
+
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://ui-syntax.com').replace(/\/$/, '');
+
+const collectionSeoContent: Record<
+  string,
+  {
+    title: string;
+    summaryParagraphs: string[];
+    bullets: string[];
+    expandedSections: Array<{ heading: string; paragraphs: string[]; bullets?: string[] }>;
+    faqs: Array<{ q: string; a: string }>;
+  }
+> = {
+  'best-saas-landing-pages': {
+    title: 'Best SaaS landing pages: definition, selection criteria, and checklist',
+    summaryParagraphs: [
+      'This collection curates SaaS landing pages that convert because they follow a consistent narrative: define the outcome, prove credibility, and guide evaluation. Each layout is selected for clarity, proof density, and a CTA ladder that leads to trial or demo without friction.',
+      'Use this section to understand why each design made the cut, how to assess new candidates, and which checklist items matter most for conversion and SEO. The expanded content is structured for AI citation and internal design reviews.',
+    ],
+    bullets: [
+      'Definition: outcome-first SaaS landing patterns that compress value into the first scroll.',
+      'Selection criteria: explicit role-based headline, proof density, and clear CTA ladder.',
+      'Checklist: hero under 12 words, two KPIs, three trust signals, and risk reversal.',
+      'Common mistakes: feature-heavy heroes or buried social proof.',
+      'SEO/GEO tip: declarative sentences improve summarization accuracy.',
+    ],
+    expandedSections: [
+      {
+        heading: 'Selection criteria and scoring rules',
+        paragraphs: [
+          'Every landing page in this collection is evaluated against a simple rubric: clarity, proof, and action. Clarity means the product’s outcome and persona are obvious in the first five seconds. Proof means metrics, logos, or testimonials are positioned close to the headline. Action means the CTA ladder is visible without forcing the user to scroll.',
+          'If a page relies on generic “all-in-one platform” language or hides proof behind multiple sections, it does not qualify. Likewise, pages with conflicting CTAs are excluded because they weaken intent and reduce conversion performance.',
+        ],
+        bullets: [
+          'Headline states role + outcome; subhead explains mechanism.',
+          'Proof block appears above the fold or within first scroll.',
+          'CTA ladder includes a primary and secondary path.',
+        ],
+      },
+      {
+        heading: 'Checklist for evaluating new pages',
+        paragraphs: [
+          'Use this checklist when reviewing new SaaS landing pages. It keeps the evaluation objective and speeds up iteration across marketing and product teams. The goal is to maintain narrative integrity while allowing visual variation.',
+        ],
+        bullets: [
+          'Hero headline ≤ 12 words, with KPI or quantified claim.',
+          'Risk-reversal line beneath primary CTA.',
+          'Pricing narrative ties tiers to team size or scenario.',
+          'Performance guardrails: LCP under 2s and CLS near 0.',
+        ],
+      },
+    ],
+    faqs: [
+      {
+        q: 'Why are these SaaS pages included?',
+        a: 'They meet a strict clarity-proof-action rubric and demonstrate conversion-first storytelling.',
+      },
+      {
+        q: 'Can I use these layouts directly?',
+        a: 'Yes, but adjust brand tokens and copy to match your product’s audience and positioning.',
+      },
+      {
+        q: 'What is the quickest win on a SaaS landing page?',
+        a: 'Add quantified proof next to the hero headline and tighten the CTA ladder to one primary and one secondary action.',
+      },
+    ],
+  },
+  'minimalist-dashboards': {
+    title: 'Minimalist dashboards: definition, selection criteria, and checklist',
+    summaryParagraphs: [
+      'This collection highlights dashboard layouts that prioritize signal over decoration. Each design is chosen for scan-friendly hierarchy, balanced density, and accessibility-forward dark mode tokens.',
+      'Use the criteria below to evaluate whether a dashboard layout is truly minimalist or simply sparse. The expanded section includes checklist items and common mistakes that make dashboards slower to read or harder to trust.',
+    ],
+    bullets: [
+      'Definition: dashboards that surface state → delta → next action within seconds.',
+      'Selection criteria: metric-first hierarchy, density controls, and clear data tables.',
+      'Checklist: 8pt grid, three KPI cards max, sticky table headers.',
+      'Common mistakes: mixing densities and hiding controls.',
+      'Accessibility: maintain 4.5:1 contrast in dark mode.',
+    ],
+    expandedSections: [
+      {
+        heading: 'Selection criteria and data hierarchy',
+        paragraphs: [
+          'We include dashboards that keep the scan path consistent: metrics first, trends second, tables third. This structure keeps decision-making fast even as data volume grows. Visual systems that bury KPIs below tables or place charts before summary cards are excluded.',
+          'The best minimalist dashboards also support density controls. A compact toggle preserves high-density workflows without sacrificing clarity for casual users.',
+        ],
+        bullets: [
+          'KPI cards in a single row, with deltas adjacent to values.',
+          'Tables use subtle dividers instead of zebra stripes.',
+          'Sidebars stay near 264px to maintain muscle memory.',
+        ],
+      },
+      {
+        heading: 'Checklist for evaluating new layouts',
+        paragraphs: [
+          'Minimalist dashboards should feel fast and calm without sacrificing information. Use this checklist to keep evaluations consistent across design reviews and engineering handoffs.',
+        ],
+        bullets: [
+          'Content line height between 1.4 and 1.6 for scan speed.',
+          'Dark mode tokens validated at 4.5:1 contrast ratio.',
+          'Hover and inline edit interactions under 16ms latency.',
+        ],
+      },
+    ],
+    faqs: [
+      {
+        q: 'What makes a dashboard “minimalist”?',
+        a: 'It preserves information hierarchy and removes decorative noise while keeping key metrics in the first scan path.',
+      },
+      {
+        q: 'Do these layouts work for internal tools?',
+        a: 'Yes. The layouts are optimized for operational workflows and dense data tables.',
+      },
+      {
+        q: 'How do I keep density high without clutter?',
+        a: 'Use an 8pt grid, compact toggles, and consistent table row heights to preserve clarity.',
+      },
+    ],
+  },
+};
 
 type PageProps = {
   params: { slug: string };
@@ -68,7 +190,64 @@ export default async function CollectionDetailPage({ params }: PageProps) {
     }))
   );
   const faqSchema = buildFaqSchema(config.title, config.faqs);
-  const schemaNodes = [itemListSchema, faqSchema].filter(Boolean);
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: SITE_URL,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Collections',
+        item: `${SITE_URL}/collections`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: config.title,
+        item: `${SITE_URL}/collections/${config.slug}`,
+      },
+    ],
+  };
+  const schemaNodes = [itemListSchema, faqSchema, breadcrumbSchema].filter(Boolean);
+
+  const seoContent = collectionSeoContent[config.slug] ?? {
+    title: `${config.title}: definition and checklist`,
+    summaryParagraphs: [
+      `${config.title} is curated to reinforce the core strategy behind this collection. This placeholder copy is unique so the page remains AI-citable even before custom text is written.`,
+      'Expand the section to review selection criteria and a short checklist you can reuse during design reviews.',
+    ],
+    bullets: [
+      'Definition: a curated set aligned with the related playbook.',
+      'Selection criteria: consistent narrative and proof placement.',
+      'Checklist: clear CTA ladder, trust signals, and performance guardrails.',
+      'Mistakes: inconsistent hierarchy or ambiguous outcomes.',
+      'AI citation tip: keep sentences declarative and explicit.',
+    ],
+    expandedSections: [
+      {
+        heading: 'Expanded guidance',
+        paragraphs: [
+          'This placeholder explains the intent of the collection and ensures the page includes descriptive, crawlable text. Replace it with collection-specific guidance when ready.',
+        ],
+      },
+    ],
+    faqs: [
+      {
+        q: 'How should I use this collection?',
+        a: 'Use it as a reference set during strategy or layout reviews, then map each pattern to your product’s goals.',
+      },
+      {
+        q: 'Is the content ready for AI citation?',
+        a: 'Yes. The section uses structured headings, bullets, and explicit definitions for clarity.',
+      },
+    ],
+  };
 
   return (
     <div className="space-y-12">
@@ -129,6 +308,28 @@ export default async function CollectionDetailPage({ params }: PageProps) {
           ))}
         </ul>
       </header>
+
+      <section className="rounded-3xl border border-gray-200 bg-white/90 p-8 shadow-sm space-y-6">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <p className="text-xs uppercase tracking-[0.35em] text-gray-400">Read the related playbook</p>
+            <p className="mt-2 text-sm text-gray-600">Dive deeper into the strategy behind this collection.</p>
+          </div>
+          <Link
+            href={pillarHref}
+            className="inline-flex items-center rounded-full border border-gray-900 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-gray-900 transition hover:bg-gray-900 hover:text-white"
+          >
+            {config.pillar.title}
+          </Link>
+        </div>
+        <SeoGEOContent
+          title={seoContent.title}
+          summaryParagraphs={seoContent.summaryParagraphs}
+          bullets={seoContent.bullets}
+          expandedSections={seoContent.expandedSections}
+          faqs={seoContent.faqs}
+        />
+      </section>
 
       <section className="space-y-6">
         <div>

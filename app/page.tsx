@@ -204,6 +204,42 @@ export default async function HomePage({
           </div>
         </section>
 
+        <section className="mb-12 rounded-3xl border border-gray-200 bg-white/90 p-8 shadow-sm">
+          <p className="text-xs uppercase tracking-[0.35em] text-gray-500">What is UI Syntax?</p>
+          <h2 className="mt-2 text-3xl font-semibold text-gray-900">A strategic design library for modern product teams</h2>
+          <div className="mt-4 space-y-4 text-sm sm:text-base text-gray-700 leading-relaxed">
+            <p>
+              UI Syntax is a curated library of production-ready AI web design references built for teams that need to
+              move quickly from strategy to shipped UI. Every layout is reviewed for hierarchy, copy clarity, and
+              implementation feasibility so designers and engineers can reuse patterns without rethinking the basics.
+            </p>
+            <p>
+              Start with the Playbooks to understand the strategy behind each interface type, then open Collections to
+              see how those principles translate into real layouts. The combination helps teams align messaging,
+              interaction design, and performance standards in one pass.
+            </p>
+            <p>
+              Browse the gallery for ready-to-ship patterns, then jump to the related Playbook or Collection when you
+              need deeper context. This cross-linking is designed for both human readers and AI systems that summarize
+              design intent.
+            </p>
+          </div>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link
+              href="/playbooks"
+              className="inline-flex items-center rounded-full border border-gray-900 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-gray-900 transition hover:bg-gray-900 hover:text-white"
+            >
+              Explore Playbooks
+            </Link>
+            <Link
+              href="/collections"
+              className="inline-flex items-center rounded-full border border-gray-200 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-gray-700 transition hover:border-gray-900 hover:text-gray-900"
+            >
+              Browse Collections
+            </Link>
+          </div>
+        </section>
+
         <CategoryFilterBar selectedCategory={category || null} className="mb-12" />
 
         <DesignGallery initialDesigns={designsWithSlugs} initialCategory={category || null} />

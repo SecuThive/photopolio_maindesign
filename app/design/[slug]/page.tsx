@@ -13,7 +13,9 @@ import { extractDesignIdFromSlug, withDesignSlug, withDesignSlugs } from '@/lib/
 import { Design, DesignWithSlug } from '@/types/database';
 import { buildReactComponentFromHtml } from '@/lib/codeTransform';
 import { buildDesignCreativeWorkSchema } from '@/lib/structuredData';
-import { getCategoryLinkTargets } from '@/lib/content/linkMatrix';
+import { getCategoryLinkTargets, getCollectionCluster } from '@/lib/content/linkMatrix';
+import { pillarTopics, type PillarTopic } from '@/lib/pillars';
+import type { CollectionConfig } from '@/lib/collections';
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://ui-syntax.com').replace(/\/$/, '');
 
@@ -316,6 +318,15 @@ export default async function DesignDetailPage({ params }: PageProps) {
   const pillarTarget = categoryTargets?.pillar ?? null;
   const collectionHref = collectionTarget ? `/collections/${collectionTarget.slug}` : null;
   const pillarHref = pillarTarget ? `/playbooks/${pillarTarget.slug}` : null;
+  const collectionCluster = collectionTarget ? getCollectionCluster(collectionTarget.slug) : null;
+  const siblingCollections = collectionCluster?.siblings ?? [];
+  const relatedCollections = [collectionTarget, siblingCollections[0]].filter(
+    (item): item is CollectionConfig => Boolean(item)
+  );
+  const fallbackPlaybook = pillarTopics.find((topic) => topic.slug !== pillarTarget?.slug) ?? null;
+  const relatedPlaybooks = [pillarTarget, fallbackPlaybook].filter(
+    (item): item is PillarTopic => Boolean(item)
+  );
   const collectionAbsoluteUrl = collectionHref ? toAbsoluteUrl(collectionHref) : null;
   const pillarAbsoluteUrl = pillarHref ? toAbsoluteUrl(pillarHref) : null;
   const breadcrumbItems: BreadcrumbItem[] = [{ label: 'Home', href: '/' }];
@@ -719,7 +730,7 @@ export default async function DesignDetailPage({ params }: PageProps) {
           </aside>
         </div>
 
-        {(collectionTarget || pillarTarget) && (
+        {(relatedCollections.length > 0 || relatedPlaybooks.length > 0) && (
           <section className="rounded-3xl border border-gray-200 bg-white/90 p-8 shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
@@ -730,50 +741,42 @@ export default async function DesignDetailPage({ params }: PageProps) {
                 </p>
               </div>
             </div>
-            <div className="mt-6 grid gap-6 md:grid-cols-2">
-              {pillarTarget && pillarHref && (
+            <div className="mt-6 grid gap-6 lg:grid-cols-2">
+              {relatedPlaybooks.length > 0 && (
                 <div className="rounded-2xl border border-gray-200 bg-gray-50/80 p-6">
-                  <p className="text-xs uppercase tracking-[0.3em] text-gray-500">Playbook</p>
-                  <h3 className="mt-2 text-lg font-semibold text-gray-900">{pillarTarget.title}</h3>
-                  <p className="mt-2 text-sm text-gray-600 leading-relaxed">{pillarTarget.summary}</p>
-                  <div className="mt-4 flex flex-wrap items-center gap-3">
-                    <Link
-                      href={pillarHref}
-                      className="inline-flex items-center rounded-full border border-gray-900 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-gray-900 transition hover:bg-gray-900 hover:text-white"
-                    >
-                      Read Playbook
-                    </Link>
-                    {collectionTarget && collectionHref && (
-                      <Link
-                        href={collectionHref}
-                        className="text-xs uppercase tracking-[0.3em] text-gray-500 hover:text-gray-900"
-                      >
-                        View Collection ↗
-                      </Link>
-                    )}
+                  <p className="text-xs uppercase tracking-[0.3em] text-gray-500">Playbooks</p>
+                  <div className="mt-4 space-y-4">
+                    {relatedPlaybooks.map((playbook) => (
+                      <div key={playbook.slug} className="space-y-2">
+                        <h3 className="text-lg font-semibold text-gray-900">{playbook.title}</h3>
+                        <p className="text-sm text-gray-600 leading-relaxed">{playbook.summary}</p>
+                        <Link
+                          href={`/playbooks/${playbook.slug}`}
+                          className="inline-flex items-center rounded-full border border-gray-900 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-gray-900 transition hover:bg-gray-900 hover:text-white"
+                        >
+                          Read Playbook
+                        </Link>
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}
-              {collectionTarget && collectionHref && (
+              {relatedCollections.length > 0 && (
                 <div className="rounded-2xl border border-gray-200 bg-gray-50/80 p-6">
-                  <p className="text-xs uppercase tracking-[0.3em] text-gray-500">Collection</p>
-                  <h3 className="mt-2 text-lg font-semibold text-gray-900">{collectionTarget.title}</h3>
-                  <p className="mt-2 text-sm text-gray-600 leading-relaxed">{collectionTarget.heroSummary}</p>
-                  <div className="mt-4 flex flex-wrap items-center gap-3">
-                    <Link
-                      href={collectionHref}
-                      className="inline-flex items-center rounded-full bg-gray-900 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-white transition hover:bg-black"
-                    >
-                      View Collection
-                    </Link>
-                    {pillarTarget && pillarHref && (
-                      <Link
-                        href={pillarHref}
-                        className="text-xs uppercase tracking-[0.3em] text-gray-500 hover:text-gray-900"
-                      >
-                        Read Playbook ↗
-                      </Link>
-                    )}
+                  <p className="text-xs uppercase tracking-[0.3em] text-gray-500">Collections</p>
+                  <div className="mt-4 space-y-4">
+                    {relatedCollections.map((collection) => (
+                      <div key={collection.slug} className="space-y-2">
+                        <h3 className="text-lg font-semibold text-gray-900">{collection.title}</h3>
+                        <p className="text-sm text-gray-600 leading-relaxed">{collection.heroSummary}</p>
+                        <Link
+                          href={`/collections/${collection.slug}`}
+                          className="inline-flex items-center rounded-full bg-gray-900 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-white transition hover:bg-black"
+                        >
+                          View Collection
+                        </Link>
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}
