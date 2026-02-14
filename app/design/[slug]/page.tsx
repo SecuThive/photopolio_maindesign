@@ -719,6 +719,68 @@ export default async function DesignDetailPage({ params }: PageProps) {
           </aside>
         </div>
 
+        {(collectionTarget || pillarTarget) && (
+          <section className="rounded-3xl border border-gray-200 bg-white/90 p-8 shadow-sm">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <p className="text-xs uppercase tracking-[0.35em] text-gray-400">Related context</p>
+                <h2 className="mt-2 text-2xl font-semibold text-gray-900">Related Playbooks & Collections</h2>
+                <p className="mt-2 text-sm text-gray-600">
+                  Jump between the strategy playbook and the curated collection connected to this design.
+                </p>
+              </div>
+            </div>
+            <div className="mt-6 grid gap-6 md:grid-cols-2">
+              {pillarTarget && pillarHref && (
+                <div className="rounded-2xl border border-gray-200 bg-gray-50/80 p-6">
+                  <p className="text-xs uppercase tracking-[0.3em] text-gray-500">Playbook</p>
+                  <h3 className="mt-2 text-lg font-semibold text-gray-900">{pillarTarget.title}</h3>
+                  <p className="mt-2 text-sm text-gray-600 leading-relaxed">{pillarTarget.summary}</p>
+                  <div className="mt-4 flex flex-wrap items-center gap-3">
+                    <Link
+                      href={pillarHref}
+                      className="inline-flex items-center rounded-full border border-gray-900 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-gray-900 transition hover:bg-gray-900 hover:text-white"
+                    >
+                      Read Playbook
+                    </Link>
+                    {collectionTarget && collectionHref && (
+                      <Link
+                        href={collectionHref}
+                        className="text-xs uppercase tracking-[0.3em] text-gray-500 hover:text-gray-900"
+                      >
+                        View Collection ↗
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              )}
+              {collectionTarget && collectionHref && (
+                <div className="rounded-2xl border border-gray-200 bg-gray-50/80 p-6">
+                  <p className="text-xs uppercase tracking-[0.3em] text-gray-500">Collection</p>
+                  <h3 className="mt-2 text-lg font-semibold text-gray-900">{collectionTarget.title}</h3>
+                  <p className="mt-2 text-sm text-gray-600 leading-relaxed">{collectionTarget.heroSummary}</p>
+                  <div className="mt-4 flex flex-wrap items-center gap-3">
+                    <Link
+                      href={collectionHref}
+                      className="inline-flex items-center rounded-full bg-gray-900 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-white transition hover:bg-black"
+                    >
+                      View Collection
+                    </Link>
+                    {pillarTarget && pillarHref && (
+                      <Link
+                        href={pillarHref}
+                        className="text-xs uppercase tracking-[0.3em] text-gray-500 hover:text-gray-900"
+                      >
+                        Read Playbook ↗
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </section>
+        )}
+
         {relatedDesigns.length > 0 && (
           <section className="mt-12 sm:mt-16 space-y-6 border-t border-gray-200 pt-8 sm:pt-12 overflow-x-hidden">
             <div className="flex flex-wrap items-center justify-between gap-4">

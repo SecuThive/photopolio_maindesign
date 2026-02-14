@@ -44,6 +44,12 @@ export default function SimpleHeader() {
             <Link href="/contact" className="text-gray-400 hover:text-white text-sm transition-colors">
               Contact
             </Link>
+            <Link href="/playbooks" className="text-gray-400 hover:text-white text-sm transition-colors">
+              Playbooks
+            </Link>
+            <Link href="/collections" className="text-gray-400 hover:text-white text-sm transition-colors">
+              Collections
+            </Link>
           </nav>
         </div>
       </div>
@@ -74,6 +80,20 @@ export default function SimpleHeader() {
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Contact
+              </Link>
+              <Link 
+                href="/playbooks" 
+                className="block text-gray-300 hover:text-white hover:bg-gray-900 transition-colors py-3 px-4 rounded text-base"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Playbooks
+              </Link>
+              <Link 
+                href="/collections" 
+                className="block text-gray-300 hover:text-white hover:bg-gray-900 transition-colors py-3 px-4 rounded text-base"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Collections
               </Link>
               <Link 
                 href="/privacy-policy" 
