@@ -33,14 +33,14 @@ export default function Header() {
             <Link href="/contact" className="hover:text-white transition-colors">
               Contact
             </Link>
-            <Link href="/blog" className="hover:text-white transition-colors">
-              Blog
-            </Link>
             <Link href="/playbooks" className="hover:text-white transition-colors">
               Playbooks
             </Link>
             <Link href="/collections" className="hover:text-white transition-colors">
               Collections
+            </Link>
+            <Link href="/blog" className="hover:text-white transition-colors">
+              Blog
             </Link>
             <Link
               href="/code-match"
@@ -127,13 +127,6 @@ export default function Header() {
                 Contact
               </Link>
               <Link 
-                href="/blog" 
-                className="block text-gray-300 hover:text-white hover:bg-gray-900 transition-colors py-3 px-4 rounded text-base"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Blog
-              </Link>
-              <Link 
                 href="/playbooks" 
                 className="block text-gray-300 hover:text-white hover:bg-gray-900 transition-colors py-3 px-4 rounded text-base"
                 onClick={() => setMobileMenuOpen(false)}
@@ -146,6 +139,13 @@ export default function Header() {
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Collections
+              </Link>
+              <Link 
+                href="/blog" 
+                className="block text-gray-300 hover:text-white hover:bg-gray-900 transition-colors py-3 px-4 rounded text-base"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Blog
               </Link>
               <Link 
                 href="/code-match" 

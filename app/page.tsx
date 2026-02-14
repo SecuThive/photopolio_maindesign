@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { supabaseServer } from '@/lib/supabase/server';
 import DesignGallery from '@/components/DesignGallery';
 import Header from '@/components/Header';
@@ -97,6 +98,110 @@ export default async function HomePage({
             <li>Dashboard and admin templates that prioritize clarity, density, and fast scanning.</li>
             <li>Component-focused references for cards, navs, and CTA sections you can reuse.</li>
           </ul>
+        </section>
+
+        <section className="mb-12">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="text-xs uppercase tracking-[0.35em] text-gray-500">Top Playbooks</p>
+              <h2 className="mt-2 text-3xl font-semibold text-gray-900">Strategic playbooks teams revisit</h2>
+              <p className="mt-3 text-sm text-gray-600 max-w-2xl">
+                Jump straight into the highest-signal playbooks for SaaS landing pages, dashboards, commerce, and UX
+                psychology.
+              </p>
+            </div>
+            <Link
+              href="/playbooks"
+              className="text-xs uppercase tracking-[0.3em] text-gray-600 hover:text-gray-900"
+            >
+              View all playbooks
+            </Link>
+          </div>
+          <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {[
+              {
+                title: 'SaaS Landing Page UX Strategy',
+                href: '/playbooks/saas-landing-page-ux',
+                description: 'Value props, social proof systems, and CTA ladders built for B2B SaaS teams.',
+              },
+              {
+                title: 'Dashboard UX Design Principles',
+                href: '/playbooks/dashboard-ux-principles',
+                description: 'Density control, hierarchy, and dark mode tokens for analytics-heavy products.',
+              },
+              {
+                title: 'E-Commerce UI Conversion Patterns',
+                href: '/playbooks/ecommerce-conversion-patterns',
+                description: 'Conversion-ready flows from PDP to checkout with trust and urgency baked in.',
+              },
+              {
+                title: 'UX Psychology in Modern Interfaces',
+                href: '/playbooks/ux-psychology',
+                description: 'Behavioral triggers and messaging patterns that guide attention and decisions.',
+              },
+              {
+                title: 'UI Optimization for Core Web Vitals',
+                href: '/playbooks/ui-core-web-vitals',
+                description: 'Performance guardrails for LCP, CLS, and INP at the design system level.',
+              },
+            ].map((playbook) => (
+              <Link
+                key={playbook.href}
+                href={playbook.href}
+                className="group rounded-3xl border border-gray-200 bg-white/90 p-6 shadow-sm transition hover:-translate-y-1 hover:border-gray-900"
+              >
+                <p className="text-xs uppercase tracking-[0.3em] text-gray-500">Playbook</p>
+                <h3 className="mt-3 text-xl font-semibold text-gray-900 group-hover:text-gray-700">
+                  {playbook.title}
+                </h3>
+                <p className="mt-3 text-sm text-gray-600 leading-relaxed">{playbook.description}</p>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        <section className="mb-12">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="text-xs uppercase tracking-[0.35em] text-gray-500">Top Collections</p>
+              <h2 className="mt-2 text-3xl font-semibold text-gray-900">Curated collections in focus</h2>
+              <p className="mt-3 text-sm text-gray-600 max-w-2xl">
+                Design sets grouped by strategic themes so you can scan patterns quickly.
+              </p>
+            </div>
+            <Link
+              href="/collections"
+              className="text-xs uppercase tracking-[0.3em] text-gray-600 hover:text-gray-900"
+            >
+              View all collections
+            </Link>
+          </div>
+          <div className="mt-6 grid gap-6 md:grid-cols-2">
+            {[
+              {
+                title: 'Best SaaS Landing Pages',
+                href: '/collections/best-saas-landing-pages',
+                description: 'Conversion-grade hero, pricing, and proof layouts curated for SaaS teams.',
+              },
+              {
+                title: 'Minimalist Dashboards',
+                href: '/collections/minimalist-dashboards',
+                description: 'Signal-first dashboards that balance density, clarity, and dark mode.',
+              },
+            ].map((collection) => (
+              <Link
+                key={collection.href}
+                href={collection.href}
+                className="group rounded-3xl border border-gray-200 bg-white/90 p-6 shadow-sm transition hover:-translate-y-1 hover:border-gray-900"
+              >
+                <p className="text-xs uppercase tracking-[0.3em] text-gray-500">Collection</p>
+                <h3 className="mt-3 text-xl font-semibold text-gray-900 group-hover:text-gray-700">
+                  {collection.title}
+                </h3>
+                <p className="mt-3 text-sm text-gray-600 leading-relaxed">{collection.description}</p>
+              </Link>
+            ))}
+          </div>
         </section>
 
         <CategoryFilterBar selectedCategory={category || null} className="mb-12" />
