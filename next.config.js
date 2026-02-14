@@ -29,11 +29,24 @@ const nextConfig = {
     ],
   },
   async redirects() {
-    return legacyBlogRedirects.map((source) => ({
-      source,
-      destination: '/',
-      permanent: true,
-    }));
+    return [
+      {
+        source: '/:path*',
+        has: [
+          {
+            type: 'host',
+            value: 'www.ui-syntax.com',
+          },
+        ],
+        destination: 'https://ui-syntax.com/:path*',
+        permanent: true,
+      },
+      ...legacyBlogRedirects.map((source) => ({
+        source,
+        destination: '/',
+        permanent: true,
+      })),
+    ];
   },
 };
 
