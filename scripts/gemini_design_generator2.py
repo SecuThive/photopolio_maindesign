@@ -1,7 +1,13 @@
 #!/usr/bin/env python3
-"""Gemini + Supabase 디자인 자동 생성기 (최적화 버전 v2.1).
+"""Gemini + Supabase 디자인 자동 생성기 (최적화 버전 v2.2.2).
 
-- [v2.1 Fix] 프리뷰 이미지 세로 여백 버그 완벽 수정 (min-h-screen 강제 제거 및 타이트 캡처)
+- [v2.2.2 Fix] 타임아웃 에러(wait_for_function) 방어 로직 추가 및 캡처 안정성 강화
+- [v2.2 Fix] 프리뷰 깨짐(스타일 미적용/레이아웃 틀어짐/여백 과다) 안정화
+  1) set_content wait_until=load + Tailwind 주입/적용 대기
+  2) min-h-screen/h-screen 제거 로직을 DOM 전체로 확장
+  3) body flex 제거(레이아웃 부작용 방지) + capture-box mx-auto 정렬
+  4) capture-box 실제 높이 기반 viewport 자동 확장 후 element 캡처
+- [v2.2.1 Fix] Tailwind arbitrary class selector(.min-h-[100vh]) querySelectorAll SyntaxError 수정
 - React(JSX) 코드 동시 생성
 - 애드센스 승인을 위한 텍스트 설명(Features, Usage) 보강
 - 원본 STRUCTURES, STYLES, CATEGORIES 100% 보존
@@ -30,7 +36,7 @@ load_dotenv()
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-pro-latest") 
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-pro-latest")
 STORAGE_BUCKET = os.getenv("SUPABASE_DESIGNS_BUCKET", "designs-bucket")
 STORAGE_FOLDER = os.getenv("SUPABASE_DESIGNS_FOLDER", "designs")
 
@@ -80,11 +86,13 @@ CATEGORIES = [
     "Landing Page", "Dashboard", "E-commerce", "Portfolio", "Blog", "Component"
 ]
 
+
 # --- 헬퍼 함수 ---
 
 def slugify(value: str) -> str:
     slug = re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")
     return slug or "design"
+
 
 def clean_json_text(text: str) -> str:
     text = text.strip()
@@ -93,6 +101,7 @@ def clean_json_text(text: str) -> str:
     if match:
         return match.group(1)
     return text
+
 
 def build_prompt(category: str, structure: str, style: str) -> str:
     """텍스트 비중을 높이고 React(JSX) 코드까지 요구하는 프롬프트"""
@@ -112,8 +121,10 @@ def build_prompt(category: str, structure: str, style: str) -> str:
         "   - 'colors': Array of 5 hex color codes used.\n"
         "3. Images: Use reliable placeholder URLs (e.g., 'https://images.unsplash.com/photo-1498050108023-c5249f4df085') with descriptive alt text.\n"
         "4. The UI must be production-ready and fully responsive.\n"
-        "5. CRITICAL LAYOUT RULE: Do NOT wrap the component in a `min-h-screen`, `h-screen`, or full-height container unless it is strictly a full dashboard layout. The outermost element MUST shrink to fit its content tightly to prevent excessive vertical white space."
+        "5. CRITICAL LAYOUT RULE: Do NOT wrap the component in a `min-h-screen`, `h-screen`, or full-height container unless it is strictly a full dashboard layout. "
+        "   The outermost element MUST shrink to fit its content tightly to prevent excessive vertical white space.\n"
     )
+
 
 def parse_gemini_json(response: Any) -> Dict[str, Any]:
     candidates = getattr(response, "candidates", None) or []
@@ -127,14 +138,21 @@ def parse_gemini_json(response: Any) -> Dict[str, Any]:
                 cleaned_text = clean_json_text(text)
                 return json.loads(cleaned_text)
             except json.JSONDecodeError:
-                print(f"[debug] JSON 파싱 실패 (일부 텍스트): {text[:50]}...")
+                print(f"[debug] JSON 파싱 실패 (일부 텍스트): {text[:80]}...")
                 continue
     raise ValueError("Gemini가 유효한 JSON을 반환하지 않았습니다.")
 
+
 def wrap_html_if_needed(html: str) -> str:
-    """여백 문제를 원천 차단하기 위해 타이트한 캡처 전용 박스(#capture-box)로 감쌉니다."""
+    """
+    프리뷰 캡처 안정화:
+    - body를 flex로 만들지 않음(레이아웃 부작용 방지)
+    - capture-box에 mx-auto로 가운데 정렬
+    - body 기본 margin/padding 제거
+    """
     if "<html" in html.lower():
         return html
+
     return (
         "<!DOCTYPE html>\n"
         "<html lang=\"en\">\n"
@@ -144,51 +162,116 @@ def wrap_html_if_needed(html: str) -> str:
         "  <script src=\"https://cdn.tailwindcss.com\"></script>\n"
         "  <title>Preview</title>\n"
         "</head>\n"
-        "<body class=\"bg-gray-50 text-gray-900 antialiased m-0 p-0 flex justify-center\">\n"
-        f"  <div id=\"capture-box\" class=\"w-full max-w-[1400px] flow-root\">\n"
-        f"    {html}\n"
-        f"  </div>\n"
-        "</body>\n"
+        "  <body class=\"bg-gray-50 text-gray-900 antialiased m-0 p-0\">\n"
+        "    <div id=\"capture-box\" class=\"w-full max-w-[1400px] mx-auto flow-root\">\n"
+        f"      {html}\n"
+        "    </div>\n"
+        "  </body>\n"
         "</html>"
     )
 
+
 async def capture_screenshot(browser: Browser, html: str) -> bytes:
-    """가장 핵심적인 여백 제거 로직 포함"""
-    page = await browser.new_page(viewport={"width": 1400, "height": 800})
+    """
+    프리뷰 캡처 안정화 v2.2.2:
+    - 네트워크 지연(Timeout) 에러 방어 로직 (try-except)
+    - Tailwind 주입/적용 강제 대기(3초)로 무조건 렌더링되게 함
+    - capture-box 내부 전체에서 min-h-screen/h-screen/100vh 계열 강제 제거
+    - capture-box 실 높이를 기반으로 viewport 확장
+    - element screenshot (capture-box)로 타이트 캡처
+    """
+    page = await browser.new_page(viewport={"width": 1400, "height": 900})
+
     try:
-        await page.set_content(html, wait_until="networkidle")
-        await page.wait_for_timeout(1500)
-        
-        # [방어벽] AI가 강제로 생성한 'min-h-screen' 클래스를 DOM에서 강제로 삭제하여 
-        # 내용물이 본래 높이(타이트하게)로 줄어들도록 조작합니다.
-        await page.evaluate('''
-            const captureBox = document.getElementById('capture-box');
-            if (captureBox) {
-                // capture-box 내부의 최상단 엘리먼트들 검사
-                Array.from(captureBox.children).forEach(el => {
-                    if (el.classList.contains('min-h-screen') || el.classList.contains('h-screen')) {
-                        el.classList.remove('min-h-screen', 'h-screen');
-                        el.style.minHeight = 'auto';
-                        el.style.height = 'auto';
-                    }
-                });
-            }
-        ''')
-        
-        # 화면 전체(빈 여백 포함)가 아닌, 내용물이 꽉 찬 #capture-box 만 캡처합니다.
-        target = await page.query_selector('#capture-box') or await page.query_selector('body')
-        screenshot = await target.screenshot()
-        
+        # 1. HTML 로드 시도 (최대 15초, 실패해도 무시하고 진행)
+        try:
+            await page.set_content(html, wait_until="load", timeout=15000)
+        except Exception as load_err:
+            print(f"[warning] 페이지 로딩 지연 (무시하고 캡처 진행): {load_err}")
+
+        # 2. Tailwind CSS와 외부 이미지가 렌더링될 수 있도록 3초 강제 대기
+        await page.wait_for_timeout(3000)
+
+        # 3. capture-box 내부 전체에서 min-h-screen/h-screen/100vh 계열 제거
+        await page.evaluate("""
+            (() => {
+              const root = document.getElementById('capture-box') || document.body;
+              if (!root) return;
+
+              // Tailwind arbitrary classes must be escaped in CSS selectors
+              const selector = [
+                '.min-h-screen',
+                '.h-screen',
+                '.min-h-\\\\[100vh\\\\]',
+                '.h-\\\\[100vh\\\\]'
+              ].join(', ');
+
+              // 1) 클래스 기반 제거
+              const targets = root.querySelectorAll(selector);
+              targets.forEach(el => {
+                el.classList.remove('min-h-screen', 'h-screen', 'min-h-[100vh]', 'h-[100vh]');
+                el.style.minHeight = 'auto';
+                el.style.height = 'auto';
+              });
+
+              // 2) 인라인 스타일에 100vh가 박힌 케이스 방어
+              const all = root.querySelectorAll('*');
+              all.forEach(el => {
+                const mh = (el.style && el.style.minHeight) ? el.style.minHeight : '';
+                const h  = (el.style && el.style.height) ? el.style.height : '';
+                if (mh.includes('100vh')) el.style.minHeight = 'auto';
+                if (h.includes('100vh')) el.style.height = 'auto';
+              });
+
+              // 3) html/body 기본 여백 제거
+              document.documentElement.style.margin = '0';
+              document.documentElement.style.padding = '0';
+              document.body.style.margin = '0';
+              document.body.style.padding = '0';
+            })();
+        """)
+
+        await page.wait_for_timeout(200)
+
+        # 4. capture-box 실 높이 측정 → viewport 확장(긴 페이지에서 레이아웃 깨짐 방지)
+        dims = await page.evaluate("""
+            (() => {
+              const el = document.getElementById('capture-box') || document.body;
+              const rect = el.getBoundingClientRect();
+              const height = Math.ceil(el.scrollHeight || rect.height || 900);
+              return { height };
+            })();
+        """)
+        height = int(dims.get("height", 900))
+        height = max(900, min(height + 50, 6000))
+        await page.set_viewport_size({"width": 1400, "height": height})
+        await page.wait_for_timeout(200)
+
+        # 5. 캡처 대상 지정 후 촬영
+        target = await page.query_selector("#capture-box") or await page.query_selector("body")
+        screenshot = await target.screenshot(type="png")
+
+    except Exception as e:
+        print(f"[error] 캡처 중 에러 발생, 기본 바디 캡처로 대체: {e}")
+        target = await page.query_selector("body")
+        screenshot = await target.screenshot(type="png")
+
     finally:
         await page.close()
-        
+
     return screenshot
+
 
 def upload_image(image_bytes: bytes, category: str) -> str:
     filename = f"{datetime.utcnow():%Y%m%d_%H%M%S}_{slugify(category)}_{uuid.uuid4().hex[:6]}.png"
     object_path = f"{STORAGE_FOLDER}/{filename}"
-    supabase.storage.from_(STORAGE_BUCKET).upload(object_path, image_bytes, {"content-type": "image/png"})
+    supabase.storage.from_(STORAGE_BUCKET).upload(
+        object_path,
+        image_bytes,
+        {"content-type": "image/png"},
+    )
     return supabase.storage.from_(STORAGE_BUCKET).get_public_url(object_path)
+
 
 def ensure_unique_slug(base_title: str) -> str:
     base = slugify(base_title)
@@ -200,6 +283,7 @@ def ensure_unique_slug(base_title: str) -> str:
             return candidate
         candidate = f"{base}-{suffix}"
         suffix += 1
+
 
 async def generate_single_design(browser: Browser, max_attempts: int = 3) -> bool:
     for attempt in range(1, max_attempts + 1):
@@ -218,13 +302,13 @@ async def generate_single_design(browser: Browser, max_attempts: int = 3) -> boo
                 config={"response_mime_type": "application/json"},
                 contents=[{"role": "user", "parts": [{"text": prompt}]}],
             )
-            
+
             payload = parse_gemini_json(response)
-            
-            html_code = payload.get("html_code", payload.get("code", "")) 
+
+            html_code = payload.get("html_code", payload.get("code", ""))
             react_code = payload.get("react_code", "")
             wrapped_html = wrap_html_if_needed(html_code)
-            
+
             screenshot = await capture_screenshot(browser, wrapped_html)
             image_url = upload_image(screenshot, category)
             slug = ensure_unique_slug(payload.get("title", "Untitled Design"))
@@ -233,18 +317,18 @@ async def generate_single_design(browser: Browser, max_attempts: int = 3) -> boo
                 "id": str(uuid.uuid4()),
                 "title": payload.get("title", "Untitled Design"),
                 "description": payload.get("description", ""),
-                "features": payload.get("features", []),  
+                "features": payload.get("features", []),
                 "usage": payload.get("usage", ""),
                 "image_url": image_url,
                 "category": category,
-                "code": html_code,         
+                "code": html_code,
                 "code_react": react_code,
                 "prompt": combo_key,
                 "colors": payload.get("colors", []),
                 "slug": slug,
-                "status": "published",   
-                "sns_promoted": False,   
-                "pinterest_promoted": False, 
+                "status": "published",
+                "sns_promoted": False,
+                "pinterest_promoted": False,
                 "created_at": datetime.utcnow().isoformat(),
             }
 
@@ -262,25 +346,28 @@ async def generate_single_design(browser: Browser, max_attempts: int = 3) -> boo
 
     return False
 
+
 async def run_batch(count: int) -> None:
     successes = 0
     print(f"[system] 디자인 {count}개 생성을 시작합니다...")
-    
+
     async with async_playwright() as p:
         browser = await p.chromium.launch()
         for i in range(count):
             print(f"\n--- 작업 진행 ({i+1}/{count}) ---")
             if await generate_single_design(browser):
                 successes += 1
-            await asyncio.sleep(3) 
+            await asyncio.sleep(3)
         await browser.close()
 
     print(f"\n[결과] 총 {successes}/{count}개 생성 완료")
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Gemini 기반 디자인 생성기")
     parser.add_argument("--count", type=int, default=3, help="생성할 디자인 수 (기본값: 3)")
     return parser.parse_args()
+
 
 if __name__ == "__main__":
     args = parse_args()

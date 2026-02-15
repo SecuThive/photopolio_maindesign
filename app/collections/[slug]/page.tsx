@@ -10,6 +10,7 @@ import { createPageMetadata } from '@/lib/seo';
 import { buildCollectionItemListSchema, buildFaqSchema } from '@/lib/structuredData';
 import { getCollectionCluster } from '@/lib/content/linkMatrix';
 import SeoGEOContent from '@/components/SeoGEOContent';
+import GrowthSection from '@/components/GrowthSection';
 
 export const revalidate = 0;
 
@@ -308,6 +309,8 @@ export default async function CollectionDetailPage({ params }: PageProps) {
           ))}
         </ul>
       </header>
+
+      <GrowthSection kind="collection" slug={params.slug} enabled={process.env.ENABLE_GROWTH_SECTIONS === 'true'} />
 
       <section className="rounded-3xl border border-gray-200 bg-white/90 p-8 shadow-sm space-y-6">
         <div className="flex flex-wrap items-center justify-between gap-4">

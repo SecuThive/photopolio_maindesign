@@ -6,6 +6,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import EzoicPlacements from '@/components/EzoicPlacements';
 import CategoryFilterBar from '@/components/CategoryFilterBar';
+import GrowthSection from '@/components/GrowthSection';
 import { getPlacementIds } from '@/lib/ezoic';
 import { withDesignSlugs } from '@/lib/slug';
 import { createPageMetadata } from '@/lib/seo';
@@ -239,6 +240,8 @@ export default async function HomePage({
             </Link>
           </div>
         </section>
+
+        <GrowthSection kind="home" enabled={process.env.ENABLE_GROWTH_SECTIONS === 'true'} />
 
         <CategoryFilterBar selectedCategory={category || null} className="mb-12" />
 

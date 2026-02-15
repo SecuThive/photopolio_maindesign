@@ -8,6 +8,8 @@ import ShareLinkButton from '@/components/ShareLinkButton';
 import DesignDetailCustomizer from '@/components/DesignDetailCustomizer';
 import LazyRender from '@/components/LazyRender';
 import ViewCountBadge from '@/components/ViewCountBadge';
+import GrowthSection from '@/components/GrowthSection';
+import DesignQuickActions from '@/components/DesignQuickActions';
 import { supabaseServer } from '@/lib/supabase/server';
 import { extractDesignIdFromSlug, withDesignSlug, withDesignSlugs } from '@/lib/slug';
 import { Design, DesignWithSlug } from '@/types/database';
@@ -624,6 +626,22 @@ export default async function DesignDetailPage({ params }: PageProps) {
               </dl>
             </div>
 
+            <DesignQuickActions
+              shareUrl={shareUrl}
+              title={currentDesign.title}
+              description={currentDesign.description}
+              imageUrl={currentDesign.image_url}
+              designId={currentDesign.id}
+              relatedPlaybooks={relatedPlaybooks.map((playbook) => ({
+                title: playbook.title,
+                href: `/playbooks/${playbook.slug}`,
+              }))}
+              relatedCollections={relatedCollections.map((collection) => ({
+                title: collection.title,
+                href: `/collections/${collection.slug}`,
+              }))}
+            />
+
             {(collectionTarget || pillarTarget) && (
               <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-black border border-gray-800 rounded-2xl p-6 shadow-lg text-white space-y-6">
                 <div className="space-y-2">
@@ -729,6 +747,8 @@ export default async function DesignDetailPage({ params }: PageProps) {
             </a>
           </aside>
         </div>
+
+        <GrowthSection kind="design" slug={params.slug} enabled={process.env.ENABLE_GROWTH_SECTIONS === 'true'} />
 
         {(relatedCollections.length > 0 || relatedPlaybooks.length > 0) && (
           <section className="rounded-3xl border border-gray-200 bg-white/90 p-8 shadow-sm">

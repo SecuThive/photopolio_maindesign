@@ -27,6 +27,36 @@ export default function DesignModal({ design, onClose, likes, liked, onToggleLik
   const [copied, setCopied] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState(0);
   const [previewCode, setPreviewCode] = useState(design.code);
+    const buildPreviewHtml = (raw?: string | null) => {
+      const html = (raw || '').trim();
+      if (!html) return '';
+      const hasTailwind = /cdn\.tailwindcss\.com/.test(html);
+      const hasHead = /<head[^>]*>/i.test(html);
+      const hasHtml = /<html[^>]*>/i.test(html);
+      const hasBody = /<body[^>]*>/i.test(html);
+
+      const baseHead = [
+        '<meta charset="UTF-8" />',
+        '<meta name="viewport" content="width=device-width, initial-scale=1.0" />',
+        !hasTailwind ? '<script src="https://cdn.tailwindcss.com"></script>' : null,
+        '<style>html,body{margin:0;padding:0;box-sizing:border-box;background:white;}</style>',
+      ]
+        .filter(Boolean)
+        .join('\n');
+
+      if (hasHead) {
+        return html.replace(/<head[^>]*>/i, (match) => `${match}\n${baseHead}`);
+      }
+
+      if (hasHtml) {
+        if (hasBody) {
+          return html.replace(/<body[^>]*>/i, (match) => `<head>${baseHead}</head>\n${match}`);
+        }
+        return html.replace(/<html[^>]*>/i, (match) => `${match}\n<head>${baseHead}</head>`);
+      }
+
+      return `<!DOCTYPE html><html lang="en"><head>${baseHead}</head><body>${html}</body></html>`;
+    };
   const [isLoadingPreview, setIsLoadingPreview] = useState(false);
   const [previewMode, setPreviewMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [shareUrl, setShareUrl] = useState('');
@@ -225,7 +255,7 @@ export default function DesignModal({ design, onClose, likes, liked, onToggleLik
               </div>
             )}
             <iframe
-              srcDoc={previewCode || design.code || ''}
+              srcDoc={buildPreviewHtml(previewCode || design.code)}
               className="w-full border-0"
               style={{ minHeight: '640px' }}
               title="Design Preview"

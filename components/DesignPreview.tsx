@@ -10,6 +10,37 @@ interface DesignPreviewProps {
   htmlCode?: string | null;
 }
 
+const TAILWIND_CDN = 'https://cdn.tailwindcss.com';
+
+function injectHeadMarkup(html: string) {
+  const hasTailwind = /cdn\.tailwindcss\.com/.test(html);
+  const hasHead = /<head[^>]*>/i.test(html);
+  const hasHtml = /<html[^>]*>/i.test(html);
+  const hasBody = /<body[^>]*>/i.test(html);
+
+  const baseHead = [
+    '<meta charset="UTF-8" />',
+    '<meta name="viewport" content="width=1920" />',
+    !hasTailwind ? `<script src="${TAILWIND_CDN}"></script>` : null,
+    '<style>html,body{margin:0;padding:0;box-sizing:border-box;width:1920px;background:white;}</style>',
+  ]
+    .filter(Boolean)
+    .join('\n');
+
+  if (hasHead) {
+    return html.replace(/<head[^>]*>/i, (match) => `${match}\n${baseHead}`);
+  }
+
+  if (hasHtml) {
+    if (hasBody) {
+      return html.replace(/<body[^>]*>/i, (match) => `<head>${baseHead}</head>\n${match}`);
+    }
+    return html.replace(/<html[^>]*>/i, (match) => `${match}\n<head>${baseHead}</head>`);
+  }
+
+  return `<!DOCTYPE html><html lang="en"><head>${baseHead}</head><body>${html}</body></html>`;
+}
+
 export default function DesignPreview({ imageUrl, title, colors, htmlCode }: DesignPreviewProps) {
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -51,35 +82,7 @@ export default function DesignPreview({ imageUrl, title, colors, htmlCode }: Des
       if (!iframeDoc) return;
 
       const trimmed = htmlCode.trim();
-      const containsFullDocument = /^<!DOCTYPE|<html/i.test(trimmed);
-
-      const htmlContent = containsFullDocument
-        ? trimmed
-        : `
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=1920">
-          <style>
-            * {
-              margin: 0;
-              padding: 0;
-              box-sizing: border-box;
-            }
-            
-            html, body {
-              width: 1920px;
-              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-              background: white;
-            }
-          </style>
-        </head>
-        <body>
-          ${trimmed}
-        </body>
-        </html>
-      `;
+      const htmlContent = injectHeadMarkup(trimmed);
 
       iframeDoc.open();
       iframeDoc.write(htmlContent);
@@ -94,7 +97,10 @@ export default function DesignPreview({ imageUrl, title, colors, htmlCode }: Des
       };
 
       iframeRef.current.onload = measure;
-      setTimeout(measure, 50);
+      const timeouts = [80, 240, 720, 1400].map((delay) => window.setTimeout(measure, delay));
+      return () => {
+        timeouts.forEach((id) => window.clearTimeout(id));
+      };
     }
   }, [htmlCode, DESIGN_HEIGHT, DESIGN_WIDTH]);
 

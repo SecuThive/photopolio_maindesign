@@ -12,6 +12,7 @@ import { supabaseServer } from '@/lib/supabase/server';
 import { withDesignSlugs } from '@/lib/slug';
 import type { DesignWithSlug } from '@/types/database';
 import SeoGEOContent from '@/components/SeoGEOContent';
+import GrowthSection from '@/components/GrowthSection';
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://ui-syntax.com').replace(/\/$/, '');
 
@@ -533,6 +534,8 @@ export default async function PlaybookDetailPage({ params }: PageProps) {
           bestFor={topic.bestFor}
         />
       </div>
+
+      <GrowthSection kind="playbook" slug={params.slug} enabled={process.env.ENABLE_GROWTH_SECTIONS === 'true'} />
 
       <section className="rounded-3xl border border-gray-200 bg-white/90 p-8 shadow-sm space-y-6">
         <SeoGEOContent
