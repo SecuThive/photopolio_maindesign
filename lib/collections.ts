@@ -17,6 +17,7 @@ export type CollectionConfig = {
   pillar: { title: string; href: string; summary: string };
   supabaseCategory: string;
   metaDescription: string;
+  filterTags?: string[]; // Tags to filter designs more precisely within category
 };
 
 export const collectionConfigs: CollectionConfig[] = [
@@ -93,6 +94,7 @@ export const collectionConfigs: CollectionConfig[] = [
       summary: 'A playbook that unifies value props, social proof, and the CTA ladder in one place.',
     },
     supabaseCategory: 'Landing Page',
+    filterTags: ['saas', 'landing', 'b2b', 'conversion'],
     metaDescription:
       'A best-of SaaS landing page collection covering value props, social proof, CTA strategy, and Core Web Vitals guardrails.',
   },
@@ -169,6 +171,7 @@ export const collectionConfigs: CollectionConfig[] = [
       summary: 'A playbook covering information hierarchy, density controls, and dark mode tokens in one system.',
     },
     supabaseCategory: 'Dashboard',
+    filterTags: ['dashboard', 'minimal', 'clean', 'analytics'],
     metaDescription:
       'Minimalist dashboard collection featuring signal-first cards, density controls, and dark mode token guidance.',
   },
@@ -240,6 +243,7 @@ export const collectionConfigs: CollectionConfig[] = [
       summary: 'The playbook that standardizes hero messaging, proof placement, and CTA sequencing.',
     },
     supabaseCategory: 'Landing Page',
+    filterTags: ['hero', 'above-fold', 'conversion', 'landing'],
     metaDescription:
       'High-conversion hero section collection with outcome headlines, proof placement, and CTA ladder examples.',
   },
@@ -308,6 +312,7 @@ export const collectionConfigs: CollectionConfig[] = [
       summary: 'Guidance on CTA ladders, proof placement, and pricing narrative clarity.',
     },
     supabaseCategory: 'Landing Page',
+    filterTags: ['pricing', 'saas', 'conversion', 'tiers'],
     metaDescription:
       'SaaS pricing page collection featuring tier storytelling, enterprise pathways, and transparent CTA layouts.',
   },
@@ -376,6 +381,7 @@ export const collectionConfigs: CollectionConfig[] = [
       summary: 'Behavioral patterns that reduce hesitation and increase activation.',
     },
     supabaseCategory: 'Components',
+    filterTags: ['onboarding', 'activation', 'signup', 'flow'],
     metaDescription:
       'Onboarding and activation flow collection covering progress cues, step-by-step forms, and success states.',
   },
@@ -444,6 +450,7 @@ export const collectionConfigs: CollectionConfig[] = [
       summary: 'Guidance on narrative sequencing and CTA ladders for SaaS evaluation pages.',
     },
     supabaseCategory: 'Landing Page',
+    filterTags: ['product-tour', 'onboarding', 'walkthrough'],
     metaDescription:
       'Product tour page collection with narrative sections, aligned visuals, and repeated evaluation CTAs.',
   },
@@ -512,6 +519,7 @@ export const collectionConfigs: CollectionConfig[] = [
       summary: 'Performance guardrails that keep documentation fast and stable.',
     },
     supabaseCategory: 'Blog',
+    filterTags: ['docs', 'documentation', 'developer', 'technical'],
     metaDescription:
       'Developer documentation layout collection with quick starts, code samples, and scannable side navigation.',
   },
@@ -580,6 +588,7 @@ export const collectionConfigs: CollectionConfig[] = [
       summary: 'Behavioral patterns that reinforce trust and reduce hesitation.',
     },
     supabaseCategory: 'Landing Page',
+    filterTags: ['fintech', 'trust', 'security', 'landing'],
     metaDescription:
       'Fintech trust screen collection featuring compliance cues, security microcopy, and risk-reversal CTAs.',
   },
@@ -648,6 +657,7 @@ export const collectionConfigs: CollectionConfig[] = [
       summary: 'Conversion principles for PDPs, carts, and checkout flows.',
     },
     supabaseCategory: 'E-commerce',
+    filterTags: ['ecommerce', 'product', 'pdp'],
     metaDescription:
       'E-commerce PDP collection with price anchors, proof placement, and delivery promise layouts.',
   },
@@ -716,6 +726,7 @@ export const collectionConfigs: CollectionConfig[] = [
       summary: 'Checkout compression and trust patterns for conversion.',
     },
     supabaseCategory: 'E-commerce',
+    filterTags: ['ecommerce', 'checkout', 'cart', 'conversion'],
     metaDescription:
       'Checkout and cart flow collection with transparent cost breakdowns, short forms, and trust badges.',
   },
@@ -784,6 +795,7 @@ export const collectionConfigs: CollectionConfig[] = [
       summary: 'Behavioral guardrails that keep user trust intact.',
     },
     supabaseCategory: 'Dashboard',
+    filterTags: ['dashboard', 'subscription', 'billing', 'settings'],
     metaDescription:
       'Subscription management UI collection featuring billing clarity, plan change flows, and invoice access.',
   },
@@ -852,6 +864,7 @@ export const collectionConfigs: CollectionConfig[] = [
       summary: 'Hierarchy and density guardrails for analytics UIs.',
     },
     supabaseCategory: 'Dashboard',
+    filterTags: ['dashboard', 'analytics', 'kpi', 'metrics'],
     metaDescription:
       'Analytics dashboard collection with KPI scan paths, trend context, and anomaly callouts.',
   },
@@ -920,6 +933,7 @@ export const collectionConfigs: CollectionConfig[] = [
       summary: 'Density and hierarchy standards for operational UI.',
     },
     supabaseCategory: 'Dashboard',
+    filterTags: ['dashboard', 'admin', 'table', 'operations'],
     metaDescription:
       'Admin operations table collection featuring sticky headers, bulk actions, and dense filtering systems.',
   },
@@ -988,6 +1002,7 @@ export const collectionConfigs: CollectionConfig[] = [
       summary: 'Narrative and trust patterns that shape perception.',
     },
     supabaseCategory: 'Portfolio',
+    filterTags: ['portfolio', 'case-study', 'showcase'],
     metaDescription:
       'Portfolio case study collection with story-driven layouts, metric proof, and clear role framing.',
   },
@@ -1056,6 +1071,7 @@ export const collectionConfigs: CollectionConfig[] = [
       summary: 'Messaging and proof patterns that increase conversion.',
     },
     supabaseCategory: 'Landing Page',
+    filterTags: ['landing', 'agency', 'services', 'b2b'],
     metaDescription:
       'Agency landing page collection with proof-heavy heroes, short lead forms, and outcome-based service framing.',
   },
@@ -1124,6 +1140,7 @@ export const collectionConfigs: CollectionConfig[] = [
       summary: 'Behavioral triggers that move users to register.',
     },
     supabaseCategory: 'Landing Page',
+    filterTags: ['landing', 'event', 'community', 'registration'],
     metaDescription:
       'Community and event page collection with agenda clarity, speaker proof, and registration CTAs.',
   },
@@ -1192,6 +1209,7 @@ export const collectionConfigs: CollectionConfig[] = [
       summary: 'Behavioral triggers that encourage signups without manipulation.',
     },
     supabaseCategory: 'Landing Page',
+    filterTags: ['landing', 'waitlist', 'signup', 'launch'],
     metaDescription:
       'Waitlist and early access page collection with short forms, demand proof, and clear value statements.',
   },
@@ -1260,6 +1278,7 @@ export const collectionConfigs: CollectionConfig[] = [
       summary: 'Performance and stability guidance for content-heavy support hubs.',
     },
     supabaseCategory: 'Blog',
+    filterTags: ['blog', 'help', 'documentation', 'support'],
     metaDescription:
       'Help center and knowledge base collection with search-first layouts, top tasks, and clear category tiles.',
   },
@@ -1328,6 +1347,7 @@ export const collectionConfigs: CollectionConfig[] = [
       summary: 'Performance-friendly component documentation patterns.',
     },
     supabaseCategory: 'Components',
+    filterTags: ['component', 'design-system', 'library', 'documentation'],
     metaDescription:
       'Design system library collection with token documentation, component usage guidance, and scalable navigation.',
   },
@@ -1396,6 +1416,7 @@ export const collectionConfigs: CollectionConfig[] = [
       summary: 'Hierarchy and density patterns for application shells.',
     },
     supabaseCategory: 'Dashboard',
+    filterTags: ['dashboard', 'layout', 'navigation', 'shell'],
     metaDescription:
       'SaaS app shell collection featuring navigation hierarchies, workspace selectors, and stable layouts.',
   },

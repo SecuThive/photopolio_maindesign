@@ -12,6 +12,7 @@ export type Design = {
   views?: number | null;
   slug?: string | null;
   colors?: string[] | null;
+  tags?: string[] | null;
   status: 'published' | 'archived';
   strategy_notes?: string | null;
   psychology_notes?: string | null;
@@ -113,6 +114,7 @@ export type Database = {
           likes?: number | null;
           views?: number | null;
           colors?: string[] | null;
+          tags?: string[] | null;
           status?: 'published' | 'archived';
           strategy_notes?: string | null;
           psychology_notes?: string | null;
@@ -133,6 +135,7 @@ export type Database = {
           likes?: number | null;
           views?: number | null;
           colors?: string[] | null;
+          tags?: string[] | null;
           status?: 'published' | 'archived';
           strategy_notes?: string | null;
           psychology_notes?: string | null;

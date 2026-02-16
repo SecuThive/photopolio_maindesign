@@ -53,13 +53,21 @@ export default async function CollectionDetailPage({ params }: PageProps) {
   const pillarTopic = cluster?.pillar ?? null;
   const pillarHref = pillarTopic ? `/playbooks/${pillarTopic.slug}` : config.pillar.href;
 
-  const { data: designs } = await supabaseServer
+  // Build design query with tag-based filtering for better collection accuracy
+  let designQuery = supabaseServer
     .from('designs')
     .select('*')
     .eq('status', 'published')
     .eq('category', config.supabaseCategory)
     .order('created_at', { ascending: false })
     .limit(12);
+
+  // If collection has specific filter tags, use them for more precise matching
+  if (config.filterTags && config.filterTags.length > 0) {
+    designQuery = designQuery.overlaps('tags', config.filterTags);
+  }
+
+  const { data: designs } = await designQuery;
 
   const designsWithSlugs = (withDesignSlugs(designs ?? []) as DesignWithSlug[]) ?? [];
   const schemaDesigns = designsWithSlugs.filter((design) => Boolean(design.slug));
