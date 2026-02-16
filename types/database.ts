@@ -84,6 +84,17 @@ export type BlogPost = {
   updated_at: string;
 };
 
+export type CodeMatch = {
+  id: string;
+  hash: string;
+  code: string;
+  metrics: any; // DesignMetrics as JSON
+  results: any; // Array of matched designs as JSON
+  views: number;
+  created_at: string;
+  updated_at: string;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -256,6 +267,29 @@ export type Database = {
           tags?: string[] | null;
           published_at?: string | null;
           status?: 'draft' | 'published';
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      code_matches: {
+        Row: CodeMatch;
+        Insert: {
+          id?: string;
+          hash: string;
+          code: string;
+          metrics: any;
+          results: any;
+          views?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          hash?: string;
+          code?: string;
+          metrics?: any;
+          results?: any;
+          views?: number;
           created_at?: string;
           updated_at?: string;
         };

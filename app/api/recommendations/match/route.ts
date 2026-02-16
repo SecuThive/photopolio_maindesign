@@ -30,12 +30,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Fetch ALL published designs with code for comprehensive matching
     const { data, error } = await supabaseServer
       .from('designs')
       .select('*')
       .eq('status', 'published')
-      .not('code', 'is', null)
-      .limit(60);
+      .not('code', 'is', null);
 
     if (error) {
       console.error('Failed to load designs for recommendation', error);
@@ -43,6 +43,8 @@ export async function POST(request: NextRequest) {
     }
 
     const designRows = (data || []) as Design[];
+    
+    // Analyze and score all designs
     const scored = designRows
       .map((design) => {
         const metrics = analyzeMarkup(design.code);
@@ -55,7 +57,7 @@ export async function POST(request: NextRequest) {
       })
       .filter((entry): entry is ScoredDesign => Boolean(entry))
       .sort((a, b) => b.score - a.score)
-      .slice(0, 6);
+      .slice(0, 9);  // Return top 9 matches instead of 6
 
     const response = withDesignSlugs(scored.map((entry) => entry.design)).map((design, index) => ({
       design,
