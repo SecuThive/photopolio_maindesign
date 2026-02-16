@@ -5,14 +5,14 @@ import { supabaseServer } from '@/lib/supabase/server';
 import { withDesignSlugs } from '@/lib/slug';
 
 export const metadata: Metadata = {
-  title: "Best SaaS Landing Pages - Curated AI Design Collection",
-  description: "Explore our handpicked collection of the best SaaS landing page designs. These AI-generated layouts showcase modern conversion patterns, compelling hero sections, and trust-building elements used by successful B2B companies.",
+  title: "50+ Best SaaS Landing Pages (2026) - Free Templates & Code",
+  description: "Download 50+ proven SaaS landing page designs with copy-paste HTML & React code. Includes high-converting hero sections, pricing tables, and CTAs used by top startups. 100% free.",
   alternates: {
     canonical: 'https://ui-syntax.com/collections/best-saas-landing-pages',
   },
   openGraph: {
-    title: "Best SaaS Landing Pages - UI Syntax",
-    description: "Curated collection of top SaaS landing page designs with proven conversion patterns.",
+    title: "50+ Best SaaS Landing Pages (2026) - Free Templates",
+    description: "Proven SaaS landing page designs with free copy-paste code. Boost conversions instantly.",
     url: 'https://ui-syntax.com/collections/best-saas-landing-pages',
   },
 };

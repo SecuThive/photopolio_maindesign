@@ -7,24 +7,26 @@ import CommandPalette from '@/components/CommandPalette';
 import "./globals.css";
 
 const siteUrl = 'https://ui-syntax.com';
-const siteDescription = 'UI Syntax is a Silicon Valley standard AI web design gallery for SaaS founders, product designers, and front-end engineers who need production-ready inspiration plus copy-ready HTML and React code blocks.';
+const siteDescription = 'Discover 700+ production-ready AI web designs with copy-paste HTML & React code. Save 20+ hours per project with proven SaaS landing pages, dashboards & e-commerce flows trusted by Silicon Valley teams.';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   applicationName: 'UI Syntax',
   category: 'technology',
   title: {
-    default: 'UI Syntax - Production-Ready AI Web Design Inspiration for Modern Teams',
+    default: '700+ Free AI Web Designs with Copy-Paste Code | UI Syntax',
     template: '%s | UI Syntax',
   },
   description: siteDescription,
   keywords: [
-    'US web design inspiration',
+    'free web design inspiration',
     'AI design gallery',
     'SaaS landing page examples',
-    'developer tools marketing site',
+    'copy paste HTML code',
+    'React component library',
     'dashboard UI inspiration',
     'product design gallery',
+    'free UI templates',
   ],
   authors: [{ name: 'UI Syntax' }],
   creator: 'UI Syntax',
@@ -55,7 +57,7 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: siteUrl,
-    title: 'UI Syntax - Production-Ready AI Web Design Inspiration for Modern Teams',
+    title: '700+ Free AI Web Designs with Copy-Paste Code',
     description: siteDescription,
     siteName: 'UI Syntax',
     images: [
@@ -69,8 +71,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'UI Syntax - Production-Ready AI Web Design Inspiration for Modern Teams',
+    title: '700+ Free AI Web Designs with Copy-Paste Code',
     description: siteDescription,
+    creator: '@uisyntax',
   },
 };
 

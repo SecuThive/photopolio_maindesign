@@ -14,12 +14,16 @@ export async function generateMetadata(): Promise<Metadata> {
     .eq('status', 'published');
 
   const totalPosts = count ?? 0;
+  const title = totalPosts > 0
+    ? `${totalPosts}+ Free UI Design Tutorials & Implementation Guides (2026)`
+    : 'Free UI Design Tutorials & Implementation Guides';
+  
   const description = totalPosts > 0
-    ? `Read ${totalPosts}+ engineering notes, UI breakdowns, and implementation guides curated by UI Syntax.`
-    : 'Read engineering notes, UI breakdowns, and implementation guides curated by UI Syntax.';
+    ? `Read ${totalPosts}+ free UI/UX tutorials, design breakdowns, and step-by-step implementation guides. Learn modern web design patterns, React components, and CSS techniques. Updated weekly.`
+    : 'Free UI/UX tutorials, design breakdowns, and implementation guides. Learn modern web design patterns and best practices.';
 
   return createPageMetadata({
-    title: 'UI Syntax Journal',
+    title,
     description,
     path: '/blog',
   });

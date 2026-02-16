@@ -5,14 +5,14 @@ import EzoicPlacements from '@/components/EzoicPlacements';
 import { getPlacementIds } from '@/lib/ezoic';
 
 export const metadata: Metadata = {
-  title: "About Us",
-  description: "Learn how UI Syntax curates production-ready AI web designs for SaaS, developer tools, and commerce teams with annotated inspiration and launch support.",
+  title: "About UI Syntax - Free AI Design Library for 50,000+ Developers",
+  description: "UI Syntax provides 700+ free, production-ready AI web designs with copy-paste code. Trusted by developers worldwide. Save 20+ hours per project with our curated gallery.",
   alternates: {
     canonical: 'https://ui-syntax.com/about',
   },
   openGraph: {
-    title: "About UI Syntax - AI Design Gallery",
-    description: "See how UI Syntax curates annotated AI web designs aligned to modern SaaS, fintech, and commerce standards.",
+    title: "About UI Syntax - Free AI Design Library Trusted by 50,000+ Developers",
+    description: "700+ free AI designs with copy-paste code. Save hours on every project.",
     url: 'https://ui-syntax.com/about',
   },
 };

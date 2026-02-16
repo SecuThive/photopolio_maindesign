@@ -5,14 +5,14 @@ import EzoicPlacements from '@/components/EzoicPlacements';
 import { getPlacementIds } from '@/lib/ezoic';
 
 export const metadata: Metadata = {
-  title: "Contact Us",
-  description: "Get in touch with UI Syntax. Have questions, feedback, or want to contribute your AI-generated designs? Contact us at thive8564@gmail.com.",
+  title: "Contact Us - Get Free Design Help & Support",
+  description: "Have questions about using our 700+ free AI designs? Need help with implementation or customization? Contact UI Syntax support at thive8564@gmail.com. We respond within 24-48 hours.",
   alternates: {
     canonical: 'https://ui-syntax.com/contact',
   },
   openGraph: {
-    title: "Contact UI Syntax - AI Design Gallery",
-    description: "Get in touch with UI Syntax. Have questions, feedback, or want to contribute your AI-generated designs?",
+    title: "Contact UI Syntax - Free Design Support",
+    description: "Get help with 700+ free AI designs. Questions about licensing, implementation, or customization? We're here to help.",
     url: 'https://ui-syntax.com/contact',
   },
 };

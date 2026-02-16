@@ -2,15 +2,75 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import RecommendationTester from '@/components/RecommendationTester';
 import PopularSearchesGallery from '@/components/PopularSearchesGallery';
+import { buildSoftwareApplicationSchema, buildHowToSchema, buildBreadcrumbSchema } from '@/lib/richSnippets';
 
 export const metadata = {
-  title: 'Code Match | UI Syntax',
-  description: 'A UI Syntax Labs tool that recommends AI designs based on the markup you paste into it.',
+  title: 'Free Code Match Tool - Find Similar UI Designs Instantly',
+  description: 'Paste your HTML/React code and instantly discover matching UI designs from 700+ AI-generated templates. Get free design recommendations in seconds with our smart code analyzer.',
+  openGraph: {
+    title: 'Free Code Match Tool - Find Similar UI Designs Instantly',
+    description: 'Paste your code and find matching UI designs from 700+ templates in seconds.',
+  },
 };
 
 export default function CodeMatchPage() {
+  // Rich Snippets for better CTR
+  const softwareSchema = buildSoftwareApplicationSchema({
+    name: 'UI Syntax Code Match',
+    description: 'Free tool that analyzes your HTML/React code and finds matching UI designs from 700+ templates',
+    url: 'https://ui-syntax.com/code-match',
+    applicationCategory: 'DeveloperApplication',
+    operatingSystem: 'Web Browser',
+    offers: {
+      price: '0',
+      priceCurrency: 'USD',
+    },
+  });
+
+  const howToSchema = buildHowToSchema({
+    name: 'How to Use Code Match to Find UI Design Inspiration',
+    description: 'Find matching UI designs by analyzing your code in 3 simple steps',
+    totalTime: 'PT2M',
+    steps: [
+      {
+        name: 'Paste Your Code',
+        text: 'Copy and paste your HTML, JSX, or TSX code snippet into the code input field. Minimum 50 characters required.',
+        url: 'https://ui-syntax.com/code-match',
+      },
+      {
+        name: 'Analyze Structure',
+        text: 'Our AI analyzer automatically detects layout patterns, color palettes, button count, and semantic structure.',
+        url: 'https://ui-syntax.com/code-match',
+      },
+      {
+        name: 'Get Matches',
+        text: 'Receive 9 personalized design recommendations ranked by similarity score. View match percentage and quality metrics.',
+        url: 'https://ui-syntax.com/code-match',
+      },
+    ],
+  });
+
+  const breadcrumbSchema = buildBreadcrumbSchema([
+    { name: 'Home', url: 'https://ui-syntax.com' },
+    { name: 'Code Match', url: 'https://ui-syntax.com/code-match' },
+  ]);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+      {/* Structured Data for Rich Snippets */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(howToSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+
       <Header />
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 space-y-20">

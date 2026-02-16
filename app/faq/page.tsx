@@ -4,16 +4,17 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import EzoicPlacements from '@/components/EzoicPlacements';
 import { getPlacementIds } from '@/lib/ezoic';
+import { buildFAQSchema } from '@/lib/richSnippets';
 
 export const metadata: Metadata = {
-  title: "FAQ - Frequently Asked Questions",
-  description: "Find answers to common questions about UI Syntax. Learn how to use our AI design gallery, licensing, customization options, and more.",
+  title: "FAQ - Free AI Design Tool Questions Answered (2026)",
+  description: "Get instant answers about using 700+ free AI web designs. Learn about licensing (100% free commercial use), copy-paste code, customization, and implementation. No signup required.",
   alternates: {
     canonical: 'https://ui-syntax.com/faq',
   },
   openGraph: {
-    title: "FAQ - UI Syntax",
-    description: "Frequently asked questions about using UI Syntax AI design gallery for your projects.",
+    title: "FAQ - Your Free AI Design Questions Answered",
+    description: "Everything you need to know about using 700+ free AI designs with copy-paste code. 100% free for commercial projects.",
     url: 'https://ui-syntax.com/faq',
   },
   robots: {
@@ -150,8 +151,30 @@ export default function FAQPage() {
     }
   ];
 
+  // Create FAQ Schema for Rich Snippets (top 10 most important FAQs)
+  const faqSchemaData = [
+    { question: "Is UI Syntax free to use?", answer: "Yes! UI Syntax is completely free to browse and use. All 700+ designs can be viewed, referenced, and implemented in your projects without any cost." },
+    { question: "Can I use these designs in my commercial projects?", answer: "Absolutely! All designs on UI Syntax can be freely used for both personal and commercial projects. You can implement the design patterns, layouts, and concepts in client work, SaaS products, or any commercial application without restrictions." },
+    { question: "Do I need to provide attribution?", answer: "While attribution to UI Syntax is appreciated, it is not required. You're free to use the designs without crediting our platform, though we always love to see what you create!" },
+    { question: "How do I implement these designs?", answer: "Each design page includes the HTML/CSS code that you can copy and use as a foundation. You can adapt the code to your preferred framework (React, Vue, Next.js, etc.) and styling approach (Tailwind, styled-components, etc.)." },
+    { question: "Are the designs responsive?", answer: "Most designs follow modern responsive design principles. However, you may need to adjust breakpoints and mobile layouts to match your specific requirements and target devices." },
+    { question: "What frameworks do these designs support?", answer: "The core HTML/CSS code is framework-agnostic. You can implement these designs in any modern framework including React, Vue, Angular, Next.js, Svelte, or plain HTML/CSS." },
+    { question: "Can I modify the designs?", answer: "Yes! Feel free to customize, modify, and adapt any design to fit your specific needs. The designs are meant to serve as inspiration and starting points for your own unique implementations." },
+    { question: "Do I need to create an account?", answer: "No account is required to browse and use the designs. All content is freely accessible without registration." },
+    { question: "Can I use these with Tailwind CSS?", answer: "Absolutely! While the provided code uses standard CSS, the designs can easily be converted to Tailwind utility classes. Many patterns align well with Tailwind's design philosophy." },
+    { question: "What types of designs are available?", answer: "Our gallery includes landing pages, dashboards, pricing tables, hero sections, navigation menus, forms, cards, components, and full-page layouts for SaaS, fintech, and e-commerce." },
+  ];
+
+  const faqSchema = buildFAQSchema(faqSchemaData);
+
   return (
     <div className="min-h-screen bg-luxury-white flex flex-col">
+      {/* FAQ Schema for Rich Snippets */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
+      
       <Header />
 
       <main className="flex-grow">

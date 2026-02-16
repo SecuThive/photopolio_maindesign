@@ -5,14 +5,14 @@ import { supabaseServer } from '@/lib/supabase/server';
 import { withDesignSlugs } from '@/lib/slug';
 
 export const metadata: Metadata = {
-  title: "Minimalist Dashboards - Clean UI Design Collection",
-  description: "Discover minimalist dashboard designs that prioritize clarity and usability. These AI-generated admin panels and analytics interfaces showcase how leading SaaS products reduce cognitive load while maximizing data visibility.",
+  title: "40+ Minimalist Dashboard Templates (2026) - Free UI & Code",
+  description: "Get 40+ clean, minimalist dashboard designs with free HTML & React code. Perfect for SaaS admin panels, analytics interfaces & data visualization. Download instantly.",
   alternates: {
     canonical: 'https://ui-syntax.com/collections/minimalist-dashboards',
   },
   openGraph: {
-    title: "Minimalist Dashboards - UI Syntax",
-    description: "Curated collection of clean, minimal dashboard designs for modern web applications.",
+    title: "40+ Minimalist Dashboard Templates - Free Download",
+    description: "Clean dashboard UI designs with free copy-paste code for your next SaaS project.",
     url: 'https://ui-syntax.com/collections/minimalist-dashboards',
   },
 };

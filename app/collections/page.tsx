@@ -4,8 +4,8 @@ import { createPageMetadata } from '@/lib/seo';
 import { collectionConfigs } from '@/lib/collections';
 
 export const metadata: Metadata = createPageMetadata({
-  title: 'Collections',
-  description: 'UI Syntax collection index: strategy-focused hubs for SaaS landing pages, dashboards, and more.',
+  title: '20+ Free Design Collections - SaaS, Dashboards & E-commerce Templates',
+  description: 'Browse 20+ curated design collections with 700+ free templates. Find SaaS landing pages, minimalist dashboards, pricing tables, hero sections, and more. All with copy-paste code.',
   path: '/collections',
 });
 

@@ -9,7 +9,8 @@ import CategoryFilterBar from '@/components/CategoryFilterBar';
 import GrowthSection from '@/components/GrowthSection';
 import { getPlacementIds } from '@/lib/ezoic';
 import { withDesignSlugs } from '@/lib/slug';
-import { createPageMetadata } from '@/lib/seo';
+import { createPageMetadata, SITE_URL } from '@/lib/seo';
+import { buildWebSiteSearchSchema, buildOrganizationSchema } from '@/lib/richSnippets';
 
 export const revalidate = 0;
 
@@ -20,12 +21,16 @@ export async function generateMetadata(): Promise<Metadata> {
     .eq('status', 'published');
 
   const totalDesigns = count ?? 0;
+  const title = totalDesigns > 0
+    ? `${totalDesigns}+ Free AI Web Designs with Copy-Paste Code (2026)`
+    : 'Free AI Web Designs with Copy-Paste Code';
+  
   const description = totalDesigns > 0
-    ? `Browse ${totalDesigns}+ production-ready AI-generated web designs spanning landing pages, dashboards, and e-commerce flows.`
-    : 'Browse production-ready AI-generated web designs spanning landing pages, dashboards, and e-commerce flows.';
+    ? `Download ${totalDesigns}+ free, production-ready AI web designs with copy-paste HTML & React code. Includes SaaS landing pages, dashboards, and e-commerce templates. Save 20+ hours per project. 100% free commercial use.`
+    : 'Download free, production-ready AI web designs with copy-paste HTML & React code. Save hours on every project with our curated gallery. 100% free commercial use.';
 
   return createPageMetadata({
-    title: 'AI design inspiration for modern engineering teams',
+    title,
     description,
     path: '/',
   });
@@ -53,8 +58,31 @@ export default async function HomePage({
   const { data: initialDesigns } = await query;
   const designsWithSlugs = initialDesigns ? withDesignSlugs(initialDesigns) : [];
 
+  // Rich Snippets for homepage
+  const websiteSchema = buildWebSiteSearchSchema();
+  const organizationSchema = buildOrganizationSchema({
+    name: 'UI Syntax',
+    url: SITE_URL,
+    logo: `${SITE_URL}/icon.png`,
+    description: '700+ production-ready AI web designs with free copy-paste HTML & React code.',
+    email: 'thive8564@gmail.com',
+    socialProfiles: [
+      // Add your social profiles here when available
+    ],
+  });
+
   return (
     <div className="min-h-screen bg-luxury-white">
+      {/* Structured Data for Rich Snippets */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+      />
+
       <Header />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
