@@ -13,6 +13,7 @@ interface DesignPreviewProps {
 const TAILWIND_CDN = 'https://cdn.tailwindcss.com';
 const PREVIEW_BASE_WIDTH = 1400;
 const PREVIEW_BASE_HEIGHT = Math.round((PREVIEW_BASE_WIDTH * 2) / 3);
+const PREVIEW_MAX_HEIGHT = 900;
 
 function injectHeadMarkup(html: string) {
   const hasTailwind = /cdn\.tailwindcss\.com/.test(html);
@@ -63,7 +64,9 @@ export default function DesignPreview({ imageUrl, title, colors, htmlCode }: Des
         const containerWidth = containerRef.current.clientWidth;
         // Leave a small margin so the preview always fits inside
         const safeWidth = containerWidth - 2;
-        const nextScale = Math.min(Math.max(safeWidth / contentSize.width, 0.05), 1);
+        const widthScale = safeWidth / contentSize.width;
+        const heightScale = PREVIEW_MAX_HEIGHT / contentSize.height;
+        const nextScale = Math.min(Math.max(Math.min(widthScale, heightScale), 0.05), 1);
         setScale(nextScale);
       }
     };
@@ -111,6 +114,7 @@ export default function DesignPreview({ imageUrl, title, colors, htmlCode }: Des
   }, [htmlCode, DESIGN_HEIGHT, DESIGN_WIDTH]);
 
   const hasLivePreview = htmlCode && htmlCode.trim().length > 0;
+  const previewHeight = Math.min(contentSize.height * scale, PREVIEW_MAX_HEIGHT);
 
   return (
     <div
@@ -118,7 +122,7 @@ export default function DesignPreview({ imageUrl, title, colors, htmlCode }: Des
       className="relative w-full max-w-full overflow-hidden rounded-[32px] border border-gray-200 bg-white shadow-[0_25px_70px_rgba(0,0,0,0.12)]"
     >
       {hasLivePreview ? (
-        <div className="relative w-full" style={{ paddingBottom: `${(contentSize.height / contentSize.width) * 100}%` }}>
+        <div className="relative w-full" style={{ height: previewHeight }}>
           <div className="absolute inset-0 overflow-hidden">
             <iframe
               ref={iframeRef}
@@ -135,7 +139,7 @@ export default function DesignPreview({ imageUrl, title, colors, htmlCode }: Des
               }}
               title="Live Design Preview"
               sandbox="allow-same-origin allow-forms allow-scripts"
-              scrolling="no"
+              scrolling="yes"
             />
           </div>
         </div>
