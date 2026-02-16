@@ -53,6 +53,9 @@ export default async function HomePage({
 
   if (category) {
     query = query.eq('category', category);
+  } else {
+    // When "All" is selected, exclude Components (show only complete page designs)
+    query = query.not('category', 'in', '("Component","Components","component","components")');
   }
 
   const { data: initialDesigns } = await query;

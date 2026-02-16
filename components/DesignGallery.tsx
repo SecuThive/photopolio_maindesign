@@ -141,6 +141,9 @@ export default function DesignGallery({ initialDesigns, initialCategory }: Desig
 
       if (activeCategory) {
         query = query.eq('category', activeCategory);
+      } else {
+        // When "All" is selected, exclude Components (show only complete page designs)
+        query = query.not('category', 'in', '("Component","Components","component","components")');
       }
 
       const { data, error } = await query;
