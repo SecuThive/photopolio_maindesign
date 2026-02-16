@@ -11,6 +11,8 @@ interface DesignPreviewProps {
 }
 
 const TAILWIND_CDN = 'https://cdn.tailwindcss.com';
+const PREVIEW_BASE_WIDTH = 1400;
+const PREVIEW_BASE_HEIGHT = Math.round((PREVIEW_BASE_WIDTH * 2) / 3);
 
 function injectHeadMarkup(html: string) {
   const hasTailwind = /cdn\.tailwindcss\.com/.test(html);
@@ -20,9 +22,13 @@ function injectHeadMarkup(html: string) {
 
   const baseHead = [
     '<meta charset="UTF-8" />',
-    '<meta name="viewport" content="width=1920" />',
+    `<meta name="viewport" content="width=${PREVIEW_BASE_WIDTH}" />`,
     !hasTailwind ? `<script src="${TAILWIND_CDN}"></script>` : null,
-    '<style>html,body{margin:0;padding:0;box-sizing:border-box;width:1920px;background:white;}</style>',
+    `<style>
+      *,*::before,*::after{box-sizing:border-box;}
+      html,body{margin:0;padding:0;width:${PREVIEW_BASE_WIDTH}px;background:white;min-height:auto;height:auto;}
+      .min-h-screen,.h-screen,.min-h-\\[100vh\\],.h-\\[100vh\\]{min-height:auto!important;height:auto!important;}
+    </style>`,
   ]
     .filter(Boolean)
     .join('\n');
@@ -46,8 +52,8 @@ export default function DesignPreview({ imageUrl, title, colors, htmlCode }: Des
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(0.5);
-  const DESIGN_WIDTH = 1920;
-  const DESIGN_HEIGHT = Math.round((1920 * 2) / 3); // keep 3:2 aspect
+  const DESIGN_WIDTH = PREVIEW_BASE_WIDTH;
+  const DESIGN_HEIGHT = PREVIEW_BASE_HEIGHT; // keep 3:2 aspect
   const [contentSize, setContentSize] = useState({ width: DESIGN_WIDTH, height: DESIGN_HEIGHT });
 
   // Calculate the scale based on the current container width
