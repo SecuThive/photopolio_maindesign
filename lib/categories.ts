@@ -42,7 +42,7 @@ const CATEGORY_DEFINITIONS: CategoryDefinition[] = [
     label: 'Components',
     description: 'Reusable micro-interactions, modals, nav bars, and UI components ready to drop into product flows.',
     keywords: ['ui components', 'modal', 'navigation'],
-    matchValues: ['Components', 'Component'],
+    matchValues: ['Components', 'Component', 'components', 'component'],
   },
 ];
 

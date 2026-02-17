@@ -30,6 +30,7 @@ interface DesignGalleryProps {
 }
 
 export default function DesignGallery({ initialDesigns, initialCategory }: DesignGalleryProps) {
+  const componentCategoryValues = ['Component', 'Components', 'component', 'components'];
   const [designs, setDesigns] = useState<DesignWithSlug[]>(initialDesigns);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(initialDesigns.length === ITEMS_PER_PAGE);
@@ -140,7 +141,11 @@ export default function DesignGallery({ initialDesigns, initialCategory }: Desig
         .range(from, to);
 
       if (activeCategory) {
-        query = query.eq('category', activeCategory);
+        if (componentCategoryValues.includes(activeCategory)) {
+          query = query.in('category', componentCategoryValues);
+        } else {
+          query = query.eq('category', activeCategory);
+        }
       } else {
         // When "All" is selected, exclude Components (show only complete page designs)
         query = query.not('category', 'in', '("Component","Components","component","components")');

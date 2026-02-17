@@ -43,6 +43,7 @@ export default async function HomePage({
 }) {
   const category = searchParams?.category;
   const placementIds = getPlacementIds();
+  const componentCategoryValues = ['Component', 'Components', 'component', 'components'];
 
   let query = supabaseServer
     .from('designs')
@@ -52,7 +53,11 @@ export default async function HomePage({
     .range(0, 11);
 
   if (category) {
-    query = query.eq('category', category);
+    if (componentCategoryValues.includes(category)) {
+      query = query.in('category', componentCategoryValues);
+    } else {
+      query = query.eq('category', category);
+    }
   } else {
     // When "All" is selected, exclude Components (show only complete page designs)
     query = query.not('category', 'in', '("Component","Components","component","components")');
@@ -111,6 +116,23 @@ export default async function HomePage({
                 {tag}
               </span>
             ))}
+          </div>
+          <div className="flex justify-center md:justify-start">
+            <a
+              href="https://www.producthunt.com/products/ui-syntax?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-ui-syntax"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="UI Syntax featured on Product Hunt"
+              className="inline-flex items-center rounded-full border border-gray-200 bg-white/90 px-4 py-2 shadow-sm transition hover:-translate-y-0.5 hover:border-gray-900"
+            >
+              <img
+                src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1079220&theme=light&t=1771312607018"
+                alt="UI Syntax featured on Product Hunt"
+                width="250"
+                height="54"
+                className="h-10 w-auto"
+              />
+            </a>
           </div>
         </section>
 

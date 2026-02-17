@@ -1,16 +1,11 @@
 #!/usr/bin/env python3
-"""Gemini + Supabase 디자인 자동 생성기 (최적화 버전 v2.2.2).
+"""Gemini + Supabase 디자인 자동 생성기 (최적화 버전 v2.3.1).
 
-- [v2.2.2 Fix] 타임아웃 에러(wait_for_function) 방어 로직 추가 및 캡처 안정성 강화
-- [v2.2 Fix] 프리뷰 깨짐(스타일 미적용/레이아웃 틀어짐/여백 과다) 안정화
-  1) set_content wait_until=load + Tailwind 주입/적용 대기
-  2) min-h-screen/h-screen 제거 로직을 DOM 전체로 확장
-  3) body flex 제거(레이아웃 부작용 방지) + capture-box mx-auto 정렬
-  4) capture-box 실제 높이 기반 viewport 자동 확장 후 element 캡처
-- [v2.2.1 Fix] Tailwind arbitrary class selector(.min-h-[100vh]) querySelectorAll SyntaxError 수정
-- React(JSX) 코드 동시 생성
-- 애드센스 승인을 위한 텍스트 설명(Features, Usage) 보강
-- 원본 STRUCTURES, STYLES, CATEGORIES 100% 보존
+- [v2.3.1 Fix] Supabase JSON Array 에러 방어 (colors 데이터를 무조건 list로 강제 변환)
+- [v2.3.0 Upgrade] 프리미엄 UI/UX 퀄리티 패치 (시니어 디자이너급 프롬프트, 고급 폰트 적용)
+- [v2.2.2 Fix] 타임아웃 에러 방어 및 캡처 안정성 강화
+- [v2.2 Fix] 프리뷰 깨짐 방지 및 타이트 캡처 로직 적용
+- React(JSX) 코드 동시 생성 및 애드센스 승인을 위한 텍스트 설명 보강
 """
 
 from __future__ import annotations
@@ -79,7 +74,10 @@ STYLES = [
     "Claymorphism Soft 3D", "Monochromatic Deep Sea Blue", "Acid Graphic Techno",
     "Solarized Eye-care Dark", "Japanese Zen Minimal", "Dotted Blueprint Grid",
     "Liquid Gradient Flow", "Grainy Retro Film", "Cyber-Security Matrix Green",
-    "Flat Illustration Pop", "Skeuomorphic Modern Leather", "High-Gloss Plastic Candy"
+    "Flat Illustration Pop", "Skeuomorphic Modern Leather", "High-Gloss Plastic Candy",
+    "Stripe-inspired Fintech Clean", "Linear App Dark Mode Elegance",
+    "Apple Premium Glassmorphism", "Vercel-style Developer Minimal",
+    "Notion-like Clean Typography", "Modern SaaS Dashboard Aesthetic"
 ]
 
 CATEGORIES = [
@@ -104,22 +102,23 @@ def clean_json_text(text: str) -> str:
 
 
 def build_prompt(category: str, structure: str, style: str) -> str:
-    """텍스트 비중을 높이고 React(JSX) 코드까지 요구하는 프롬프트"""
+    """프리미엄 UI/UX를 강제하는 시니어 디자이너 프롬프트"""
     return (
-        "Act as a senior UI engineer and expert visual designer. "
-        f"Create a modern '{category}' web design using the '{structure}' layout structure and '{style}' art direction. "
+        "Act as a world-class Senior UI/UX Designer and Frontend Engineer working at a top Silicon Valley agency (like Apple, Stripe, or Linear). "
+        f"Design a stunning, production-ready '{category}' component using the '{structure}' layout and '{style}' aesthetic. "
         "\n\n"
+        "CRITICAL DESIGN RULES (Must Follow):\n"
+        "1. Typography Mastery: Never use generic fonts. Use 'tracking-tight' for bold headings (font-extrabold or font-bold). Use 'text-gray-500' and 'font-medium' for readable subtext. Play with font sizes strategically (e.g., text-sm uppercase tracking-widest for kickers).\n"
+        "2. Premium Spacing (8pt Grid): Use generous whitespace. Use p-8, p-12, gap-8. Never cramp elements together.\n"
+        "3. Sophisticated Colors: NEVER use pure black (#000000). Use slate-900, zinc-900, or neutral-900 for dark text/backgrounds. Use soft off-whites (bg-gray-50, bg-zinc-50) for backgrounds.\n"
+        "4. Depth & Glassmorphism: Use subtle shadows (shadow-sm, shadow-xl) with very low opacity. Use 'backdrop-blur-md bg-white/70' for sticky headers or floating cards. Add delicate borders (border border-gray-200/50) to cards.\n"
+        "5. Micro-interactions: Include hover states for ALL clickable elements (hover:bg-gray-100, hover:shadow-md, transition-all duration-300).\n"
+        "6. Modern Accents: Use subtle gradients for primary buttons or hero text (bg-gradient-to-r, bg-clip-text, text-transparent).\n"
+        "\n"
         "Requirements:\n"
         "1. Output MUST be valid JSON only. Do not wrap in markdown.\n"
-        "2. JSON Keys:\n"
-        "   - 'title': Catchy, SEO-friendly title (3-6 words).\n"
-        "   - 'description': A detailed 2-3 sentence overview of the design intent and visual hierarchy.\n"
-        "   - 'features': An array of 3 bullet points explaining the key UI features.\n"
-        "   - 'usage': A short sentence on where this component is best used (e.g., 'Perfect for SaaS admin panels').\n"
-        "   - 'html_code': Single-file HTML5 with Tailwind CSS classes. Use semantic tags and clean spacing.\n"
-        "   - 'react_code': The exact same UI, but converted to a React functional component with `className` and self-closing tags.\n"
-        "   - 'colors': Array of 5 hex color codes used.\n"
-        "3. Images: Use reliable placeholder URLs (e.g., 'https://images.unsplash.com/photo-1498050108023-c5249f4df085') with descriptive alt text.\n"
+        "2. JSON Keys: 'title', 'description', 'features', 'usage', 'html_code', 'react_code', 'colors'.\n"
+        "3. Images: Use beautiful unsplash URLs. Include placeholder icons using basic SVG code if needed.\n"
         "4. The UI must be production-ready and fully responsive.\n"
         "5. CRITICAL LAYOUT RULE: Do NOT wrap the component in a `min-h-screen`, `h-screen`, or full-height container unless it is strictly a full dashboard layout. "
         "   The outermost element MUST shrink to fit its content tightly to prevent excessive vertical white space.\n"
@@ -144,12 +143,7 @@ def parse_gemini_json(response: Any) -> Dict[str, Any]:
 
 
 def wrap_html_if_needed(html: str) -> str:
-    """
-    프리뷰 캡처 안정화:
-    - body를 flex로 만들지 않음(레이아웃 부작용 방지)
-    - capture-box에 mx-auto로 가운데 정렬
-    - body 기본 margin/padding 제거
-    """
+    """고급 폰트(Inter)를 적용한 캡처 전용 래퍼"""
     if "<html" in html.lower():
         return html
 
@@ -160,9 +154,15 @@ def wrap_html_if_needed(html: str) -> str:
         "  <meta charset=\"UTF-8\" />\n"
         "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n"
         "  <script src=\"https://cdn.tailwindcss.com\"></script>\n"
+        "  <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n"
+        "  <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n"
+        "  <link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap\" rel=\"stylesheet\">\n"
+        "  <style>\n"
+        "    body { font-family: 'Inter', sans-serif; }\n"
+        "  </style>\n"
         "  <title>Preview</title>\n"
         "</head>\n"
-        "  <body class=\"bg-gray-50 text-gray-900 antialiased m-0 p-0\">\n"
+        "  <body class=\"bg-gray-50 text-slate-900 antialiased m-0 p-0\">\n"
         "    <div id=\"capture-box\" class=\"w-full max-w-[1400px] mx-auto flow-root\">\n"
         f"      {html}\n"
         "    </div>\n"
@@ -172,33 +172,21 @@ def wrap_html_if_needed(html: str) -> str:
 
 
 async def capture_screenshot(browser: Browser, html: str) -> bytes:
-    """
-    프리뷰 캡처 안정화 v2.2.2:
-    - 네트워크 지연(Timeout) 에러 방어 로직 (try-except)
-    - Tailwind 주입/적용 강제 대기(3초)로 무조건 렌더링되게 함
-    - capture-box 내부 전체에서 min-h-screen/h-screen/100vh 계열 강제 제거
-    - capture-box 실 높이를 기반으로 viewport 확장
-    - element screenshot (capture-box)로 타이트 캡처
-    """
     page = await browser.new_page(viewport={"width": 1400, "height": 900})
 
     try:
-        # 1. HTML 로드 시도 (최대 15초, 실패해도 무시하고 진행)
         try:
             await page.set_content(html, wait_until="load", timeout=15000)
         except Exception as load_err:
             print(f"[warning] 페이지 로딩 지연 (무시하고 캡처 진행): {load_err}")
 
-        # 2. Tailwind CSS와 외부 이미지가 렌더링될 수 있도록 3초 강제 대기
         await page.wait_for_timeout(3000)
 
-        # 3. capture-box 내부 전체에서 min-h-screen/h-screen/100vh 계열 제거
         await page.evaluate("""
             (() => {
               const root = document.getElementById('capture-box') || document.body;
               if (!root) return;
 
-              // Tailwind arbitrary classes must be escaped in CSS selectors
               const selector = [
                 '.min-h-screen',
                 '.h-screen',
@@ -206,7 +194,6 @@ async def capture_screenshot(browser: Browser, html: str) -> bytes:
                 '.h-\\\\[100vh\\\\]'
               ].join(', ');
 
-              // 1) 클래스 기반 제거
               const targets = root.querySelectorAll(selector);
               targets.forEach(el => {
                 el.classList.remove('min-h-screen', 'h-screen', 'min-h-[100vh]', 'h-[100vh]');
@@ -214,7 +201,6 @@ async def capture_screenshot(browser: Browser, html: str) -> bytes:
                 el.style.height = 'auto';
               });
 
-              // 2) 인라인 스타일에 100vh가 박힌 케이스 방어
               const all = root.querySelectorAll('*');
               all.forEach(el => {
                 const mh = (el.style && el.style.minHeight) ? el.style.minHeight : '';
@@ -223,7 +209,6 @@ async def capture_screenshot(browser: Browser, html: str) -> bytes:
                 if (h.includes('100vh')) el.style.height = 'auto';
               });
 
-              // 3) html/body 기본 여백 제거
               document.documentElement.style.margin = '0';
               document.documentElement.style.padding = '0';
               document.body.style.margin = '0';
@@ -233,7 +218,6 @@ async def capture_screenshot(browser: Browser, html: str) -> bytes:
 
         await page.wait_for_timeout(200)
 
-        # 4. capture-box 실 높이 측정 → viewport 확장(긴 페이지에서 레이아웃 깨짐 방지)
         dims = await page.evaluate("""
             (() => {
               const el = document.getElementById('capture-box') || document.body;
@@ -247,7 +231,6 @@ async def capture_screenshot(browser: Browser, html: str) -> bytes:
         await page.set_viewport_size({"width": 1400, "height": height})
         await page.wait_for_timeout(200)
 
-        # 5. 캡처 대상 지정 후 촬영
         target = await page.query_selector("#capture-box") or await page.query_selector("body")
         screenshot = await target.screenshot(type="png")
 
@@ -309,6 +292,16 @@ async def generate_single_design(browser: Browser, max_attempts: int = 3) -> boo
             react_code = payload.get("react_code", "")
             wrapped_html = wrap_html_if_needed(html_code)
 
+            # [방어 로직] AI가 던진 colors 데이터를 무조건 List로 강제 변환
+            raw_colors = payload.get("colors", [])
+            safe_colors = []
+            if isinstance(raw_colors, list):
+                safe_colors = [str(c) for c in raw_colors]
+            elif isinstance(raw_colors, dict):
+                safe_colors = [str(v) for v in raw_colors.values()]
+            elif isinstance(raw_colors, str):
+                safe_colors = [raw_colors]
+
             screenshot = await capture_screenshot(browser, wrapped_html)
             image_url = upload_image(screenshot, category)
             slug = ensure_unique_slug(payload.get("title", "Untitled Design"))
@@ -324,7 +317,7 @@ async def generate_single_design(browser: Browser, max_attempts: int = 3) -> boo
                 "code": html_code,
                 "code_react": react_code,
                 "prompt": combo_key,
-                "colors": payload.get("colors", []),
+                "colors": safe_colors,  # 안전하게 정제된 데이터 삽입
                 "slug": slug,
                 "status": "published",
                 "sns_promoted": False,
