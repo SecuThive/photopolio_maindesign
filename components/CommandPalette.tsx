@@ -9,6 +9,7 @@ const navigationItems = [
   { label: "Home", href: "/", description: "Return to the gallery home" },
   { label: "About", href: "/about", description: "Learn more about Base Syntax" },
   { label: "Contact", href: "/contact", description: "Get in touch with the team" },
+  { label: "Request Design", href: "/request-design", description: "Submit a new design request" },
   { label: "Privacy Policy", href: "/privacy-policy", description: "Review data practices" },
 ];
 

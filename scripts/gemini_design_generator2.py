@@ -18,7 +18,7 @@ import random
 import re
 import uuid
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from dotenv import load_dotenv
 from google import genai
@@ -123,6 +123,32 @@ def build_prompt(category: str, structure: str, style: str) -> str:
         "5. CRITICAL LAYOUT RULE: Do NOT wrap the component in a `min-h-screen`, `h-screen`, or full-height container unless it is strictly a full dashboard layout. "
         "   The outermost element MUST shrink to fit its content tightly to prevent excessive vertical white space.\n"
     )
+
+
+def build_prompt_from_request(
+    category: str,
+    structure: str,
+    style: str,
+    request_title: str,
+    request_description: str,
+    target_audience: Optional[str] = None,
+    reference_notes: Optional[str] = None,
+) -> str:
+    base_prompt = build_prompt(category, structure, style)
+    request_block = [
+        "\n",
+        "Request Context (Highest Priority):\n",
+        f"- Requested design title: {request_title}\n",
+        f"- Requested details: {request_description}\n",
+    ]
+    if target_audience:
+        request_block.append(f"- Target audience: {target_audience}\n")
+    if reference_notes:
+        request_block.append(f"- References / notes: {reference_notes}\n")
+    request_block.append(
+        "- IMPORTANT: Follow the request context above while preserving production-ready quality.\n"
+    )
+    return base_prompt + "".join(request_block)
 
 
 def parse_gemini_json(response: Any) -> Dict[str, Any]:
@@ -268,15 +294,81 @@ def ensure_unique_slug(base_title: str) -> str:
         suffix += 1
 
 
-async def generate_single_design(browser: Browser, max_attempts: int = 3) -> bool:
+def normalize_request_category(value: Optional[str]) -> str:
+    if not value:
+        return random.choice(CATEGORIES)
+
+    normalized = value.strip().lower()
+    mapping = {
+        "landing page": "Landing Page",
+        "dashboard": "Dashboard",
+        "e-commerce": "E-commerce",
+        "ecommerce": "E-commerce",
+        "portfolio": "Portfolio",
+        "blog": "Blog",
+        "component": "Component",
+        "components": "Component",
+    }
+    return mapping.get(normalized, "Landing Page")
+
+
+def fetch_next_pending_request() -> Optional[Dict[str, Any]]:
+    try:
+        response = (
+            supabase.table("design_requests")
+            .select("id,title,description,category,target_audience,reference_notes,vote_count")
+            .eq("status", "pending")
+            .order("vote_count", desc=True)
+            .order("created_at", desc=False)
+            .limit(1)
+            .execute()
+        )
+        rows = response.data or []
+        if not rows:
+            return None
+        return rows[0]
+    except Exception as exc:
+        print(f"[warning] 신청 테이블 조회 실패 (랜덤 모드로 계속): {exc}")
+        return None
+
+
+def update_request_status(request_id: str, status: str, linked_design_id: Optional[str] = None) -> None:
+    payload: Dict[str, Any] = {"status": status}
+    if linked_design_id:
+        payload["linked_design_id"] = linked_design_id
+    (
+        supabase.table("design_requests")
+        .update(payload)
+        .eq("id", request_id)
+        .execute()
+    )
+
+
+async def generate_single_design(
+    browser: Browser,
+    max_attempts: int = 3,
+    source_request: Optional[Dict[str, Any]] = None,
+) -> tuple[bool, Optional[str]]:
     for attempt in range(1, max_attempts + 1):
-        category = random.choice(CATEGORIES)
+        category = normalize_request_category(source_request.get("category")) if source_request else random.choice(CATEGORIES)
         structure = random.choice(STRUCTURES)
         style = random.choice(STYLES)
         combo_key = f"{structure}_{style}".lower().replace(" ", "_")
 
-        prompt = build_prompt(category, structure, style)
-        print(f"[request] {category} | {structure} | {style}")
+        if source_request:
+            prompt = build_prompt_from_request(
+                category=category,
+                structure=structure,
+                style=style,
+                request_title=str(source_request.get("title", "Untitled Request")),
+                request_description=str(source_request.get("description", "")),
+                target_audience=source_request.get("target_audience"),
+                reference_notes=source_request.get("reference_notes"),
+            )
+            print(f"[request] 신청기반 | {category} | {structure} | {style} | {source_request.get('title')}")
+        else:
+            prompt = build_prompt(category, structure, style)
+            print(f"[request] 랜덤 | {category} | {structure} | {style}")
 
         try:
             response = await asyncio.to_thread(
@@ -305,9 +397,10 @@ async def generate_single_design(browser: Browser, max_attempts: int = 3) -> boo
             screenshot = await capture_screenshot(browser, wrapped_html)
             image_url = upload_image(screenshot, category)
             slug = ensure_unique_slug(payload.get("title", "Untitled Design"))
+            design_id = str(uuid.uuid4())
 
             record = {
-                "id": str(uuid.uuid4()),
+                "id": design_id,
                 "title": payload.get("title", "Untitled Design"),
                 "description": payload.get("description", ""),
                 "features": payload.get("features", []),
@@ -327,29 +420,56 @@ async def generate_single_design(browser: Browser, max_attempts: int = 3) -> boo
 
             supabase.table("designs").insert(record).execute()
             print(f"[success] 저장 완료: {record['title']} ({slug})")
-            return True
+            return True, design_id
 
         except Exception as exc:
             message = str(exc)
             if "429" in message or "quota" in message.lower():
                 print("[error] Gemini API 할당량 초과. 잠시 대기하거나 중단합니다.")
-                return False
+                return False, None
             print(f"[retry] 에러 발생 (시도 {attempt}/{max_attempts}): {exc}")
             await asyncio.sleep(2)
 
-    return False
+    return False, None
 
 
-async def run_batch(count: int) -> None:
+async def run_batch(count: int, use_requests: bool, requests_only: bool) -> None:
     successes = 0
-    print(f"[system] 디자인 {count}개 생성을 시작합니다...")
+    mode = "신청 우선" if use_requests else "랜덤"
+    print(f"[system] 디자인 {count}개 생성을 시작합니다... (모드: {mode})")
 
     async with async_playwright() as p:
         browser = await p.chromium.launch()
         for i in range(count):
             print(f"\n--- 작업 진행 ({i+1}/{count}) ---")
-            if await generate_single_design(browser):
+            source_request: Optional[Dict[str, Any]] = None
+
+            if use_requests:
+                source_request = fetch_next_pending_request()
+                if source_request:
+                    try:
+                        update_request_status(source_request["id"], "in_progress")
+                    except Exception as exc:
+                        print(f"[warning] 신청 상태 업데이트 실패(in_progress): {exc}")
+                elif requests_only:
+                    print("[info] 처리할 pending 신청이 없습니다. 요청 모드를 종료합니다.")
+                    break
+
+            ok, design_id = await generate_single_design(browser, source_request=source_request)
+            if ok:
                 successes += 1
+                if source_request and design_id:
+                    try:
+                        update_request_status(source_request["id"], "completed", linked_design_id=design_id)
+                        print(f"[success] 신청 완료 처리: {source_request['id']} -> {design_id}")
+                    except Exception as exc:
+                        print(f"[warning] 신청 완료 업데이트 실패: {exc}")
+            elif source_request:
+                try:
+                    update_request_status(source_request["id"], "pending")
+                    print(f"[info] 신청 재대기 처리: {source_request['id']}")
+                except Exception as exc:
+                    print(f"[warning] 신청 재대기 업데이트 실패: {exc}")
             await asyncio.sleep(3)
         await browser.close()
 
@@ -359,12 +479,28 @@ async def run_batch(count: int) -> None:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Gemini 기반 디자인 생성기")
     parser.add_argument("--count", type=int, default=3, help="생성할 디자인 수 (기본값: 3)")
+    parser.add_argument(
+        "--use-requests",
+        action="store_true",
+        help="design_requests의 pending 요청을 우선 처리합니다.",
+    )
+    parser.add_argument(
+        "--requests-only",
+        action="store_true",
+        help="pending 요청만 처리하고 없으면 종료합니다. (use-requests 포함)",
+    )
     return parser.parse_args()
 
 
 if __name__ == "__main__":
     args = parse_args()
     try:
-        asyncio.run(run_batch(args.count))
+        asyncio.run(
+            run_batch(
+                args.count,
+                use_requests=(args.use_requests or args.requests_only),
+                requests_only=args.requests_only,
+            )
+        )
     except KeyboardInterrupt:
         print("\n[stop] 사용자에 의해 중단되었습니다.")
