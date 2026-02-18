@@ -1,4 +1,1 @@
-# ads.txt — update this file with the exact entries provided by each ad network
-# Format: domain, publisher_id, relationship, certification_authority_id
 google.com, pub-2091277631590195, DIRECT, f08c47fec0942fa0
-
