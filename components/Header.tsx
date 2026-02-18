@@ -42,6 +42,9 @@ export default function Header() {
             <Link href="/blog" className="hover:text-white transition-colors">
               Blog
             </Link>
+            <Link href="/changelog" className="hover:text-white transition-colors">
+              Changelog
+            </Link>
             <Link href="/request-design" className="hover:text-white transition-colors">
               Request
             </Link>
@@ -149,6 +152,13 @@ export default function Header() {
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Blog
+              </Link>
+              <Link 
+                href="/changelog" 
+                className="block text-gray-300 hover:text-white hover:bg-gray-900 transition-colors py-3 px-4 rounded text-base"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Changelog
               </Link>
               <Link 
                 href="/request-design" 

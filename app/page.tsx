@@ -11,6 +11,7 @@ import { getPlacementIds } from '@/lib/ezoic';
 import { withDesignSlugs } from '@/lib/slug';
 import { createPageMetadata, SITE_URL } from '@/lib/seo';
 import { buildWebSiteSearchSchema, buildOrganizationSchema } from '@/lib/richSnippets';
+import { getRecentChangelog } from '@/lib/changelog';
 
 export const revalidate = 0;
 
@@ -44,6 +45,7 @@ export default async function HomePage({
   const category = searchParams?.category;
   const placementIds = getPlacementIds();
   const componentCategoryValues = ['Component', 'Components', 'component', 'components'];
+  const recentChangelog = getRecentChangelog(3);
 
   let query = supabaseServer
     .from('designs')
@@ -152,6 +154,38 @@ export default async function HomePage({
             <li>Dashboard and admin templates that prioritize clarity, density, and fast scanning.</li>
             <li>Component-focused references for cards, navs, and CTA sections you can reuse.</li>
           </ul>
+        </section>
+
+        <section className="mb-12 rounded-3xl border border-gray-200 bg-white/90 p-6 sm:p-8 shadow-sm">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="text-xs uppercase tracking-[0.35em] text-gray-500">Product Updates</p>
+              <h2 className="mt-2 text-3xl font-semibold text-gray-900">Latest changes shipped</h2>
+              <p className="mt-3 text-sm text-gray-600 max-w-2xl">
+                Follow feature launches and improvements in the public changelog.
+              </p>
+            </div>
+            <Link
+              href="/changelog"
+              className="text-xs uppercase tracking-[0.3em] text-gray-600 hover:text-gray-900"
+            >
+              View full changelog
+            </Link>
+          </div>
+          <div className="mt-6 grid gap-4 md:grid-cols-3">
+            {recentChangelog.map((item) => (
+              <article key={`${item.date}-${item.title}`} className="rounded-2xl border border-gray-200 bg-white p-5">
+                <div className="flex flex-wrap items-center gap-2">
+                  <time className="text-xs uppercase tracking-[0.25em] text-gray-500">{item.date}</time>
+                  <span className="rounded-full border border-gray-300 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-gray-600">
+                    {item.type}
+                  </span>
+                </div>
+                <h3 className="mt-3 text-lg font-semibold text-gray-900">{item.title}</h3>
+                <p className="mt-2 text-sm text-gray-600 leading-relaxed">{item.summary}</p>
+              </article>
+            ))}
+          </div>
         </section>
 
         <section className="mb-12">

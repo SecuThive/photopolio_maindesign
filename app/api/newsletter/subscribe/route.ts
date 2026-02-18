@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
-import { resend, isResendEnabled } from '@/lib/resend';
+import { resend, isResendEnabled, mailFrom, mailReplyTo } from '@/lib/resend';
 import { WelcomeEmail } from '@/emails/WelcomeEmail';
 
 export async function POST(request: NextRequest) {
@@ -59,8 +59,9 @@ export async function POST(request: NextRequest) {
     if (isResendEnabled && resend) {
       try {
         await resend.emails.send({
-          from: 'UI Syntax <newsletter@uisyntax.com>',
+          from: mailFrom,
           to: email.toLowerCase().trim(),
+          replyTo: mailReplyTo,
           subject: 'Welcome to UI Syntax - Your Weekly AI Design Digest',
           react: WelcomeEmail({ email: email.toLowerCase().trim() }),
         });

@@ -10,7 +10,7 @@ type DesignRow = Pick<Database['public']['Tables']['designs']['Row'], 'id' | 'ti
 type BlogRow = Pick<Database['public']['Tables']['posts']['Row'], 'slug' | 'published_at'>
 
 const COLLECTION_SLUGS = ['best-saas-landing-pages', 'minimalist-dashboards']
-const STATIC_PATHS = ['/', '/blog', '/about', '/faq', '/contact', '/privacy-policy', '/terms', '/playbooks', '/collections', '/code-match', '/request-design']
+const STATIC_PATHS = ['/', '/blog', '/about', '/faq', '/contact', '/privacy-policy', '/terms', '/playbooks', '/collections', '/code-match', '/request-design', '/changelog']
 const CHANGE_FREQUENCY_OVERRIDES: Record<string, MetadataRoute.Sitemap[number]['changeFrequency']> = {
   '/blog': 'weekly',
   '/playbooks': 'weekly',

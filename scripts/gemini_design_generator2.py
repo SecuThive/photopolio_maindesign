@@ -16,6 +16,8 @@ import json
 import os
 import random
 import re
+import urllib.error
+import urllib.request
 import uuid
 from datetime import datetime
 from typing import Any, Dict, Optional
@@ -34,6 +36,8 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-pro-latest")
 STORAGE_BUCKET = os.getenv("SUPABASE_DESIGNS_BUCKET", "designs-bucket")
 STORAGE_FOLDER = os.getenv("SUPABASE_DESIGNS_FOLDER", "designs")
+REQUEST_NOTIFY_BASE_URL = os.getenv("REQUEST_NOTIFY_BASE_URL", "http://localhost:3000").rstrip("/")
+REQUEST_NOTIFY_SECRET = os.getenv("REQUEST_NOTIFY_SECRET", "")
 
 if not all([SUPABASE_URL, SUPABASE_KEY, GEMINI_API_KEY]):
     raise RuntimeError("SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, GEMINI_API_KEY가 필요합니다.")
@@ -344,6 +348,36 @@ def update_request_status(request_id: str, status: str, linked_design_id: Option
     )
 
 
+def notify_request_completion(request_id: str, design_id: str) -> None:
+    if not REQUEST_NOTIFY_SECRET:
+        print("[info] REQUEST_NOTIFY_SECRET 미설정: 메일 알림 호출을 건너뜁니다.")
+        return
+
+    endpoint = f"{REQUEST_NOTIFY_BASE_URL}/api/design-requests/notify"
+    payload = json.dumps({"requestId": request_id, "designId": design_id}).encode("utf-8")
+
+    req = urllib.request.Request(
+        endpoint,
+        data=payload,
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {REQUEST_NOTIFY_SECRET}",
+        },
+        method="POST",
+    )
+
+    try:
+        with urllib.request.urlopen(req, timeout=12) as response:
+            status_code = response.getcode()
+            body = response.read().decode("utf-8")
+            print(f"[notify] 알림 요청 완료 (status={status_code}) {body[:180]}")
+    except urllib.error.HTTPError as exc:
+        detail = exc.read().decode("utf-8", errors="ignore") if exc.fp else ""
+        print(f"[warning] 알림 API HTTP 에러: {exc.code} {detail[:180]}")
+    except Exception as exc:
+        print(f"[warning] 알림 API 호출 실패: {exc}")
+
+
 async def generate_single_design(
     browser: Browser,
     max_attempts: int = 3,
@@ -462,6 +496,7 @@ async def run_batch(count: int, use_requests: bool, requests_only: bool) -> None
                     try:
                         update_request_status(source_request["id"], "completed", linked_design_id=design_id)
                         print(f"[success] 신청 완료 처리: {source_request['id']} -> {design_id}")
+                        notify_request_completion(source_request["id"], design_id)
                     except Exception as exc:
                         print(f"[warning] 신청 완료 업데이트 실패: {exc}")
             elif source_request:

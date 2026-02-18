@@ -9,6 +9,7 @@ create table if not exists design_requests (
   reference_notes text,
   requester_email text,
   vote_count integer not null default 0,
+  notified_at timestamptz,
   status text not null default 'pending' check (status in ('pending', 'in_progress', 'completed', 'rejected')),
   linked_design_id uuid references designs(id) on delete set null,
   ip_address text,
@@ -19,6 +20,9 @@ create table if not exists design_requests (
 
 alter table design_requests
   add column if not exists vote_count integer not null default 0;
+
+alter table design_requests
+  add column if not exists notified_at timestamptz;
 
 create table if not exists design_request_votes (
   id uuid primary key default gen_random_uuid(),

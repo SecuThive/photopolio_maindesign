@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
-import { resend, isResendEnabled } from '@/lib/resend';
+import { resend, isResendEnabled, mailFrom, mailReplyTo } from '@/lib/resend';
 import { WeeklyDigestEmail } from '@/emails/WeeklyDigestEmail';
 
 // Vercel Cron Job - runs every Monday at 10:00 AM UTC
@@ -91,8 +91,9 @@ export async function GET(request: NextRequest) {
       const emailPromises = batch.map(async (subscriber: { email: string }) => {
         try {
           await resendClient.emails.send({
-            from: 'UI Syntax <newsletter@uisyntax.com>',
+            from: mailFrom,
             to: subscriber.email,
+            replyTo: mailReplyTo,
             subject: `✨ This Week's AI Design Inspiration - UI Syntax`,
             react: WeeklyDigestEmail({ designs: featuredDesigns }),
           });
