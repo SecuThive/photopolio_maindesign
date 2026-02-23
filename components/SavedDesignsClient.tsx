@@ -1,5 +1,6 @@
 "use client";
 
+import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import DesignCard from '@/components/DesignCard';
 import { supabase } from '@/lib/supabase/client';
@@ -80,16 +81,43 @@ export default function SavedDesignsClient() {
 
   if (loading) {
     return (
-      <div className="rounded-3xl border border-gray-200 bg-white/90 p-8 text-sm text-gray-600">
-        Loading saved designs…
+      <div className="rounded-3xl border border-gray-200 bg-white/90 p-8 space-y-4">
+        <p className="text-xs uppercase tracking-[0.3em] text-gray-500">Saved Queue</p>
+        <p className="text-sm text-gray-700 leading-relaxed">
+          Saved items are read from your browser storage. If this is your first visit, start by browsing the gallery
+          and saving references you want to review later.
+        </p>
+        <div className="flex flex-wrap gap-3">
+          <Link
+            href="/"
+            className="inline-flex items-center rounded-full border border-gray-900 bg-gray-900 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.25em] text-white transition hover:bg-black"
+          >
+            Browse Designs
+          </Link>
+          <Link
+            href="/collections"
+            className="inline-flex items-center rounded-full border border-gray-300 bg-white px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.25em] text-gray-700 transition hover:border-gray-900 hover:text-gray-900"
+          >
+            Explore Collections
+          </Link>
+        </div>
       </div>
     );
   }
 
   if (emptyState) {
     return (
-      <div className="rounded-3xl border border-gray-200 bg-white/90 p-8 text-sm text-gray-600">
-        You have not saved any designs yet. Open a design and click Save to build your shortlist.
+      <div className="rounded-3xl border border-dashed border-gray-300 bg-white/90 p-8 space-y-4">
+        <p className="text-sm text-gray-700 leading-relaxed">
+          You have not saved any designs yet. Open any design and use Save to build a shortlist for reviews and
+          handoffs.
+        </p>
+        <Link
+          href="/"
+          className="inline-flex items-center rounded-full border border-gray-900 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.25em] text-gray-900 transition hover:bg-gray-900 hover:text-white"
+        >
+          Start Browsing
+        </Link>
       </div>
     );
   }

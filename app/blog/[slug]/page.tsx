@@ -16,12 +16,60 @@ type PageProps = {
   params: { slug: string };
 };
 
+const MIN_INDEXABLE_CHARACTERS = 800;
+const UI_UX_CONTEXT_PATTERN =
+  /\b(ui|ux|user experience|interface|component|design system|layout|accessibility|interaction|frontend|react|css|tailwind|usability|navigation|cta|conversion|flow)\b/i;
+
+type BlogQualityInput = {
+  title: string;
+  excerpt?: string | null;
+  content: string;
+  category?: string | null;
+  tags?: string[] | null;
+};
+
+function toPlainText(markdown: string): string {
+  return markdown
+    .replace(/```[\s\S]*?```/g, ' ')
+    .replace(/`[^`]*`/g, ' ')
+    .replace(/!\[[^\]]*\]\([^)]+\)/g, ' ')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/^#+\s+/gm, '')
+    .replace(/[>*_~\-]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function evaluateBlogQuality(post: BlogQualityInput) {
+  const plainContent = toPlainText(post.content ?? '');
+  const contextProbe = [
+    post.title,
+    post.excerpt ?? '',
+    post.category ?? '',
+    ...(post.tags ?? []),
+    plainContent,
+  ].join(' ');
+  const hasUiUxContext = UI_UX_CONTEXT_PATTERN.test(contextProbe);
+  const plainTextLength = plainContent.length;
+  const isThin = plainTextLength < MIN_INDEXABLE_CHARACTERS;
+
+  return {
+    plainTextLength,
+    hasUiUxContext,
+    isThin,
+    shouldNoindex: isThin || !hasUiUxContext,
+  };
+}
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  type BlogMetaRow = Pick<Database['public']['Tables']['posts']['Row'], 'slug' | 'title' | 'excerpt' | 'cover_image_url' | 'status'>;
+  type BlogMetaRow = Pick<
+    Database['public']['Tables']['posts']['Row'],
+    'slug' | 'title' | 'excerpt' | 'cover_image_url' | 'status' | 'content' | 'category' | 'tags'
+  >;
 
   const { data: post } = (await supabaseServer
     .from('posts')
-    .select('slug, title, excerpt, cover_image_url, status')
+    .select('slug, title, excerpt, cover_image_url, status, content, category, tags')
     .eq('slug', params.slug)
     .eq('status', 'published')
     .maybeSingle()) as { data: BlogMetaRow | null };
@@ -33,12 +81,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
   }
 
+  const quality = evaluateBlogQuality(post);
+
   return createPageMetadata({
     title: post.title,
     description: post.excerpt || 'UI Syntax journal entry.',
     path: `/blog/${post.slug}`,
     openGraphType: 'article',
     image: post.cover_image_url,
+    robots: quality.shouldNoindex
+      ? { index: false, follow: true }
+      : { index: true, follow: true },
   });
 }
 
@@ -63,6 +116,7 @@ export default async function BlogPostPage({ params }: PageProps) {
   }
 
   const readingTime = calculateReadingTime(post.content);
+  const quality = evaluateBlogQuality(post);
   const blogPostingSchema = buildBlogPostingSchema(post);
 
   return (
@@ -145,6 +199,25 @@ export default async function BlogPostPage({ params }: PageProps) {
           <div className="mt-12 grid gap-12 lg:grid-cols-[minmax(0,1fr)_240px]">
             <article className="blog-body rounded-3xl border border-gray-200 bg-white/90 px-8 py-10 shadow-[0_20px_50px_rgba(10,10,10,0.08)]">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>{post.content}</ReactMarkdown>
+              <section className="mt-10 rounded-2xl border border-gray-200 bg-gray-50/80 p-6">
+                <p className="text-xs uppercase tracking-[0.3em] text-gray-500">UI/UX Connection</p>
+                <p className="mt-3 text-sm text-gray-700 leading-relaxed">
+                  This article is most useful when mapped to a concrete interface decision: what the user sees first,
+                  which action is primary, and how the layout reduces friction for that action. Translate the guidance
+                  into one screen-level objective, then verify it with accessibility checks and interaction clarity.
+                </p>
+                <p className="mt-3 text-sm text-gray-700 leading-relaxed">
+                  Recommended review lens: tie every section back to hierarchy, readability, and implementation
+                  feasibility in React/CSS systems. If a claim cannot be connected to a component, state transition,
+                  or measurable UX outcome, treat it as editorial context and not production guidance.
+                </p>
+                {quality.shouldNoindex && (
+                  <p className="mt-3 text-xs uppercase tracking-[0.2em] text-amber-700">
+                    Editorial review mode: this post is excluded from indexing until content depth and UI/UX context
+                    meet publication thresholds.
+                  </p>
+                )}
+              </section>
             </article>
 
             <aside className="hidden lg:block">

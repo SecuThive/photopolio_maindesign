@@ -148,12 +148,41 @@ export default function DesignRequestBoard() {
         <h2 className="mt-2 text-2xl font-semibold text-gray-900">Top requested designs</h2>
       </div>
 
-      {loading && <div className="rounded-2xl border border-gray-200 bg-white p-6 text-sm text-gray-500">Loading requests...</div>}
+      {loading && (
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 space-y-4">
+          <p className="text-sm text-gray-700 leading-relaxed">
+            The live request queue appears after hydration. In the meantime, submit your request above with project
+            context, target audience, and required constraints.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href="#request-form"
+              className="inline-flex items-center rounded-full border border-gray-900 bg-gray-900 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.25em] text-white transition hover:bg-black"
+            >
+              Submit Request
+            </Link>
+            <Link
+              href="/collections"
+              className="inline-flex items-center rounded-full border border-gray-300 bg-white px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.25em] text-gray-700 transition hover:border-gray-900 hover:text-gray-900"
+            >
+              View Examples
+            </Link>
+          </div>
+        </div>
+      )}
       {error && <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-sm text-red-700">{error}</div>}
 
       {!loading && !error && items.length === 0 && (
-        <div className="rounded-2xl border border-dashed border-gray-300 bg-white p-6 text-sm text-gray-500">
-          No requests yet. Submit the first one.
+        <div className="rounded-2xl border border-dashed border-gray-300 bg-white p-6 space-y-4">
+          <p className="text-sm text-gray-700">
+            No requests are in the queue yet. Start with a focused brief so other builders can vote it up.
+          </p>
+          <Link
+            href="#request-form"
+            className="inline-flex items-center rounded-full border border-gray-900 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.25em] text-gray-900 transition hover:bg-gray-900 hover:text-white"
+          >
+            Add First Request
+          </Link>
         </div>
       )}
 

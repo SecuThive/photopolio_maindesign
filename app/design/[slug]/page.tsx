@@ -10,6 +10,7 @@ import LazyRender from '@/components/LazyRender';
 import ViewCountBadge from '@/components/ViewCountBadge';
 import GrowthSection from '@/components/GrowthSection';
 import DesignQuickActions from '@/components/DesignQuickActions';
+import DesignEditorialSection from '@/components/DesignEditorialSection';
 import { supabaseServer } from '@/lib/supabase/server';
 import { extractDesignIdFromSlug, withDesignSlug, withDesignSlugs } from '@/lib/slug';
 import { Design, DesignWithSlug } from '@/types/database';
@@ -302,6 +303,122 @@ function parseNoteContent(note?: string | null): string[] {
   return segments;
 }
 
+type UnknownRecord = Record<string, unknown>;
+
+const FEATURE_TEXT_KEYS = ['title', 'name', 'label', 'text', 'description', 'summary', 'value'] as const;
+
+function categoryFeatureFallback(category?: string | null): string[] {
+  const normalized = (category || '').toLowerCase();
+  if (normalized.includes('landing')) {
+    return [
+      'Lead with one primary value statement and one dominant CTA.',
+      'Align proof sections with objections users usually have before signup.',
+      'Keep narrative order consistent: promise, validation, then action.',
+      'Use visual hierarchy to reinforce conversion intent at each fold.',
+      'Treat form friction as a core UX metric, not a copy afterthought.',
+    ];
+  }
+  if (normalized.includes('dashboard') || normalized.includes('admin')) {
+    return [
+      'Prioritize key metrics by decision urgency, not by data availability.',
+      'Keep filters persistent and close to the widgets they affect.',
+      'Use clear status language with non-color cues for critical states.',
+      'Maintain table scanability with consistent column rhythm and density.',
+      'Design empty and loading states to preserve operational context.',
+    ];
+  }
+  if (normalized.includes('commerce') || normalized.includes('shop') || normalized.includes('checkout')) {
+    return [
+      'Keep product context, pricing, and purchase actions in a single flow.',
+      'Reduce ambiguity around shipping, returns, and payment timing.',
+      'Use trust messaging next to decision-heavy sections.',
+      'Minimize checkout distractions that compete with completion intent.',
+      'Support quick comparison without forcing page-level context switching.',
+    ];
+  }
+  if (normalized.includes('portfolio')) {
+    return [
+      'Present work with clear context, role, and measurable outcomes.',
+      'Use project structure that reveals process, not only final visuals.',
+      'Keep navigation and section labels straightforward for hiring teams.',
+      'Highlight specialization so fit can be assessed quickly.',
+      'Place contact or collaboration actions near credibility signals.',
+    ];
+  }
+  if (normalized.includes('blog') || normalized.includes('editorial')) {
+    return [
+      'Preserve readability with stable type rhythm and line length.',
+      'Use predictable heading structure for fast scanning.',
+      'Place related links where users naturally need deeper context.',
+      'Balance text density with whitespace for long-form reading.',
+      'Keep visual accents subordinate to content hierarchy.',
+    ];
+  }
+  if (normalized.includes('component')) {
+    return [
+      'Define component responsibilities before adding variants.',
+      'Keep APIs concise and aligned with user intent.',
+      'Document state behavior for loading, empty, and error moments.',
+      'Favor composition patterns that scale across features.',
+      'Use design tokens so style changes stay consistent and reversible.',
+    ];
+  }
+  return [
+    'Map each section to one user intent and one measurable outcome.',
+    'Keep action hierarchy consistent from top to bottom.',
+    'Use supporting content to remove friction before key decisions.',
+    'Preserve semantic structure while iterating on visual style.',
+    'Review accessibility and performance constraints early in implementation.',
+  ];
+}
+
+function collectFeatureText(value: unknown): string[] {
+  if (typeof value === 'string') {
+    const text = value.replace(/\s+/g, ' ').trim();
+    return text ? [text] : [];
+  }
+
+  if (Array.isArray(value)) {
+    return value.flatMap((item) => collectFeatureText(item));
+  }
+
+  if (value && typeof value === 'object') {
+    const record = value as UnknownRecord;
+    const collected: string[] = [];
+    for (const key of FEATURE_TEXT_KEYS) {
+      const candidate = record[key];
+      if (typeof candidate === 'string') {
+        const text = candidate.replace(/\s+/g, ' ').trim();
+        if (text) {
+          collected.push(text);
+        }
+      }
+    }
+    return collected;
+  }
+
+  return [];
+}
+
+function normalizeFeatureList(rawFeatures: unknown, category?: string | null): string[] {
+  const values = Array.isArray(rawFeatures)
+    ? rawFeatures
+    : rawFeatures
+      ? [rawFeatures]
+      : [];
+
+  const extracted = values
+    .flatMap((item) => collectFeatureText(item))
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+  const unique = Array.from(new Set(extracted.map((item) => item.toLowerCase())))
+    .map((lower) => extracted.find((item) => item.toLowerCase() === lower) as string)
+    .slice(0, 6);
+
+  return unique.length > 0 ? unique : categoryFeatureFallback(category);
+}
+
 export default async function DesignDetailPage({ params }: PageProps) {
   const design = await fetchDesignBySlug(params.slug);
 
@@ -354,6 +471,10 @@ export default async function DesignDetailPage({ params }: PageProps) {
   const initialViewCount = currentDesign.views ?? 0;
   const descriptionBlocks = parseDescriptionBlocks(currentDesign.description);
   const heroDescription = getHeroDescription(descriptionBlocks, currentDesign.description);
+  const enableAdsenseContentBoost = process.env.ENABLE_ADSENSE_CONTENT_BOOST === 'true';
+  const normalizedFeatures = normalizeFeatureList(currentDesign.features, currentDesign.category);
+  const hasReactCode = Boolean(currentDesign.code_react?.trim());
+  const hasHtmlCode = Boolean(currentDesign.code?.trim());
   const reactCode = buildReactComponentFromHtml(currentDesign.code);
   const htmlCode = currentDesign.code && currentDesign.code.trim().length ? currentDesign.code : null;
   const noteSections: ResolvedNoteSection[] = NOTE_SECTION_CONFIG.map((config) => {
@@ -697,6 +818,20 @@ export default async function DesignDetailPage({ params }: PageProps) {
                 </h3>
                 <p className="text-sm text-purple-900 leading-relaxed">{currentDesign.prompt}</p>
               </div>
+            )}
+
+            {enableAdsenseContentBoost && (
+              <DesignEditorialSection
+                title={currentDesign.title}
+                description={currentDesign.description ?? undefined}
+                features={normalizedFeatures}
+                usage={currentDesign.usage ?? undefined}
+                category={currentDesign.category ?? undefined}
+                tags={currentDesign.tags ?? undefined}
+                colors={currentDesign.colors ?? undefined}
+                hasReactCode={hasReactCode}
+                hasHtmlCode={hasHtmlCode}
+              />
             )}
 
             {sidebarSuggestions.length > 0 && (

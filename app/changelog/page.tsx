@@ -9,6 +9,10 @@ export const metadata: Metadata = createPageMetadata({
   title: 'Product Changelog',
   description: 'Track latest UI Syntax features, improvements, and fixes with direct links to shipped updates.',
   path: '/changelog',
+  robots: {
+    index: false,
+    follow: true,
+  },
 });
 
 const typeStyle: Record<string, string> = {

@@ -29,6 +29,7 @@ type CreateMetadataOptions = {
   path?: string;
   openGraphType?: 'website' | 'article';
   image?: string | null;
+  robots?: Metadata['robots'];
 };
 
 export function createPageMetadata({
@@ -37,6 +38,7 @@ export function createPageMetadata({
   path = '/',
   openGraphType = 'website',
   image,
+  robots,
 }: CreateMetadataOptions): Metadata {
   const canonical = buildCanonicalUrl(path);
   const fullTitle = buildPageTitle(title);
@@ -62,5 +64,6 @@ export function createPageMetadata({
       description,
       images: ogImages,
     },
+    robots,
   };
 }

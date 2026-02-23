@@ -7,10 +7,13 @@ import { pillarTopics } from '@/lib/pillars'
 export const revalidate = 60 * 60 // refresh hourly
 
 type DesignRow = Pick<Database['public']['Tables']['designs']['Row'], 'id' | 'title' | 'slug' | 'updated_at'>
-type BlogRow = Pick<Database['public']['Tables']['posts']['Row'], 'slug' | 'published_at'>
+type BlogRow = Pick<
+  Database['public']['Tables']['posts']['Row'],
+  'slug' | 'published_at' | 'title' | 'excerpt' | 'content' | 'category' | 'tags'
+>
 
 const COLLECTION_SLUGS = ['best-saas-landing-pages', 'minimalist-dashboards']
-const STATIC_PATHS = ['/', '/blog', '/about', '/faq', '/contact', '/privacy-policy', '/terms', '/playbooks', '/collections', '/code-match', '/request-design', '/changelog']
+const STATIC_PATHS = ['/', '/blog', '/about', '/faq', '/contact', '/privacy-policy', '/terms', '/playbooks', '/collections', '/code-match']
 const CHANGE_FREQUENCY_OVERRIDES: Record<string, MetadataRoute.Sitemap[number]['changeFrequency']> = {
   '/blog': 'weekly',
   '/playbooks': 'weekly',
@@ -21,6 +24,35 @@ const PRIORITY_OVERRIDES: Record<string, number> = {
   '/playbooks': 0.7,
   '/collections': 0.7,
   '/code-match': 0.5,
+}
+const MIN_INDEXABLE_CHARACTERS = 800
+const UI_UX_CONTEXT_PATTERN =
+  /\b(ui|ux|user experience|interface|component|design system|layout|accessibility|interaction|frontend|react|css|tailwind|usability|navigation|cta|conversion|flow)\b/i
+
+function stripMarkdown(markdown: string): string {
+  return markdown
+    .replace(/```[\s\S]*?```/g, ' ')
+    .replace(/`[^`]*`/g, ' ')
+    .replace(/!\[[^\]]*\]\([^)]+\)/g, ' ')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/^#+\s+/gm, '')
+    .replace(/[>*_~\-]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+function isIndexablePost(post: BlogRow): boolean {
+  const plainContent = stripMarkdown(post.content ?? '')
+  const hasMinimumDepth = plainContent.length >= MIN_INDEXABLE_CHARACTERS
+  const contextProbe = [
+    post.title,
+    post.excerpt ?? '',
+    post.category ?? '',
+    ...(post.tags ?? []),
+    plainContent,
+  ].join(' ')
+  const hasUiUxContext = UI_UX_CONTEXT_PATTERN.test(contextProbe)
+  return hasMinimumDepth && hasUiUxContext
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -36,7 +68,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .order('updated_at', { ascending: false }),
     supabaseServer
       .from('posts')
-      .select('slug, published_at')
+      .select('slug, published_at, title, excerpt, content, category, tags')
       .eq('status', 'published')
       .order('published_at', { ascending: false }),
   ])
@@ -71,7 +103,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }))
 
-  const blogEntries: MetadataRoute.Sitemap = (posts ?? []).map((post) => {
+  const blogEntries: MetadataRoute.Sitemap = (posts ?? []).filter(isIndexablePost).map((post) => {
     const publishedAt = post.published_at ? new Date(post.published_at) : now
     const isFresh = now.getTime() - publishedAt.getTime() < freshnessCutoffMs
     return {
