@@ -6,14 +6,18 @@ import DesignRequestForm from '@/components/DesignRequestForm';
 import DesignRequestBoard from '@/components/DesignRequestBoard';
 import { createPageMetadata } from '@/lib/seo';
 
+const ENABLE_GROWTH_SAFE_SEO_FIXES = process.env.ENABLE_GROWTH_SAFE_SEO_FIXES === 'true';
+
 export const metadata: Metadata = createPageMetadata({
   title: 'Request a Design',
   description: 'Submit the exact UI design you want. We review requests and generate selected designs for the gallery.',
   path: '/request-design',
-  robots: {
-    index: false,
-    follow: true,
-  },
+  robots: ENABLE_GROWTH_SAFE_SEO_FIXES
+    ? {
+        index: false,
+        follow: true,
+      }
+    : undefined,
 });
 
 export default function RequestDesignPage() {

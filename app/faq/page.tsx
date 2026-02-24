@@ -8,13 +8,13 @@ import { buildFAQSchema } from '@/lib/richSnippets';
 
 export const metadata: Metadata = {
   title: "FAQ - Free AI Design Tool Questions Answered (2026)",
-  description: "Get instant answers about using 700+ free AI web designs. Learn about licensing (100% free commercial use), copy-paste code, customization, and implementation. No signup required.",
+  description: "Get instant answers about using UI Syntax web designs. Learn about licensing, copy-paste code, customization, and implementation.",
   alternates: {
     canonical: 'https://ui-syntax.com/faq',
   },
   openGraph: {
     title: "FAQ - Your Free AI Design Questions Answered",
-    description: "Everything you need to know about using 700+ free AI designs with copy-paste code. 100% free for commercial projects.",
+    description: "Everything you need to know about using UI Syntax designs with copy-paste code.",
     url: 'https://ui-syntax.com/faq',
   },
   robots: {
@@ -78,7 +78,7 @@ export default function FAQPage() {
         },
         {
           q: "What frameworks do these designs support?",
-          a: "The provided code uses HTML with Tailwind CSS utility classes and React components. You can adapt these patterns to any modern framework including Next.js, Vue, Angular, Svelte, or convert to standard CSS. The designs are meant as a reference and starting point."
+          a: "Design pages provide HTML with Tailwind CSS utility classes and React component code when available. You can adapt these patterns to modern frameworks including Next.js, Vue, Angular, and Svelte."
         },
         {
           q: "Do the designs include JavaScript functionality?",
@@ -120,7 +120,7 @@ export default function FAQPage() {
         },
         {
           q: "Can I use these with Tailwind CSS?",
-          a: "Absolutely! While the provided code uses standard CSS, the designs can easily be converted to Tailwind utility classes. Many patterns align well with Tailwind's design philosophy."
+          a: "Yes. Design pages provide HTML with Tailwind utility classes and React component code when available. You can use the HTML directly in Tailwind projects or adapt the structure to your preferred framework."
         },
         {
           q: "Do designs follow accessibility standards?",
@@ -153,12 +153,12 @@ export default function FAQPage() {
 
   // Create FAQ Schema for Rich Snippets (top 10 most important FAQs)
   const faqSchemaData = [
-    { question: "Is UI Syntax free to use?", answer: "Yes! UI Syntax is completely free to browse and use. All 700+ designs can be viewed, referenced, and implemented in your projects without any cost." },
+    { question: "Is UI Syntax free to use?", answer: "Yes. UI Syntax is free to browse and use. Published designs can be viewed, referenced, and implemented in your projects without cost." },
     { question: "Can I use these designs in my commercial projects?", answer: "Absolutely! All designs on UI Syntax can be freely used for both personal and commercial projects. You can implement the design patterns, layouts, and concepts in client work, SaaS products, or any commercial application without restrictions." },
     { question: "Do I need to provide attribution?", answer: "While attribution to UI Syntax is appreciated, it is not required. You're free to use the designs without crediting our platform, though we always love to see what you create!" },
     { question: "How do I implement these designs?", answer: "Each design page provides HTML with Tailwind CSS classes plus React component code that you can copy and paste as a starting point. Adapt the code to your preferred framework and styling approach. All designs serve as templates and inspiration for your own implementations." },
     { question: "Are the designs responsive?", answer: "Most designs follow modern responsive design principles. However, you may need to adjust breakpoints and mobile layouts to match your specific requirements and target devices." },
-    { question: "What frameworks do these designs support?", answer: "The provided code uses HTML with Tailwind CSS and React components. You can adapt these patterns to any modern framework including Next.js, Vue, Angular, Svelte, or convert to standard CSS. The designs are meant as a reference and starting point." },
+    { question: "What frameworks do these designs support?", answer: "Design pages provide HTML with Tailwind CSS utility classes and React component code when available. You can adapt these patterns to frameworks including Next.js, Vue, Angular, and Svelte." },
     { question: "Can I modify the designs?", answer: "Yes! Feel free to customize, modify, and adapt any design to fit your specific needs. The designs are meant to serve as inspiration and starting points for your own unique implementations." },
     { question: "Do I need to create an account?", answer: "No account is required to browse and use the designs. All content is freely accessible without registration." },
     { question: "Can I use these with Tailwind CSS?", answer: "Yes! The provided code already uses Tailwind CSS utility classes, so you can copy-paste the markup directly into your Tailwind projects and customize the design tokens to match your brand." },

@@ -6,13 +6,13 @@ import { getPlacementIds } from '@/lib/ezoic';
 
 export const metadata: Metadata = {
   title: "Contact Us - Get Free Design Help & Support",
-  description: "Have questions about using our 700+ free AI designs? Need help with implementation or customization? Contact UI Syntax support at thive8564@gmail.com. We respond within 24-48 hours.",
+  description: "Have questions about using UI Syntax designs? Need help with implementation or customization? Contact UI Syntax support at thive8564@gmail.com.",
   alternates: {
     canonical: 'https://ui-syntax.com/contact',
   },
   openGraph: {
     title: "Contact UI Syntax - Free Design Support",
-    description: "Get help with 700+ free AI designs. Questions about licensing, implementation, or customization? We're here to help.",
+    description: "Get help with UI Syntax designs. Questions about implementation or customization? We're here to help.",
     url: 'https://ui-syntax.com/contact',
   },
 };
@@ -70,6 +70,12 @@ export default function ContactPage() {
               Your feedback shapes our roadmap. Share feature ideas, new U.S. market segments, or workflow
               improvements and we&rsquo;ll prioritize them in upcoming drops.
             </p>
+            <p className="mt-3">
+              For licensing and usage, see{' '}
+              <a href="/terms" className="text-blue-600 hover:text-blue-800 underline">
+                Terms
+              </a>.
+            </p>
           </section>
 
           <section className="mt-10 md:mt-12">
@@ -86,7 +92,8 @@ export default function ContactPage() {
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">Can I use these designs in my projects?</h3>
                 <p className="text-gray-700">
-                  Yes! Our designs are meant to serve as inspiration and reference for your own projects. While the specific implementations are showcased for educational purposes, you&rsquo;re welcome to draw inspiration and adapt design patterns to your needs. For commercial licensing inquiries, please contact us directly.
+                  Yes. Designs are published for practical reference and implementation inspiration. For licensing and
+                  usage terms, follow the Terms page.
                 </p>
               </div>
               <div>

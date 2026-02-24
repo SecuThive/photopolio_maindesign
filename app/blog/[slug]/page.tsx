@@ -9,57 +9,14 @@ import { supabaseServer } from '@/lib/supabase/server';
 import type { Database } from '@/types/database';
 import { createPageMetadata } from '@/lib/seo';
 import { buildBlogPostingSchema } from '@/lib/structuredData';
+import { isThinBlogSlug } from '@/lib/noindexList';
 
 export const revalidate = 0;
+const ENABLE_GROWTH_SAFE_SEO_FIXES = process.env.ENABLE_GROWTH_SAFE_SEO_FIXES === 'true';
 
 type PageProps = {
   params: { slug: string };
 };
-
-const MIN_INDEXABLE_CHARACTERS = 800;
-const UI_UX_CONTEXT_PATTERN =
-  /\b(ui|ux|user experience|interface|component|design system|layout|accessibility|interaction|frontend|react|css|tailwind|usability|navigation|cta|conversion|flow)\b/i;
-
-type BlogQualityInput = {
-  title: string;
-  excerpt?: string | null;
-  content: string;
-  category?: string | null;
-  tags?: string[] | null;
-};
-
-function toPlainText(markdown: string): string {
-  return markdown
-    .replace(/```[\s\S]*?```/g, ' ')
-    .replace(/`[^`]*`/g, ' ')
-    .replace(/!\[[^\]]*\]\([^)]+\)/g, ' ')
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-    .replace(/^#+\s+/gm, '')
-    .replace(/[>*_~\-]/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
-function evaluateBlogQuality(post: BlogQualityInput) {
-  const plainContent = toPlainText(post.content ?? '');
-  const contextProbe = [
-    post.title,
-    post.excerpt ?? '',
-    post.category ?? '',
-    ...(post.tags ?? []),
-    plainContent,
-  ].join(' ');
-  const hasUiUxContext = UI_UX_CONTEXT_PATTERN.test(contextProbe);
-  const plainTextLength = plainContent.length;
-  const isThin = plainTextLength < MIN_INDEXABLE_CHARACTERS;
-
-  return {
-    plainTextLength,
-    hasUiUxContext,
-    isThin,
-    shouldNoindex: isThin || !hasUiUxContext,
-  };
-}
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   type BlogMetaRow = Pick<
@@ -81,7 +38,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
   }
 
-  const quality = evaluateBlogQuality(post);
+  const shouldNoindex = ENABLE_GROWTH_SAFE_SEO_FIXES && isThinBlogSlug(post.slug);
 
   return createPageMetadata({
     title: post.title,
@@ -89,7 +46,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     path: `/blog/${post.slug}`,
     openGraphType: 'article',
     image: post.cover_image_url,
-    robots: quality.shouldNoindex
+    robots: shouldNoindex
       ? { index: false, follow: true }
       : { index: true, follow: true },
   });
@@ -116,7 +73,7 @@ export default async function BlogPostPage({ params }: PageProps) {
   }
 
   const readingTime = calculateReadingTime(post.content);
-  const quality = evaluateBlogQuality(post);
+  const shouldNoindex = ENABLE_GROWTH_SAFE_SEO_FIXES && isThinBlogSlug(post.slug);
   const blogPostingSchema = buildBlogPostingSchema(post);
 
   return (
@@ -211,10 +168,9 @@ export default async function BlogPostPage({ params }: PageProps) {
                   feasibility in React/CSS systems. If a claim cannot be connected to a component, state transition,
                   or measurable UX outcome, treat it as editorial context and not production guidance.
                 </p>
-                {quality.shouldNoindex && (
+                {shouldNoindex && (
                   <p className="mt-3 text-xs uppercase tracking-[0.2em] text-amber-700">
-                    Editorial review mode: this post is excluded from indexing until content depth and UI/UX context
-                    meet publication thresholds.
+                    Editorial review mode: this post is excluded from indexing until the full version is published.
                   </p>
                 )}
               </section>

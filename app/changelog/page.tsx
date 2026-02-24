@@ -5,14 +5,18 @@ import Footer from '@/components/Footer';
 import { changelogItems } from '@/lib/changelog';
 import { createPageMetadata } from '@/lib/seo';
 
+const ENABLE_GROWTH_SAFE_SEO_FIXES = process.env.ENABLE_GROWTH_SAFE_SEO_FIXES === 'true';
+
 export const metadata: Metadata = createPageMetadata({
   title: 'Product Changelog',
   description: 'Track latest UI Syntax features, improvements, and fixes with direct links to shipped updates.',
   path: '/changelog',
-  robots: {
-    index: false,
-    follow: true,
-  },
+  robots: ENABLE_GROWTH_SAFE_SEO_FIXES
+    ? {
+        index: false,
+        follow: true,
+      }
+    : undefined,
 });
 
 const typeStyle: Record<string, string> = {

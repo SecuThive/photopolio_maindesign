@@ -674,6 +674,90 @@ def normalize_request_category(value: Optional[str]) -> str:
     return mapping.get(value.strip().lower(), "Landing Page")
 
 
+def normalize_payload_features(raw_features: Any, category: str) -> list[str]:
+    if isinstance(raw_features, list):
+        extracted: list[str] = []
+        for item in raw_features:
+            if isinstance(item, str):
+                text = item.strip()
+                if text:
+                    extracted.append(text)
+                continue
+            if isinstance(item, dict):
+                for key in ("title", "name", "label", "text", "description", "summary", "value"):
+                    value = item.get(key)
+                    if isinstance(value, str) and value.strip():
+                        extracted.append(value.strip())
+                        break
+        if extracted:
+            return extracted[:6]
+
+    if category == "E-commerce":
+        return [
+            "Prioritizes product imagery, pricing clarity, and primary actions in one scan path.",
+            "Supports quick comparison without forcing users through extra clicks.",
+            "Keeps trust and purchase intent visible near conversion actions.",
+            "Adapts cleanly from campaign collections to larger catalog modules.",
+            "Uses lightweight motion feedback to improve interaction confidence.",
+        ]
+    if category == "Landing Page":
+        return [
+            "Builds a clear narrative from problem framing to value and action.",
+            "Uses hierarchy to highlight one primary goal per section.",
+            "Balances readability and pacing for high-intent visitors.",
+            "Keeps proof signals close to conversion points.",
+            "Scales to launch, waitlist, and product storytelling scenarios.",
+        ]
+    return [
+        "Keeps layout hierarchy clear for first-time and returning users.",
+        "Supports responsive behavior without breaking content flow.",
+        "Uses predictable interaction states to reduce hesitation.",
+        "Maintains readability across dense and lightweight content blocks.",
+        "Provides a practical base for production-ready iteration.",
+    ]
+
+
+def build_fallback_description(payload: Dict[str, Any], category: str, features: list[str]) -> str:
+    title = str(payload.get("title", "This design")).strip() or "This design"
+    usage = str(payload.get("usage", "")).strip()
+    style = str(payload.get("concept", "")).strip()
+    colors = payload.get("colors", [])
+    color_hint = ""
+    if isinstance(colors, list) and colors:
+        swatches = [str(c).strip() for c in colors if str(c).strip()]
+        if swatches:
+            color_hint = f" The color system can be anchored with tokens such as {', '.join(swatches[:3])}."
+
+    lead = (
+        f"{title} is a {category.lower()} pattern built to stay visually distinct while keeping decisions easy for users. "
+        "The composition focuses on clear scanning order, stable spacing, and practical interaction cues so teams can ship quickly "
+        "without losing editorial quality."
+    )
+    middle = (
+        f"It works best when paired with real product or content data, because the structure emphasizes hierarchy first and decoration second.{color_hint}"
+    )
+    if usage:
+        middle += f" Recommended usage: {usage}"
+
+    takeaway = "Key strengths include " + "; ".join(features[:3]).rstrip(".") + "."
+    ending = (
+        "For production, keep contrast and focus states explicit, validate keyboard navigation, and maintain consistent content density "
+        "as new sections are added."
+    )
+    if style:
+        ending += f" The visual direction aligns with this concept: {style}."
+
+    return f"{lead}\n\n{middle}\n\n{takeaway} {ending}"
+
+
+def normalize_description(payload: Dict[str, Any], category: str, features: list[str]) -> str:
+    raw = payload.get("description")
+    text = raw.strip() if isinstance(raw, str) else ""
+    if len(text) >= 180:
+        return text
+    return build_fallback_description(payload, category, features)
+
+
 # ---------------------------------------------------------------------------
 # 메인 생성 로직 (API 1회)
 # ---------------------------------------------------------------------------
@@ -748,6 +832,13 @@ async def generate_single_design(
     try:
         html_code: str = payload.get("html_code", payload.get("code", ""))
         react_code: str = payload.get("react_code", "")
+        normalized_features = normalize_payload_features(payload.get("features"), category)
+        normalized_description = normalize_description(payload, category, normalized_features)
+        normalized_usage = str(payload.get("usage", "")).strip()
+        if not normalized_usage:
+            normalized_usage = (
+                "Use this template as a production starting point, then tailor copy, states, and data hooks to your product context."
+            )
 
         screenshot = await capture_screenshot(browser, wrap_html_if_needed(html_code))
         image_url = await upload_image(screenshot, category)
@@ -757,9 +848,9 @@ async def generate_single_design(
         record = {
             "id": design_id,
             "title": payload.get("title", "Untitled Design"),
-            "description": payload.get("description", ""),
-            "features": payload.get("features", []),
-            "usage": payload.get("usage", ""),
+            "description": normalized_description,
+            "features": normalized_features,
+            "usage": normalized_usage,
             "image_url": image_url,
             "category": category,
             "code": html_code,

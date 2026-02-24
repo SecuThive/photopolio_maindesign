@@ -4,11 +4,13 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Link from 'next/link';
 
+const ENABLE_GROWTH_SAFE_SEO_FIXES = process.env.ENABLE_GROWTH_SAFE_SEO_FIXES === 'true';
+
 export const metadata: Metadata = {
   title: 'Search Designs - UI Syntax',
-  description: 'Search through 700+ free AI web designs. Find the perfect landing page, dashboard, or component for your project.',
+  description: 'Search published AI web designs. Find the right landing page, dashboard, or component pattern for your project.',
   robots: {
-    index: true, // Allow indexing to capture "search" queries, can change to false if preferred
+    index: ENABLE_GROWTH_SAFE_SEO_FIXES ? false : true,
     follow: true,
   },
 };

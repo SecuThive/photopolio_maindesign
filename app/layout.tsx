@@ -7,14 +7,14 @@ import CommandPalette from '@/components/CommandPalette';
 import "./globals.css";
 
 const siteUrl = 'https://ui-syntax.com';
-const siteDescription = 'Discover 700+ production-ready AI web designs with copy-paste HTML & React code. Save 20+ hours per project with proven SaaS landing pages, dashboards & e-commerce flows trusted by Silicon Valley teams.';
+const siteDescription = 'Discover published AI web designs with copy-paste HTML and React code when available. Explore SaaS landing pages, dashboards, and e-commerce flows curated for product teams.';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   applicationName: 'UI Syntax',
   category: 'technology',
   title: {
-    default: '700+ Free AI Web Designs with Copy-Paste Code | UI Syntax',
+    default: 'Published AI Web Designs with Copy-Paste Code | UI Syntax',
     template: '%s | UI Syntax',
   },
   description: siteDescription,
@@ -57,7 +57,7 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: siteUrl,
-    title: '700+ Free AI Web Designs with Copy-Paste Code',
+    title: 'Published AI Web Designs with Copy-Paste Code',
     description: siteDescription,
     siteName: 'UI Syntax',
     images: [
@@ -71,7 +71,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: '700+ Free AI Web Designs with Copy-Paste Code',
+    title: 'Published AI Web Designs with Copy-Paste Code',
     description: siteDescription,
     creator: '@uisyntax',
   },

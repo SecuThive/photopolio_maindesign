@@ -3,21 +3,29 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import EzoicPlacements from '@/components/EzoicPlacements';
 import { getPlacementIds } from '@/lib/ezoic';
+import { getPublishedDesignCount, getPublishedDesignLabel } from '@/lib/siteStats';
 
-export const metadata: Metadata = {
-  title: "About UI Syntax - Free AI Design Library for 50,000+ Developers",
-  description: "UI Syntax provides 700+ free, production-ready AI web designs with copy-paste code. Trusted by developers worldwide. Save 20+ hours per project with our curated gallery.",
-  alternates: {
-    canonical: 'https://ui-syntax.com/about',
-  },
-  openGraph: {
-    title: "About UI Syntax - Free AI Design Library Trusted by 50,000+ Developers",
-    description: "700+ free AI designs with copy-paste code. Save hours on every project.",
-    url: 'https://ui-syntax.com/about',
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const publishedDesignCount = await getPublishedDesignCount();
+  const publishedLabel = getPublishedDesignLabel(publishedDesignCount);
 
-export default function AboutPage() {
+  return {
+    title: 'About UI Syntax - AI Design Library for Product Teams',
+    description: `UI Syntax curates ${publishedLabel} with copy-paste HTML and React code when available.`,
+    alternates: {
+      canonical: 'https://ui-syntax.com/about',
+    },
+    openGraph: {
+      title: 'About UI Syntax - AI Design Library for Product Teams',
+      description: `Browse ${publishedLabel} with implementation-focused notes.`,
+      url: 'https://ui-syntax.com/about',
+    },
+  };
+}
+
+export default async function AboutPage() {
+  const publishedDesignCount = await getPublishedDesignCount();
+  const publishedLabel = getPublishedDesignLabel(publishedDesignCount);
   const placementIds = getPlacementIds('NEXT_PUBLIC_EZOIC_PLACEMENTS_ABOUT');
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -46,6 +54,10 @@ export default function AboutPage() {
             <p className="text-xl leading-relaxed">
               Welcome to <strong>UI Syntax</strong>, a Silicon Valley standard gallery of AI-generated web designs built for
               SaaS founders, developer tools, and agencies shipping products to modern markets.
+            </p>
+            <p className="mt-4">
+              The public catalog currently includes <strong>{publishedLabel}</strong>, and the library is updated as new
+              design entries pass review.
             </p>
           </section>
 

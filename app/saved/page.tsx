@@ -5,14 +5,18 @@ import Footer from '@/components/Footer';
 import SavedDesignsClient from '@/components/SavedDesignsClient';
 import { createPageMetadata } from '@/lib/seo';
 
+const ENABLE_GROWTH_SAFE_SEO_FIXES = process.env.ENABLE_GROWTH_SAFE_SEO_FIXES === 'true';
+
 export const metadata: Metadata = createPageMetadata({
   title: 'Saved Designs',
   description: 'Your saved UI Syntax designs, stored locally for quick review and sharing.',
   path: '/saved',
-  robots: {
-    index: false,
-    follow: true,
-  },
+  robots: ENABLE_GROWTH_SAFE_SEO_FIXES
+    ? {
+        index: false,
+        follow: true,
+      }
+    : undefined,
 });
 
 export default function SavedPage() {

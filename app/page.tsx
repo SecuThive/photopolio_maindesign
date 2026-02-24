@@ -12,22 +12,18 @@ import { withDesignSlugs } from '@/lib/slug';
 import { createPageMetadata, SITE_URL } from '@/lib/seo';
 import { buildWebSiteSearchSchema, buildOrganizationSchema } from '@/lib/richSnippets';
 import { getRecentChangelog } from '@/lib/changelog';
+import { getPublishedDesignCount, getPublishedDesignLabel } from '@/lib/siteStats';
 
 export const revalidate = 0;
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { count } = await supabaseServer
-    .from('designs')
-    .select('id', { count: 'exact', head: true })
-    .eq('status', 'published');
-
-  const totalDesigns = count ?? 0;
+  const totalDesigns = await getPublishedDesignCount();
   const title = totalDesigns > 0
-    ? `${totalDesigns}+ Free AI Web Designs with Copy-Paste Code (2026)`
+    ? `${totalDesigns.toLocaleString('en-US')} Published AI Web Designs with Copy-Paste Code (2026)`
     : 'Free AI Web Designs with Copy-Paste Code';
   
   const description = totalDesigns > 0
-    ? `Download ${totalDesigns}+ free, production-ready AI web designs with copy-paste HTML & React code. Includes SaaS landing pages, dashboards, and e-commerce templates. Save 20+ hours per project. 100% free commercial use.`
+    ? `Browse ${totalDesigns.toLocaleString('en-US')} published AI web designs with copy-paste HTML and React code when available. Includes SaaS landing pages, dashboards, and e-commerce templates.`
     : 'Download free, production-ready AI web designs with copy-paste HTML & React code. Save hours on every project with our curated gallery. 100% free commercial use.';
 
   return createPageMetadata({
@@ -42,6 +38,8 @@ export default async function HomePage({
 }: {
   searchParams: { category?: string };
 }) {
+  const publishedDesignCount = await getPublishedDesignCount();
+  const publishedDesignLabel = getPublishedDesignLabel(publishedDesignCount);
   const category = searchParams?.category;
   const placementIds = getPlacementIds();
   const componentCategoryValues = ['Component', 'Components', 'component', 'components'];
@@ -74,7 +72,7 @@ export default async function HomePage({
     name: 'UI Syntax',
     url: SITE_URL,
     logo: `${SITE_URL}/icon.png`,
-    description: '700+ production-ready AI web designs with free copy-paste HTML & React code.',
+    description: `${publishedDesignLabel} with free copy-paste HTML and React code when available.`,
     email: 'thive8564@gmail.com',
     socialProfiles: [
       // Add your social profiles here when available

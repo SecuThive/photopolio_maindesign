@@ -3,21 +3,28 @@ import Footer from '@/components/Footer';
 import RecommendationTester from '@/components/RecommendationTester';
 import PopularSearchesGallery from '@/components/PopularSearchesGallery';
 import { buildSoftwareApplicationSchema, buildHowToSchema, buildBreadcrumbSchema } from '@/lib/richSnippets';
+import { getPublishedDesignCount } from '@/lib/siteStats';
 
-export const metadata = {
-  title: 'Free Code Match Tool - Find Similar UI Designs Instantly',
-  description: 'Paste your HTML/React code and instantly discover matching UI designs from 700+ AI-generated templates. Get free design recommendations in seconds with our smart code analyzer.',
-  openGraph: {
+export async function generateMetadata() {
+  const publishedDesignCount = await getPublishedDesignCount();
+  const countLabel = publishedDesignCount > 0 ? publishedDesignCount.toLocaleString('en-US') : 'published';
+  return {
     title: 'Free Code Match Tool - Find Similar UI Designs Instantly',
-    description: 'Paste your code and find matching UI designs from 700+ templates in seconds.',
-  },
-};
+    description: `Paste your HTML/React code and discover matching UI designs from ${countLabel} templates in the published gallery.`,
+    openGraph: {
+      title: 'Free Code Match Tool - Find Similar UI Designs Instantly',
+      description: `Paste your code and find matching UI designs from ${countLabel} templates.`,
+    },
+  };
+}
 
-export default function CodeMatchPage() {
+export default async function CodeMatchPage() {
+  const publishedDesignCount = await getPublishedDesignCount();
+  const countLabel = publishedDesignCount > 0 ? `${publishedDesignCount.toLocaleString('en-US')} published` : 'published';
   // Rich Snippets for better CTR
   const softwareSchema = buildSoftwareApplicationSchema({
     name: 'UI Syntax Code Match',
-    description: 'Free tool that analyzes your HTML/React code and finds matching UI designs from 700+ templates',
+    description: `Free tool that analyzes your HTML/React code and finds matching UI designs from the ${countLabel} design gallery.`,
     url: 'https://ui-syntax.com/code-match',
     applicationCategory: 'DeveloperApplication',
     operatingSystem: 'Web Browser',
@@ -95,7 +102,7 @@ export default function CodeMatchPage() {
             
             <p className="text-xl md:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed font-light">
               Paste your HTML, JSX, or TSX code and discover the closest matching designs from our 
-              <span className="font-semibold text-gray-900"> 700+ AI-generated UI collection</span>.
+              <span className="font-semibold text-gray-900"> {countLabel} design collection</span>.
               Analyze structure, colors, and patterns instantly.
             </p>
           </div>
