@@ -1,0 +1,6 @@
+google-genai
+supabase
+playwright
+python-dotenv
+httpx
+tweepy
