@@ -1,0 +1,39 @@
+{
+  "fetched_at": 1776138584.7092988,
+  "trends": {
+    "trending_styles": [
+      "Immersive 3D Worlds with Depth-of-Field effects",
+      "Organic/Liquid UI (Interfaces that appear to melt, morph, or flow)",
+      "Bold, Kinetic Typography-Driven Layouts",
+      "Abstract Experimental UIs (Prioritizing visual experience over pure functionality)"
+    ],
+    "trending_colors": [
+      "Deep Contrast Modes (Pitch black backgrounds contrasted with single, vivid neon/electric accents)",
+      "Earthy/Biophilic Palettes (Muted moss greens, terracotta, and off-whites, signaling 'eco-design')",
+      "High-Contrast Monochromatic with single bold pops (Using black/white with one highly saturated color for emphasis)"
+    ],
+    "trending_layouts": [
+      "Asymmetric and Broken Grids (Breaking linear patterns for visual rhythm)",
+      "Atomic Content Hubs (Deep-linked, focused pages replacing the need for a traditional 'Home' page)",
+      "Oversized Type Blocks (Using typography as the primary structural element)",
+      "Layered and Z-Indexed Depth (Creating visual complexity by layering various non-aligned elements)"
+    ],
+    "trending_elements": [
+      "Custom Shader Visualizations (Using advanced WebGL/Three.js for complex, non-standard graphical elements)",
+      "Animated/Kinetic Text Fields (Type that animates, morphs, or drives the page rhythm)",
+      "Curated Aspect Ratio Systems (Using specific, non-square ratios to define flow and rhythm)",
+      "Interactive Data Visualization Widgets (Embedding complex, customizable data representations)"
+    ],
+    "trending_interactions": [
+      "View Transitions API Implementations (Smooth, cinematic page morphing rather than hard page loads)",
+      "Scroll-Driven Storytelling (Using complex GSAP/scroll triggers to guide the narrative flow)",
+      "Meaningful Friction (Intentional, playful interactive hurdles that force user engagement, resisting 'seamless' UX)"
+    ],
+    "avoid_cliche": [
+      "Generic 'Gradient Mesh' Hero Backgrounds (Especially purple-to-blue transitions)",
+      "Traditional 3-Column Feature Grids with Icons (Predictable, basic, and forgettable structure)",
+      "The Standard Homepage Landing Page (Over-reliance on a single, monolithic 'front door' experience)"
+    ],
+    "design_direction": "The current trend is moving away from 'frictionless' simplicity toward 'meaningful complexity.' Design must feel intelligent, highly technical, and emotionally engaging, often prioritizing immersive visual spectacle over basic, straightforward usability."
+  }
+}

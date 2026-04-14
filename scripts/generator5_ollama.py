@@ -24,12 +24,15 @@ import re
 import time
 import uuid
 from datetime import datetime
+from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import httpx
 from dotenv import load_dotenv
 from playwright.async_api import async_playwright, Browser
 from supabase import Client, create_client
+
+from trend_researcher import get_trends, format_trend_prompt_block
 
 # ── 로깅 ──────────────────────────────────────────────────────────────────────
 logging.basicConfig(
@@ -88,7 +91,11 @@ def get_supabase() -> Client:
     return _supabase_client
 
 # ── 데이터 상수 ───────────────────────────────────────────────────────────────
-CATEGORIES = ["Landing Page", "Dashboard", "E-commerce", "Portfolio", "Blog", "SaaS App"]
+CATEGORIES = [
+    "Landing Page", "Dashboard", "E-commerce", "Portfolio",
+    "Blog", "SaaS App", "Mobile App UI", "Agency Site",
+    "Event / Conference Page", "Developer Tool", "Waitlist / Launch Page",
+]
 
 STYLE_STRUCTURE_AFFINITY: Dict[str, List[str]] = {
     # ── 모던 미니멀 ──────────────────────────────────────────────────────────
@@ -141,7 +148,256 @@ STYLE_STRUCTURE_AFFINITY: Dict[str, List[str]] = {
     "Monochrome Typographic":       [
         "All-text Bold Hero", "Data-heavy Table with Clean Lines", "Portfolio Grid Minimal",
     ],
+    # ── 추가 스타일 ──────────────────────────────────────────────────────────
+    "Swiss International Style":    [
+        "Strict Grid with Heavy Typography", "Off-centered Asymmetric Layout", "Photo + Text Overlap Grid",
+    ],
+    "Japanese Minimalism (Ma)":     [
+        "Ultra-sparse Hero with Single Element", "White Space Dominant Product Page", "Text-only Navigation with Generous Padding",
+    ],
+    "Organic Earthy Natural":       [
+        "Warm Texture Background with Hand-drawn Elements", "Rounded Bio Cards with Nature Imagery", "Full-bleed Plant Photography Hero",
+    ],
+    "Y2K / Retro Internet":         [
+        "Bevel-bordered Windows UI", "Animated GIF-style Ticker + Blinking Elements", "Pixel-art Accent with Grunge Texture",
+    ],
+    "Neumorphism Soft UI":          [
+        "Soft Inset Card Controls", "Toggle + Slider Panel", "Music Player with Pressed Buttons",
+    ],
 }
+
+# ── 색상 무드 (강제 지정 — 모델이 임의로 바꾸지 못하게) ─────────────────────
+COLOR_MOODS = [
+    "Warm Earth: bg=#FAF3E8, primary=#C4622D, secondary=#6B4F3A, accent=#E8A87C, text=#2C1810",
+    "Cool Nordic: bg=#F0F4F8, primary=#2B4C7E, secondary=#4A6FA5, accent=#88B4E7, text=#1A2744",
+    "Vibrant Coral+Teal: bg=#FFF9F0, primary=#FF6B6B, secondary=#4ECDC4, accent=#FFE66D, text=#2D3436",
+    "Muted Sage Pastel: bg=#F7F3EE, primary=#87A878, secondary=#C9B8D8, accent=#F7C5CC, text=#3D3D3D",
+    "Bold Primary Flat: bg=#FFFFFF, primary=#E63946, secondary=#0077FF, accent=#FFD60A, text=#0D0D0D",
+    "Charcoal Monochrome: bg=#1C1C1E, primary=#AEAEB2, secondary=#636366, accent=#F2F2F7, text=#FFFFFF",
+    "Dark Jewel Emerald: bg=#0A1628, primary=#0D4F3C, secondary=#C9A84C, accent=#52B788, text=#E8F5E9",
+    "High Contrast Neon: bg=#000000, primary=#00FF94, secondary=#FF0090, accent=#FFFF00, text=#FFFFFF",
+    "Sunset Warm: bg=#FFF1E6, primary=#FF6B35, secondary=#DA4167, accent=#F7C59F, text=#1A0A00",
+    "Deep Ocean: bg=#03045E, primary=#0077B6, secondary=#00B4D8, accent=#90E0EF, text=#CAF0F8",
+    "Midnight Purple: bg=#1A0533, primary=#9D4EDD, secondary=#C77DFF, accent=#E0AAFF, text=#F8F0FF",
+    "Forest Organic: bg=#1B4332, primary=#52B788, secondary=#2D6A4F, accent=#B7E4C7, text=#D8F3DC",
+    "Warm Cream Gold: bg=#FAF7F0, primary=#C4A265, secondary=#8B4513, accent=#E8D5A3, text=#2C1810",
+    "Electric Indigo: bg=#0D0221, primary=#4361EE, secondary=#7209B7, accent=#F72585, text=#E2EAFC",
+    "Soft Lavender Studio: bg=#F5F0FF, primary=#7C3AED, secondary=#A78BFA, accent=#FCD34D, text=#1E1B4B",
+    "Neo-Mint: bg=#F0FFF4, primary=#10B981, secondary=#064E3B, accent=#FCD34D, text=#022C22",
+    "Rust Industrial: bg=#1A1A2E, primary=#E94560, secondary=#F5A623, accent=#C0C0C0, text=#EAEAEA",
+    "Paper White Editorial: bg=#FDFCF8, primary=#1A1A1A, secondary=#888888, accent=#D4AF37, text=#111111",
+]
+
+# ── 레이아웃 아키타입 (구조적으로 강제 다양화) ───────────────────────────────
+LAYOUT_ARCHETYPES = [
+    "Asymmetric Split: huge text LEFT (60%) + visual RIGHT (40%), no centering",
+    "Editorial Overlap: text and image elements physically overlap across columns",
+    "Bento Box Mosaic: grid of 6+ cards with wildly different sizes (1×1, 2×1, 1×2, 3×1)",
+    "Terminal / CLI: monospace font, dark bg, simulated command-line prompt aesthetic",
+    "Sticky Sidebar App: fixed left panel (240px) + scrollable right content area",
+    "Magazine F-Pattern: left-dominant large image, right-column text, horizontal rule dividers",
+    "Swiss Grid: strict 12-col alignment, lots of whitespace, numbers + labels as design elements",
+    "Brutalist Raw: thick black borders (3-4px), hard offset box-shadows, system fonts, NO rounded corners",
+    "Floating Layers: cards at 3 depth levels using z-index + shadow, background shapes peek through",
+    "Full-bleed Sections: each content block spans full width with alternating bg colors",
+    "Radial / Circular: circular stats, ring progress bars, radial menus as primary design motif",
+    "Card Waterfall: Pinterest-style masonry irregular height cards",
+    "Single-focus Minimal: ONE big element centered, rest is whitespace — zen approach",
+    "Split Horizontal Scroll: left panel fixed, right panel scrolls independently",
+    "Timeline Vertical: chronological flow with connector lines, dates on alternating sides",
+]
+
+# ── 애니메이션 아키타입 ───────────────────────────────────────────────────────
+ANIMATION_ARCHETYPES = [
+    "stagger-reveal: items fade+translateY(20px) in sequence with 0.1s delay each",
+    "parallax-drift: background moves at 0.5x scroll speed (transform: translateY calc)",
+    "hover-lift: translateY(-6px) + box-shadow expand over 0.25s ease on cards",
+    "typewriter: headline characters appear one by one via clip-path or width animation",
+    "count-up: numeric stats animate from 0 to final value using CSS counter or JS",
+    "blob-morph: background SVG blob shapes animate border-radius with @keyframes",
+    "shimmer-sweep: diagonal light sweep across cards (background-position animation)",
+    "neon-pulse: glow box-shadow breathes in/out with @keyframes (0%↔100% opacity)",
+    "rotation-slow: decorative element slowly rotates 360° over 20s infinitely",
+    "scale-bounce: elements spring to scale(1) from scale(0.8) with cubic-bezier(0.34,1.56,0.64,1)",
+    "line-draw: SVG stroke-dashoffset animates to draw borders/underlines",
+    "color-shift: gradient background hue rotates with @keyframes hue-rotate",
+]
+
+# ── 생성 히스토리 (반복 방지) ────────────────────────────────────────────────
+HISTORY_FILE = Path(__file__).parent / ".generator_history.json"
+HISTORY_KEEP = 20
+
+def _load_history() -> List[Dict]:
+    try:
+        return json.loads(HISTORY_FILE.read_text(encoding="utf-8"))
+    except Exception:
+        return []
+
+def _save_history(entry: Dict) -> None:
+    history = _load_history()
+    history.insert(0, entry)
+    try:
+        HISTORY_FILE.write_text(
+            json.dumps(history[:HISTORY_KEEP], indent=2, ensure_ascii=False),
+            encoding="utf-8",
+        )
+    except Exception:
+        pass  # 히스토리 저장 실패는 치명적 오류 아님
+
+
+# ── 자기학습 메모리 ──────────────────────────────────────────────────────────
+LESSONS_FILE = Path(__file__).parent / ".generator_lessons.json"
+LESSONS_TOP_N = 6   # 프롬프트에 주입할 최상위 교훈 수
+LESSONS_MAX   = 200 # 저장할 최대 이슈 키 수 (오래된 것 자동 정리)
+
+def _load_lessons() -> Dict:
+    try:
+        return json.loads(LESSONS_FILE.read_text(encoding="utf-8"))
+    except Exception:
+        return {
+            "stats":       {"attempts": 0, "failures": 0, "successes": 0},
+            "fixes":       {},   # key → {area, severity, fix, count, last_seen}
+            "style_stats": {},   # style → {attempts, total_score, avg_score}
+        }
+
+def _save_lessons(lessons: Dict) -> None:
+    try:
+        LESSONS_FILE.write_text(
+            json.dumps(lessons, indent=2, ensure_ascii=False),
+            encoding="utf-8",
+        )
+    except Exception:
+        pass
+
+def _record_result(
+    issues: List[Dict],
+    score:  int,
+    dna:    Dict,
+    success: bool,
+) -> None:
+    """생성 결과에서 교훈을 학습하여 저장"""
+    lessons = _load_lessons()
+
+    # 통계 업데이트
+    s = lessons.setdefault("stats", {"attempts": 0, "failures": 0, "successes": 0})
+    s["attempts"]  = s.get("attempts",  0) + 1
+    s["successes"] = s.get("successes", 0) + (1 if success else 0)
+    s["failures"]  = s.get("failures",  0) + (0 if success else 1)
+
+    # 실패 이슈 누적 학습
+    if not success and issues:
+        fixes = lessons.setdefault("fixes", {})
+        for issue in issues:
+            area     = issue.get("area", "general")
+            fix_text = issue.get("fix", "").strip()
+            severity = issue.get("severity", "minor")
+            if not fix_text:
+                continue
+            key = f"{area}:{fix_text[:60]}"
+            if key not in fixes:
+                fixes[key] = {
+                    "area":      area,
+                    "severity":  severity,
+                    "fix":       fix_text,
+                    "count":     0,
+                    "last_seen": "",
+                }
+            fixes[key]["count"]    += 1
+            fixes[key]["last_seen"] = datetime.utcnow().isoformat()
+            # 심각도 업그레이드 (minor → major → critical)
+            sev_rank = {"critical": 2, "major": 1, "minor": 0}
+            if sev_rank.get(severity, 0) > sev_rank.get(fixes[key]["severity"], 0):
+                fixes[key]["severity"] = severity
+
+        # 오래된 항목 정리 (count 낮은 것부터 제거)
+        if len(fixes) > LESSONS_MAX:
+            sorted_keys = sorted(fixes, key=lambda k: fixes[k]["count"])
+            for k in sorted_keys[:len(fixes) - LESSONS_MAX]:
+                del fixes[k]
+
+    # 스타일별 성능 통계
+    style = dna.get("style", "")
+    if style:
+        ss = lessons.setdefault("style_stats", {})
+        if style not in ss:
+            ss[style] = {"attempts": 0, "total_score": 0, "avg_score": 0}
+        ss[style]["attempts"]   += 1
+        ss[style]["total_score"] = ss[style].get("total_score", 0) + score
+        ss[style]["avg_score"]   = ss[style]["total_score"] // ss[style]["attempts"]
+
+    _save_lessons(lessons)
+    log.info(
+        "[학습] %s | score=%d | 누적 이슈=%d개 | 성공률=%.0f%%",
+        "성공" if success else "실패",
+        score,
+        len(lessons.get("fixes", {})),
+        (lessons["stats"]["successes"] / max(lessons["stats"]["attempts"], 1)) * 100,
+    )
+
+def _get_top_lessons(n: int = LESSONS_TOP_N) -> str:
+    """가장 빈출·고심각도 이슈를 학습 교훈 텍스트로 반환"""
+    fixes = _load_lessons().get("fixes", {})
+    if not fixes:
+        return ""
+    sev_weight = {"critical": 3, "major": 2, "minor": 1}
+    sorted_fixes = sorted(
+        fixes.values(),
+        key=lambda x: (sev_weight.get(x.get("severity", "minor"), 1) * 1000 + x.get("count", 0)),
+        reverse=True,
+    )
+    lines = [
+        f"- [{f['area'].upper()}]({f['severity']}) {f['fix']}  (과거 {f['count']}회 발생)"
+        for f in sorted_fixes[:n]
+    ]
+    return "\n".join(lines)
+
+
+def pick_design_dna() -> Dict[str, str]:
+    """모든 다양성 차원을 조합해 고유한 디자인 DNA 생성 (히스토리 반복 방지)"""
+    history = _load_history()
+    recent_styles    = {h.get("style", "")          for h in history[:6]}
+    recent_categories= {h.get("category", "")       for h in history[:4]}
+    recent_colors    = {h.get("color_key", "")      for h in history[:8]}
+    recent_layouts   = {h.get("layout_key", "")     for h in history[:5]}
+
+    # 스타일 선택 — 최근 6개 제외
+    style_pool = [s for s in STYLE_STRUCTURE_AFFINITY if s not in recent_styles]
+    if not style_pool:
+        style_pool = list(STYLE_STRUCTURE_AFFINITY.keys())
+    style     = random.choice(style_pool)
+    structure = random.choice(STYLE_STRUCTURE_AFFINITY[style])
+
+    # 카테고리 선택 — 최근 4개 제외
+    cat_pool  = [c for c in CATEGORIES if c not in recent_categories]
+    if not cat_pool:
+        cat_pool = CATEGORIES
+    category  = random.choice(cat_pool)
+
+    # 색상 무드 선택 — 최근 8개 제외
+    color_pool = [c for c in COLOR_MOODS if c not in recent_colors]
+    if not color_pool:
+        color_pool = COLOR_MOODS
+    color_mood = random.choice(color_pool)
+
+    # 레이아웃 아키타입 — 최근 5개 제외
+    layout_pool = [l for l in LAYOUT_ARCHETYPES if l not in recent_layouts]
+    if not layout_pool:
+        layout_pool = LAYOUT_ARCHETYPES
+    layout_arch = random.choice(layout_pool)
+
+    animation = random.choice(ANIMATION_ARCHETYPES)
+
+    return {
+        "category":      category,
+        "style":         style,
+        "structure":     structure,
+        "color_mood":    color_mood,
+        "color_key":     color_mood,
+        "layout_arch":   layout_arch,
+        "layout_key":    layout_arch,
+        "animation":     animation,
+    }
+
 
 def pick_style_structure() -> tuple[str, str]:
     style = random.choice(list(STYLE_STRUCTURE_AFFINITY.keys()))
@@ -207,27 +463,43 @@ You are a world-class UI/UX designer at a top-tier design agency (think Apple, S
 Your briefs inspire stunning, award-winning interfaces — not generic templates.
 Always respond with a single valid JSON object — no markdown, no extra text."""
 
-async def pass1_brief(category: str, style: str, structure: str) -> Dict[str, Any]:
+async def pass1_brief(category: str, style: str, structure: str,
+                      dna: Optional[Dict[str, str]] = None,
+                      trend_context: str = "") -> Dict[str, Any]:
+    color_mood   = dna.get("color_mood", "")   if dna else ""
+    layout_arch  = dna.get("layout_arch", "")  if dna else ""
+    animation    = dna.get("animation", "")    if dna else ""
+
     prompt = f"""\
-Create a premium design brief for a {category} UI.
-Style direction: {style}
-Layout structure: {structure}
+Create a design brief for a {category} UI.
 
-Push for something visually striking and memorable — not a boring template.
-Think about what would win an Awwwards or Dribbble Popular award.
+MANDATORY CONSTRAINTS — you MUST follow these exactly, no exceptions:
+1. Visual style: {style}
+2. Layout structure: {structure}
+3. Layout archetype (STRICT): {layout_arch or "your choice"}
+   → Do NOT default to a standard hero + feature-cards grid. Follow the archetype above.
+4. Color mood (STRICT — use ONLY these hex values as your palette base):
+   {color_mood or "your choice — pick something unexpected, NOT blue/purple gradient"}
+   → The colors MUST visually match this mood. Do not substitute with blue/purple/gray defaults.
+5. Primary animation: {animation or "your choice"}
 
+DIVERSITY MANDATE: This design must be structurally and visually DIFFERENT from a typical SaaS landing page.
+Push the layout to extremes — if the archetype says asymmetric, make it dramatically asymmetric.
+If it says brutalist, make it genuinely rough and raw. Commit to the direction fully.
+{trend_context}
 Return JSON with these exact keys:
 {{
-  "title": "evocative product/brand name (3-6 words, NOT generic)",
-  "concept": "2 vivid sentences: the emotional feel + the visual hook that makes it unforgettable",
-  "color_palette": ["#primary", "#secondary", "#accent", "#background", "#surface"],
-  "typography": "specific Google Font pairing: heading font + body font, with weight and style notes",
-  "visual_details": "2-3 specific visual flourishes: e.g. 'soft drop shadows on cards, CSS blur backdrop on nav, subtle grain texture overlay on hero'",
-  "content_strategy": "specific realistic content — brand names, real numbers, real copy (absolutely no lorem ipsum or placeholder text)",
-  "animation_hints": "1-2 CSS-only animation ideas: e.g. 'cards lift on hover with scale(1.03) + shadow', 'hero gradient shifts with @keyframes'"
+  "title": "evocative product/brand name (3-6 words, NOT generic like 'Nexus Flow' or 'Spark Pro')",
+  "concept": "2 vivid sentences: emotional feel + the ONE visual choice that makes this unforgettable",
+  "color_palette": ["#hex1", "#hex2", "#hex3", "#hex4", "#hex5"],
+  "typography": "specific Google Font pairing: heading font + body font, size/weight notes — must MATCH the mood (e.g. serif for editorial, monospace for terminal)",
+  "visual_details": "3 specific visual treatments — name exact CSS techniques: e.g. 'backdrop-filter:blur(20px) on nav', 'repeating-linear-gradient noise texture', 'border: 3px solid black with 6px offset shadow'",
+  "content_strategy": "specific realistic content — real brand names, actual product copy, real stats (NO lorem ipsum, NO 'placeholder', NO 'Image here')",
+  "animation_hints": "implement {animation or 'the chosen animation'} with exact CSS property names and values"
 }}"""
 
-    log.info("[pass1] 브리프 생성 중...")
+    log.info("[pass1] 브리프 생성 중... style=%s | layout=%s",
+             style, (layout_arch or "free")[:40])
     text = await ollama_chat([
         {"role": "system", "content": BRIEF_SYSTEM},
         {"role": "user", "content": prompt},
@@ -236,8 +508,8 @@ Return JSON with these exact keys:
 
 # ── Pass 2: HTML 초안 ─────────────────────────────────────────────────────────
 HTML_SYSTEM = """\
-You are an elite frontend engineer who builds stunning, visually rich UIs.
-Your output looks like it was designed by a top agency — not a generic template.
+You are an elite frontend engineer who builds visually distinctive UIs.
+You can do ANY aesthetic — minimal, brutalist, dark luxury, editorial, retro, organic — and you commit fully to the chosen direction.
 
 HARD RULES:
 - Include <script src="https://cdn.tailwindcss.com"></script> in <head>
@@ -246,44 +518,82 @@ HARD RULES:
 - Outermost wrapper must NOT use min-h-screen — size naturally to content
 - Respond with ONLY the raw HTML — no explanation, no ```fences```
 
-VISUAL QUALITY RULES (non-negotiable):
-- Write a <style> block with custom CSS: @keyframes animations, custom gradients, special effects
-- Use multi-layer box-shadows for depth: e.g. `box-shadow: 0 4px 6px rgba(0,0,0,.07), 0 20px 40px rgba(0,0,0,.12)`
-- Cards and panels must have visible depth — borders, shadows, or background contrast
-- Use CSS backdrop-filter: blur() for glassmorphism elements where appropriate
-- Typography must have strong hierarchy: at least 3 distinct text sizes with weight contrast
-- Hero sections need a visually rich background: gradient, mesh, pattern, or layered shapes via CSS
-- All interactive elements need smooth transitions (transition-all duration-300) and hover states
-- Add at least 2 decorative elements: gradient blobs, geometric shapes, background patterns, SVG decorations
-- Color usage must be intentional: don't use plain white backgrounds unless the style demands it
-- Spacing must be generous — padding and margins that give content room to breathe
-- Inline SVG icons preferred over emoji for a professional look
+STRUCTURAL DIVERSITY RULES (read carefully):
+- Follow the layout archetype EXACTLY — if it says asymmetric, make ONE side dramatically larger
+- If it says brutalist, use thick black borders and NO rounded corners anywhere
+- If it says terminal/CLI, use monospace font and a dark console aesthetic throughout
+- If it says editorial, let elements OVERLAP columns and break the grid intentionally
+- DO NOT default to a standard centered hero + 3-column feature grid — that is the forbidden default
 
-FORBIDDEN (instant quality penalty):
-- Plain white/gray backgrounds with no visual interest
-- Flat cards with no shadow or border
-- Generic button styles (rounded-md bg-blue-500 only)
-- Missing hover states on interactive elements
-- Walls of same-size text with no hierarchy"""
+VISUAL QUALITY RULES:
+- Write a <style> block: @keyframes for the specified animation, custom CSS for special effects
+- Use the EXACT colors from the color_palette — do not substitute with Tailwind default blues/grays
+- Typography hierarchy: at least 3 distinct sizes, weights, and styles
+- Every section needs a different background treatment — avoid repeating the same bg color
+- All interactive elements need hover states (transition: all 0.25s)
+- Add at least 2 decorative CSS elements: geometric shapes, patterns, blobs, lines — as `::before`/`::after` or divs
 
-async def pass2_html_draft(brief: Dict[str, Any], category: str, style: str, structure: str) -> str:
+FORBIDDEN:
+- Standard hero with centered text + subtitle + two buttons as the only layout idea
+- All-blue or all-purple color scheme unless explicitly specified
+- Flat cards with no border, shadow, or background distinction
+- The same card layout repeating for every section
+- Walls of same-size text with no typographic contrast"""
+
+async def pass2_html_draft(brief: Dict[str, Any], category: str, style: str, structure: str,
+                           dna: Optional[Dict[str, str]] = None) -> str:
     colors = " | ".join(brief.get("color_palette", []))
+    layout_arch = dna.get("layout_arch", structure) if dna else structure
+    animation   = dna.get("animation", "hover lifts") if dna else "hover lifts"
+
+    # 자기학습 교훈 주입
+    top_lessons = _get_top_lessons()
+    lessons_block = ""
+    if top_lessons:
+        lessons_block = f"""
+━━ PREEMPTIVE FIXES (learned from past low-scoring designs — apply from the start) ━━
+{top_lessons}
+→ These mistakes caused low scores in previous generations. Do NOT repeat them.
+→ Solve each one BEFORE writing the HTML, not after.
+"""
+
     prompt = f"""\
-Build a visually stunning {category} UI.
-Layout structure: {structure}
-Visual style: {style}
+Build a {category} UI. Read ALL constraints before writing a single line of HTML.
 
-Design Brief:
-- Brand/Title: {brief.get("title")}
-- Concept: {brief.get("concept")}
-- Color palette: {colors}
-- Typography: {brief.get("typography")}
-- Visual details: {brief.get("visual_details", "rich shadows, depth, decorative elements")}
-- Content: {brief.get("content_strategy")}
-- Animations: {brief.get("animation_hints", "subtle hover lifts and smooth transitions")}
+━━ LAYOUT ARCHETYPE (MANDATORY) ━━
+{layout_arch}
+→ Your layout MUST follow this archetype structurally, not just visually.
+→ If this says "asymmetric", allocate dramatically unequal column widths.
+→ If this says "brutalist", use thick borders, NO rounded corners, offset shadows.
+→ Do NOT produce a standard centered hero + feature grid — that is explicitly forbidden here.
 
-This should look like a real, polished product that could win Dribbble Popular.
-Make it visually rich — not a generic template. Write the complete HTML now."""
+━━ VISUAL STYLE ━━
+Style: {style}
+Structure variant: {structure}
+
+━━ COLORS (USE EXACTLY — no substitutions) ━━
+Palette: {colors}
+These are mandatory. Do NOT add Tailwind blue-500 or gray defaults not in this palette.
+
+━━ ANIMATION (IMPLEMENT IN CSS) ━━
+{animation}
+→ Write the exact @keyframes or transition in your <style> block.
+
+━━ CONTENT & BRAND ━━
+Brand: {brief.get("title")}
+Concept: {brief.get("concept")}
+Typography: {brief.get("typography")}
+Visual treatments: {brief.get("visual_details", "rich shadows, depth")}
+Content: {brief.get("content_strategy")}
+{lessons_block}
+━━ DIVERSITY CHECKLIST (before you write) ━━
+□ Is my layout following the archetype, not a default hero-cta-features?
+□ Are ALL colors from the palette above?
+□ Does the animation from above appear in my <style> block?
+□ Are different sections visually distinct (different bg, spacing, layout)?
+□ Is the typography pairing actually used with the right font weights?
+
+Write the complete HTML now."""
 
     log.info("[pass2] HTML 초안 생성 중...")
     text = await ollama_chat([
@@ -459,42 +769,49 @@ async def generate_one_design(
     browser: Browser,
     min_score: int = DEFAULT_MIN_SCORE,
     max_refine: int = DEFAULT_MAX_REFINE,
-) -> tuple[bool, Optional[DesignData], int]:
+    trend_context: str = "",
+) -> tuple[bool, Optional[DesignData], int, Dict]:
     """
     디자인을 생성하고 데이터를 반환 — DB/Storage 저장은 하지 않음.
     저장 여부는 호출자(run_batch)가 score를 보고 결정.
 
-    Returns (success, design_data, score)
-    design_data keys: title, slug, category, description, html_code,
-                      screenshot_bytes, colors, score, prompt_tag
+    Returns (success, design_data, score, last_review)
     """
-    category = random.choice(CATEGORIES)
-    style, structure = pick_style_structure()
+    # DNA 기반으로 모든 다양성 차원 한 번에 결정
+    dna = pick_design_dna()
+    category  = dna["category"]
+    style     = dna["style"]
+    structure = dna["structure"]
     design_id = str(uuid.uuid4())
 
-    log.info("[start] %s | %s | %s", category, structure, style)
+    log.info("[start] category=%s | style=%s", category, style)
+    log.info("[dna] layout=%s", dna.get("layout_arch", "")[:60])
+    log.info("[dna] color=%s", dna.get("color_mood", "")[:60])
+    log.info("[dna] animation=%s", dna.get("animation", "")[:60])
     log.info("[config] min_score=%d | max_refine=%d", min_score, max_refine)
 
     try:
-        # Pass 1: 브리프
-        brief = await pass1_brief(category, style, structure)
+        # Pass 1: 브리프 (DNA + 트렌드 전달)
+        brief = await pass1_brief(category, style, structure, dna=dna, trend_context=trend_context)
         title = brief.get("title", "Untitled Design")
         log.info("[brief] 제목: %s", title)
 
-        # Pass 2: HTML 초안
-        html_current = await pass2_html_draft(brief, category, style, structure)
+        # Pass 2: HTML 초안 (DNA 전달 — 색상/레이아웃 강제)
+        html_current = await pass2_html_draft(brief, category, style, structure, dna=dna)
         if not html_current.strip():
             log.error("[pass2] HTML 초안 비어있음")
             return False, None, 0
 
         # 품질 개선 루프
         score = 0
+        last_review: Dict = {}
         total_passes = max_refine if min_score > 0 else 1
 
         for refine_idx in range(total_passes):
             round_label = f"[refine {refine_idx + 1}/{total_passes}]" if total_passes > 1 else "[review]"
 
             review = await pass3_review(html_current, category, style)
+            last_review = review
             score = review.get("score", 50)
             log.info("%s 점수: %d/100 | 이슈: %d개 | 강점: %s",
                      round_label, score,
@@ -519,7 +836,7 @@ async def generate_one_design(
 
         html_final = html_current
 
-        # 스크린샷 (저장 전 미리 찍어 둠)
+        # 스크린샷
         log.info("[screenshot] 캡처 중...")
         screenshot_bytes = await capture_screenshot(browser, html_final)
 
@@ -533,18 +850,21 @@ async def generate_one_design(
             "colors":      brief.get("color_palette", []),
             "score":       score,
             "prompt_tag":  f"{structure}_{style}".lower().replace(" ", "_"),
+            # DNA 추가 저장 (히스토리용)
+            "dna":         dna,
         }
 
-        log.info("[생성완료] %s | score=%d", title, score)
-        return True, design_data, score
+        log.info("[생성완료] %s | score=%d | layout=%s",
+                 title, score, dna.get("layout_arch", "")[:40])
+        return True, design_data, score, last_review
 
     except Exception as exc:
         log.error("[error] 생성 실패: %s", exc, exc_info=True)
-        return False, None, 0
+        return False, None, 0, {}
 
 
 def publish_design(data: DesignData) -> str:
-    """Storage 업로드 + DB 저장. 저장된 slug 반환."""
+    """Storage 업로드 + DB 저장 + 히스토리 기록. 저장된 slug 반환."""
     slug = unique_slug(data["title"])
     log.info("[upload] Storage 업로드 중... (slug=%s)", slug)
     image_url = upload_image(data["screenshot"], slug)
@@ -561,6 +881,22 @@ def publish_design(data: DesignData) -> str:
         score=data["score"],
         prompt_tag=data["prompt_tag"],
     )
+
+    # 히스토리 저장 — 다음 생성 시 중복 방지용
+    dna = data.get("dna", {})
+    _save_history({
+        "title":      data["title"],
+        "slug":       slug,
+        "score":      data["score"],
+        "category":   data["category"],
+        "style":      dna.get("style", ""),
+        "structure":  dna.get("structure", ""),
+        "color_key":  dna.get("color_key", ""),
+        "layout_key": dna.get("layout_key", ""),
+        "animation":  dna.get("animation", ""),
+        "ts":         datetime.utcnow().isoformat(),
+    })
+
     log.info("[✓] 게시 완료: %s | score=%d | https://ui-syntax.com/design/%s",
              data["title"], data["score"], slug)
     return slug
@@ -572,18 +908,23 @@ async def run_batch(
     max_refine: int = DEFAULT_MAX_REFINE,
     target_score: int = 0,
     max_attempts: int = 10,
+    use_trends: bool = True,
+    refresh_trends_cache: bool = False,
 ) -> None:
     """
-    count        : 목표 저장 디자인 수
-    min_score    : 단일 디자인 내 개선 반복 기준 점수
-    max_refine   : 단일 디자인 내 최대 개선 횟수
-    target_score : 이 점수 이상인 디자인만 저장 (0 = 비활성화)
-                   미달 시 새 디자인을 처음부터 다시 생성
-    max_attempts : target_score 달성을 위한 최대 시도 횟수 (무한루프 방지)
+    count               : 목표 저장 디자인 수
+    min_score           : 단일 디자인 내 개선 반복 기준 점수
+    max_refine          : 단일 디자인 내 최대 개선 횟수
+    target_score        : 이 점수 이상인 디자인만 저장 (0 = 비활성화)
+                          미달 시 새 디자인을 처음부터 다시 생성
+    max_attempts        : target_score 달성을 위한 최대 시도 횟수 (무한루프 방지)
+    use_trends          : True = 웹 트렌드 수집 후 프롬프트에 주입
+    refresh_trends_cache: True = 기존 캐시 무시하고 강제 갱신
     """
     log.info(
-        "[system] Ollama(%s) | 목표 %d개 | min_score=%d | max_refine=%d | target_score=%d | max_attempts=%d",
+        "[system] Ollama(%s) | 목표 %d개 | min_score=%d | max_refine=%d | target_score=%d | max_attempts=%d | trends=%s",
         OLLAMA_MODEL, count, min_score, max_refine, target_score, max_attempts,
+        "on" if use_trends else "off",
     )
 
     # Ollama 연결 확인
@@ -597,6 +938,28 @@ async def run_batch(
     except Exception as exc:
         log.error("[ollama] 연결 실패: %s — Ollama가 실행 중인지 확인하세요", exc)
         return
+
+    # 학습 메모리 현황 출력
+    lessons_data = _load_lessons()
+    ls = lessons_data.get("stats", {})
+    log.info(
+        "[학습메모리] 총 %d회 시도 | 성공 %d회 | 학습된 이슈 %d개",
+        ls.get("attempts", 0), ls.get("successes", 0), len(lessons_data.get("fixes", {})),
+    )
+
+    # 웹 트렌드 수집 (캐시 활용 또는 갱신)
+    trend_context = ""
+    if use_trends:
+        log.info("[trend] 트렌드 데이터 로드 중...")
+        try:
+            trends = await get_trends(OLLAMA_BASE_URL, OLLAMA_MODEL, force_refresh=refresh_trends_cache)
+            trend_context = format_trend_prompt_block(trends)
+            if trend_context:
+                log.info("[trend] 트렌드 컨텍스트 준비 완료 (%d chars)", len(trend_context))
+            else:
+                log.info("[trend] 트렌드 데이터 없음 — 트렌드 없이 진행")
+        except Exception as exc:
+            log.warning("[trend] 트렌드 로드 실패 (무시하고 진행): %s", exc)
 
     successes = 0
     async with async_playwright() as p:
@@ -614,8 +977,9 @@ async def run_batch(
                     attempt += 1
                     log.info("  [시도 %d/%d] 새 디자인 생성 중... (목표: score >= %d)",
                              attempt, max_attempts, target_score)
-                    ok, design_data, score = await generate_one_design(
+                    ok, design_data, score, last_review = await generate_one_design(
                         browser, min_score=min_score, max_refine=max_refine,
+                        trend_context=trend_context,
                     )
                     if score > best_score:
                         best_score = score
@@ -623,6 +987,12 @@ async def run_batch(
                     if ok and score >= target_score:
                         log.info("  [✓] 목표 달성! score=%d >= %d (시도 %d회) — 저장 중...",
                                  score, target_score, attempt)
+                        _record_result(
+                            last_review.get("issues", []),
+                            score,
+                            design_data.get("dna", {}),
+                            success=True,
+                        )
                         slug = await asyncio.to_thread(publish_design, design_data)
                         log.info("  [✓] 게시 완료: https://ui-syntax.com/design/%s", slug)
                         successes += 1
@@ -630,8 +1000,15 @@ async def run_batch(
                     elif ok:
                         log.info("  [✗] score=%d < %d — 저장 안 함, 폐기 후 재시도 (최고: %d)",
                                  score, target_score, best_score)
+                        _record_result(
+                            last_review.get("issues", []),
+                            score,
+                            design_data.get("dna", {}),
+                            success=False,
+                        )
                     else:
                         log.warning("  [✗] 생성 실패 — 재시도")
+                        _record_result([], 0, {}, success=False)
 
                     if attempt < max_attempts:
                         await asyncio.sleep(2)
@@ -642,10 +1019,17 @@ async def run_batch(
                     )
             else:
                 # ── 기존 단순 생성 (target_score 없으면 무조건 저장) ──────────
-                ok, design_data, score = await generate_one_design(
+                ok, design_data, score, last_review = await generate_one_design(
                     browser, min_score=min_score, max_refine=max_refine,
+                    trend_context=trend_context,
                 )
                 if ok and design_data:
+                    _record_result(
+                        last_review.get("issues", []),
+                        score,
+                        design_data.get("dna", {}),
+                        success=True,
+                    )
                     slug = await asyncio.to_thread(publish_design, design_data)
                     successes += 1
                     log.info("[작업 완료] 최종 점수: %d | slug=%s", score, slug)
@@ -671,6 +1055,10 @@ if __name__ == "__main__":
                         help="이 점수 미만이면 새 디자인을 처음부터 재생성 (0=비활성화, 권장: 85-90)")
     parser.add_argument("--max-attempts", type=int, default=10,
                         help="target-score 달성을 위한 최대 시도 횟수 (기본: 10)")
+    parser.add_argument("--no-trend",       action="store_true",
+                        help="웹 트렌드 수집 비활성화 (오프라인 환경용)")
+    parser.add_argument("--refresh-trends", action="store_true",
+                        help="트렌드 캐시 무시하고 강제 갱신")
     args = parser.parse_args()
 
     OLLAMA_MODEL    = args.model
@@ -682,4 +1070,6 @@ if __name__ == "__main__":
         max_refine=args.max_refine,
         target_score=args.target_score,
         max_attempts=args.max_attempts,
+        use_trends=not args.no_trend,
+        refresh_trends_cache=args.refresh_trends,
     ))

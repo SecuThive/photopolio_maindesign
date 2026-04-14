@@ -1,0 +1,26 @@
+[
+  {
+    "title": "ChronoGraph Developer Journal",
+    "slug": "chronograph-developer-journal",
+    "score": 85,
+    "category": "Portfolio",
+    "style": "Vercel-style Dark Developer",
+    "structure": "Bento Grid with Code Snippets",
+    "color_key": "Dark Jewel Emerald: bg=#0A1628, primary=#0D4F3C, secondary=#C9A84C, accent=#52B788, text=#E8F5E9",
+    "layout_key": "Sticky Sidebar App: fixed left panel (240px) + scrollable right content area",
+    "animation": "blob-morph: background SVG blob shapes animate border-radius with @keyframes",
+    "ts": "2026-04-14T06:03:44.660797"
+  },
+  {
+    "title": "Aetherium Signal Conduit",
+    "slug": "aetherium-signal-conduit",
+    "score": 88,
+    "category": "Dashboard",
+    "style": "Neumorphism Soft UI",
+    "structure": "Music Player with Pressed Buttons",
+    "color_key": "Deep Ocean: bg=#03045E, primary=#0077B6, secondary=#00B4D8, accent=#90E0EF, text=#CAF0F8",
+    "layout_key": "Radial / Circular: circular stats, ring progress bars, radial menus as primary design motif",
+    "animation": "parallax-drift: background moves at 0.5x scroll speed (transform: translateY calc)",
+    "ts": "2026-04-14T04:07:43.133166"
+  }
+]

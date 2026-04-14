@@ -1,0 +1,626 @@
+{
+  "stats": {
+    "attempts": 19,
+    "failures": 17,
+    "successes": 2
+  },
+  "fixes": {
+    "depth:The Neumorphism shadow implementation needs stronger adheren": {
+      "area": "depth",
+      "severity": "major",
+      "fix": "The Neumorphism shadow implementation needs stronger adherence to the 'soft' aesthetic. The current shadow values (e.g., `10px 10px 20px rgba(124, 58, 237, 0.5), -10px -10px 20px rgba(255, 255, 255, 0.8)`) are too harsh for a 'Soft UI'. Soft UI relies on subtle, barely-there ambient light changes. Soften the shadow spread and increase the overall blur radius, perhaps using `box-shadow: 5px 5px 15px rgba(124, 58, 237, 0.2), -5px -5px 15px rgba(255, 255, 255, 0.8);`.",
+      "count": 1,
+      "last_seen": "2026-04-14T03:55:00.660909"
+    },
+    "color:The color palette is heavily reliant on the primary purple (": {
+      "area": "color",
+      "severity": "major",
+      "fix": "The color palette is heavily reliant on the primary purple (`--color-primary`). While cohesive, the background light (`#F5F0FF`) combined with the strong purple shadows feels slightly too electric for a 'Soft' theme. Consider introducing a very light, warm neutral (like a pale cream or very light gray, e.g., `#FCFBFD`) as the main background base to allow the purple elements to 'pop' without competing with the light background noise.",
+      "count": 1,
+      "last_seen": "2026-04-14T03:55:00.660914"
+    },
+    "decoration:The decorative 'blob' elements are excellent in concept but ": {
+      "area": "decoration",
+      "severity": "major",
+      "fix": "The decorative 'blob' elements are excellent in concept but suffer from insufficient visual separation from the underlying content. Increase the `z-index` of the main content area (e.g., `z-10`) and adjust the background wrapper's `z-index` to ensure the blobs (which are `z-0`) are purely atmospheric. More importantly, the `filter: blur(70px)` on the blobs needs to be paired with a subtle, slow-moving color gradient transition across the entire viewport, rather than just the static background element.",
+      "count": 1,
+      "last_seen": "2026-04-14T03:55:00.660916"
+    },
+    "spacing:The main dashboard grid uses `gap-10`. While ample, the over": {
+      "area": "spacing",
+      "severity": "minor",
+      "fix": "The main dashboard grid uses `gap-10`. While ample, the overall padding on the main container (`p-4 pt-16 pb-20`) feels a bit unbalanced, especially given the large visual weight of the left column. Consider reducing the top padding (`pt-16`) slightly, or increasing the bottom padding (`pb-20`) if the content is expected to grow, to better balance the vertical axis flow.",
+      "count": 1,
+      "last_seen": "2026-04-14T03:55:00.660918"
+    },
+    "animation:The pulsating line animation (`pulse-glow`) is effective, bu": {
+      "area": "animation",
+      "severity": "minor",
+      "fix": "The pulsating line animation (`pulse-glow`) is effective, but its fixed placement beneath the main section title feels tacked on. Integrate this 'pulse' into a more fundamental element, such as a subtle underline animation on the entire left panel's main title, or use it as a heartbeat indicator on the most critical data point (e.g., the '99.8%' metric). The current implementation feels decorative rather than functional.",
+      "count": 1,
+      "last_seen": "2026-04-14T03:55:00.660920"
+    },
+    "typography:The font pairing ('Inter' and 'Space Mono') is strong, but t": {
+      "area": "typography",
+      "severity": "minor",
+      "fix": "The font pairing ('Inter' and 'Space Mono') is strong, but the usage is inconsistent. The secondary data labels (e.g., 'Packet Integrity') use `text-gray-500` with a small font size, which diminishes the perceived quality. For critical labels, use the `font-mono-heading` class but slightly increase the text size and weight to give it more architectural presence, rather than letting it recede into the background noise.",
+      "count": 1,
+      "last_seen": "2026-04-14T03:55:00.660921"
+    },
+    "content:The simulated cards (e.g., 'Packet Integrity') are overly un": {
+      "area": "content",
+      "severity": "minor",
+      "fix": "The simulated cards (e.g., 'Packet Integrity') are overly uniform in their structure. To elevate the visual quality, introduce asymmetrical structuring within the card content itself. For instance, place the status indicator (`✓`) slightly higher or to the left, and give the metric a bolder, more dominant typeface weight, breaking the perfect horizontal alignment across all metrics.",
+      "count": 1,
+      "last_seen": "2026-04-14T03:55:00.660923"
+    },
+    "color:The use of pure, flat background colors like `var(--color-bg": {
+      "area": "color",
+      "severity": "major",
+      "fix": "The use of pure, flat background colors like `var(--color-bg-light)` clashes slightly with the desired 'Vibrant Gradient Pop' aesthetic. Introduce subtle, highly desaturated color washes (e.g., a very light, barely visible radial gradient wash) over the main body background instead of flat color to unify the atmosphere.",
+      "count": 1,
+      "last_seen": "2026-04-14T03:57:55.155001"
+    },
+    "depth:The `floating-card` hover effect's shadow (`box-shadow: 0 20": {
+      "area": "depth",
+      "severity": "major",
+      "fix": "The `floating-card` hover effect's shadow (`box-shadow: 0 20px 40px rgba(43, 76, 126, 0.2), 0 10px 20px rgba(0, 0, 0, 0.1);`) is too predictable. Enhance the hover state by making the shadow gradient-aware, perhaps lifting the card *and* slightly distorting the background blobs underneath it (if they were truly interactive).",
+      "count": 1,
+      "last_seen": "2026-04-14T03:57:55.155006"
+    },
+    "animation:The `stagger-reveal` is effective but lacks 'pop.' Increase ": {
+      "area": "animation",
+      "severity": "minor",
+      "fix": "The `stagger-reveal` is effective but lacks 'pop.' Increase the easing function for a more modern, bouncy feel: change `ease-out` to `cubic-bezier(0.175, 0.885, 0.32, 1.275)` for a satisfying overshoot bounce on entrance animations.",
+      "count": 1,
+      "last_seen": "2026-04-14T03:57:55.155010"
+    },
+    "typography:The main heading `ChronoWeave...` is too large and static. T": {
+      "area": "typography",
+      "severity": "minor",
+      "fix": "The main heading `ChronoWeave...` is too large and static. To enhance 'Vibrant Gradient Pop,' apply the primary gradient color scheme (e.g., `linear-gradient(45deg, var(--color-blue-mid), var(--color-blue-light))`) to the text itself, rather than just using a strong background on the button. Use a text-fill-gradient technique.",
+      "count": 1,
+      "last_seen": "2026-04-14T03:57:55.155012"
+    },
+    "decoration:The atmospheric blobs are currently just large, blurred colo": {
+      "area": "decoration",
+      "severity": "minor",
+      "fix": "The atmospheric blobs are currently just large, blurred color blocks. To align with 'Vibrant Gradient Pop,' give the background blobs a subtle, internal gradient wash (e.g., `background: radial-gradient(circle, var(--color-blue-mid) 0%, transparent 60%);`) instead of a solid background-color, making them feel more ethereal and less like Photoshop overlays.",
+      "count": 1,
+      "last_seen": "2026-04-14T03:57:55.155013"
+    },
+    "spacing:The padding within the testimonial cards feels cramped aroun": {
+      "area": "spacing",
+      "severity": "minor",
+      "fix": "The padding within the testimonial cards feels cramped around the primary quote. Increase the top padding within `.gradient-content` to `2rem` and reduce the bottom margin on the quote block slightly to improve vertical rhythm.",
+      "count": 1,
+      "last_seen": "2026-04-14T03:57:55.155015"
+    },
+    "color:The overall palette (Sage, Lavender, Pink, Cream) is soft an": {
+      "area": "color",
+      "severity": "major",
+      "fix": "The overall palette (Sage, Lavender, Pink, Cream) is soft and pastel, which inherently conflicts with the 'Vibrant Gradient Pop' target. Introduce a high-chroma accent color (e.g., electric cyan or magenta) into the primary CTA button and the gradient border-portal to make the pop feel earned, rather than just washed out.",
+      "count": 1,
+      "last_seen": "2026-04-14T04:01:00.749601"
+    },
+    "depth:The background blob animations are good but lack contrast ag": {
+      "area": "depth",
+      "severity": "major",
+      "fix": "The background blob animations are good but lack contrast against the cream base. To enhance depth, apply a subtle, dark, radial gradient overlay (e.g., `radial-gradient(at 50% 100%, transparent 50%, rgba(0,0,0,0.1) 100%)`) over the entire `<body>` element to ground the vibrant elements and prevent the background from feeling too ethereal.",
+      "count": 1,
+      "last_seen": "2026-04-14T04:01:00.749607"
+    },
+    "animation:The `color-shift` animation on `.gradient-border-portal` is ": {
+      "area": "animation",
+      "severity": "major",
+      "fix": "The `color-shift` animation on `.gradient-border-portal` is cyclical but feels mechanical. Instead, implement a subtle, slow 'pulse' or 'breathing' effect on the background-size calculation, making the shift less about cycling colors and more about perceived energy, perhaps by easing the animation curve more aggressively.",
+      "count": 1,
+      "last_seen": "2026-04-14T04:01:00.749609"
+    },
+    "typography:The heading size in the hero (`text-7xl lg:text-[5rem]`) is ": {
+      "area": "typography",
+      "severity": "minor",
+      "fix": "The heading size in the hero (`text-7xl lg:text-[5rem]`) is dramatic, but the preceding sub-header (`text-sm tracking-[0.3em]`) is too small relative to the main headline. Increase the tracking of the sub-header to `tracking-[0.2em]` and give it more visual weight (e.g., `text-base` instead of `text-sm`) to better frame the main headline.",
+      "count": 1,
+      "last_seen": "2026-04-14T04:01:00.749611"
+    },
+    "decoration:The Swiss Grid guide (`.grid-guide`) is too subtle and its h": {
+      "area": "decoration",
+      "severity": "minor",
+      "fix": "The Swiss Grid guide (`.grid-guide`) is too subtle and its hover effect (changing background-color) is too muted. When hovering, the background should adopt the vibrant accent color defined in the theme, or use a slight scale/translate on the element itself rather than just changing the line color.",
+      "count": 1,
+      "last_seen": "2026-04-14T04:01:00.749613"
+    },
+    "spacing:The CTA buttons in the hero section use standard button styl": {
+      "area": "spacing",
+      "severity": "minor",
+      "fix": "The CTA buttons in the hero section use standard button styling. To elevate the visual hierarchy and match the 'Vibrant Pop' aesthetic, wrap the buttons in a container element and give the container a subtle, contained background (e.g., `bg-cream/80`) with generous padding, treating the button group as a distinct, elevated module.",
+      "count": 1,
+      "last_seen": "2026-04-14T04:01:00.749614"
+    },
+    "spacing:Review the padding on '.full-bleed-section' sections. The cu": {
+      "area": "spacing",
+      "severity": "minor",
+      "fix": "Review the padding on '.full-bleed-section' sections. The current setup uses fixed padding (120px/160px) which might create jarring vertical rhythm breaks when content length varies. Consider using padding relative to the viewport height or content padding with an explicit max-height for better flow.",
+      "count": 1,
+      "last_seen": "2026-04-14T04:28:20.755999"
+    },
+    "color:The background gradient in '.full-bleed-section' (repeating-": {
+      "area": "color",
+      "severity": "minor",
+      "fix": "The background gradient in '.full-bleed-section' (repeating-linear-gradient) feels overly busy in combination with the patterned background in '.section-bg-treatment'. Consider simplifying one of the patterned backgrounds, perhaps using the solid color washes combined with the Memphis blobs/decorations to let the typography breathe.",
+      "count": 1,
+      "last_seen": "2026-04-14T04:28:20.756458"
+    },
+    "decoration:The use of the window-frame-deco pseudo-element with a compl": {
+      "area": "decoration",
+      "severity": "minor",
+      "fix": "The use of the window-frame-deco pseudo-element with a complex `border-image` gradient is highly effective but clashes slightly with the underlying CSS variables. Ensure the color sequence in `linear-gradient(to right, var(--color-electric-cyan), var(--color-cta-orange), var(--color-accent-pink))` is aesthetically intentional, perhaps by selecting three colors that exist naturally together in a '90s rave' palette.",
+      "count": 1,
+      "last_seen": "2026-04-14T04:28:20.756462"
+    },
+    "animation:The `scanline-flicker` animation is cool but applying it on ": {
+      "area": "animation",
+      "severity": "minor",
+      "fix": "The `scanline-flicker` animation is cool but applying it on hover to *all* `.retro-card` elements might be too aggressive. If the goal is an 'active' feel, restrict this effect to only the primary CTA containers or key interactive elements to prevent visual fatigue.",
+      "count": 1,
+      "last_seen": "2026-04-14T04:28:20.756463"
+    },
+    "depth:The initial 'Window Frame' container has a strong, fixed sha": {
+      "area": "depth",
+      "severity": "minor",
+      "fix": "The initial 'Window Frame' container has a strong, fixed shadow `shadow-[20px_20px_0_0_var(--color-near-black)]`. To enhance perceived depth, consider adding an inner inset shadow to the actual content area (inside the frame) to create a more pronounced 'cutout' effect, simulating depth within the digital border.",
+      "count": 1,
+      "last_seen": "2026-04-14T04:28:20.756465"
+    },
+    "typography:The font pairing between 'VT323' (monospace/terminal) and 'O": {
+      "area": "typography",
+      "severity": "minor",
+      "fix": "The font pairing between 'VT323' (monospace/terminal) and 'OCR A Extended' (stencil/display) is technically cohesive for a retro theme, but the contrast in weight and purpose is so stark it creates tension. Ensure that only the absolute most important headings use 'OCR A Extended'; otherwise, consider using a more neutral fallback font for body text that still carries a slight geometric edge, reducing cognitive load.",
+      "count": 1,
+      "last_seen": "2026-04-14T04:28:20.756466"
+    },
+    "depth:The `clay-node` pseudo-element pattern (`::before`) creates ": {
+      "area": "depth",
+      "severity": "major",
+      "fix": "The `clay-node` pseudo-element pattern (`::before`) creates a very visible grid texture which competes with the soft, matte goal of Claymorphism. Replace the repeating-linear-gradient with a subtle, low-frequency noise overlay using CSS `background-image: url('data:image/png;base64,...');` (a true noise map) or remove it entirely if the base background gradient is sufficient. The contrast between the sharp grid lines and the soft shadows is dissonant.",
+      "count": 1,
+      "last_seen": "2026-04-14T04:37:30.525256"
+    },
+    "color:The primary accent color, `--color-pink-acc: #D82970;`, whil": {
+      "area": "color",
+      "severity": "major",
+      "fix": "The primary accent color, `--color-pink-acc: #D82970;`, while vibrant, pulls the entire palette away from a cohesive, earthy/soft academic 'clay' feel. For a true Claymorphism interpretation using the existing muted base, shift primary accents towards a desaturated terracotta or a dusty lavender (e.g., `--color-pink-acc: #C29AA3;`). The current pink feels too 'pop' and digital.",
+      "count": 1,
+      "last_seen": "2026-04-14T04:37:30.525261"
+    },
+    "animation:The `quantum-morph` keyframe animation is too aggressive in ": {
+      "area": "animation",
+      "severity": "major",
+      "fix": "The `quantum-morph` keyframe animation is too aggressive in its transformation values (e.g., `scale(1.08)`, `skew(-1deg)`). It reads more like 'vaporwave' or 'digital glitch' than soft, ambient 'clay' energy. Reduce the amplitude and keep the motion slower and more diffused, perhaps using only subtle `translateY` and `rotate` changes with lower opacity jumps.",
+      "count": 1,
+      "last_seen": "2026-04-14T04:37:30.525263"
+    },
+    "depth:The `clay-node` shadow implementation is solid, but the comb": {
+      "area": "depth",
+      "severity": "minor",
+      "fix": "The `clay-node` shadow implementation is solid, but the combination of `box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15)` and the `inset` shadow feels slightly contradictory when aiming for a single, unified 'lifted object' feel. Refine the shadow stack to rely more heavily on a single, larger, directional shadow for lift, and keep the inset shadows extremely faint, perhaps only adding a subtle inner bevel using `box-shadow: inset 0 1px 1px rgba(255,255,255,0.5), inset 0 -1px 1px rgba(0,0,0,0.05);`.",
+      "count": 1,
+      "last_seen": "2026-04-14T04:37:30.525264"
+    },
+    "spacing:The vertical rhythm between the main header node and the fol": {
+      "area": "spacing",
+      "severity": "minor",
+      "fix": "The vertical rhythm between the main header node and the following (unseen) sections needs more established visual demarcation. If this is a timeline, ensure the margin/padding surrounding the main content block (`max-w-7xl`) is balanced against the large `pb-32` on the body, preventing the content from feeling too abruptly placed at the top.",
+      "count": 1,
+      "last_seen": "2026-04-14T04:37:30.525266"
+    },
+    "typography:The pairing of `Inter` (sans-serif) and `IBM Plex Mono` (mon": {
+      "area": "typography",
+      "severity": "minor",
+      "fix": "The pairing of `Inter` (sans-serif) and `IBM Plex Mono` (monospace) is strong, but the use of `font-mono-heading` for the main H1 *and* for the `data-readout` block creates unnecessary repetition of monospace context. Consider using a highly structured, geometric sans-serif for the `data-readout` to separate its technical function from the primary branding typography.",
+      "count": 1,
+      "last_seen": "2026-04-14T04:37:30.525267"
+    },
+    "decoration:The background blobs are visually powerful but lack anchor p": {
+      "area": "decoration",
+      "severity": "minor",
+      "fix": "The background blobs are visually powerful but lack anchor points to the 'clay' material theme. To ground them, apply a subtle, very soft Gaussian blur *and* a slight color bleed/feathering effect at their edges, mimicking how pigmented clay dust might settle on the surface.",
+      "count": 1,
+      "last_seen": "2026-04-14T04:37:30.525269"
+    },
+    "typography:The primary headline uses `font-light` with `tracking-tighte": {
+      "area": "typography",
+      "severity": "major",
+      "fix": "The primary headline uses `font-light` with `tracking-tighter` and a complex gradient. While visually rich, the text size (`text-7xl lg:text-8xl`) combined with the light weight risks appearing too wispy or illegible against the dark, noisy background, especially in fast motion. Reduce the `font-light` usage to `font-medium` or `font-semibold` for better anchoring against the background texture.",
+      "count": 1,
+      "last_seen": "2026-04-14T04:46:47.802911"
+    },
+    "color:The primary CTA button hover effect (`background-color: tran": {
+      "area": "color",
+      "severity": "major",
+      "fix": "The primary CTA button hover effect (`background-color: transparent;`) combined with the bright `box-shadow` using `--color-accent-light` lacks a cohesive 'lift' feeling. Change the hover state to use a subtle, contained background fill (e.g., `background-color: var(--color-accent-light);`) and decrease the `box-shadow` spread on hover to keep the interaction grounded and premium.",
+      "count": 1,
+      "last_seen": "2026-04-14T04:46:47.802916"
+    },
+    "depth:The `bento-card` hover state shadow (`box-shadow: 0 25px 50p": {
+      "area": "depth",
+      "severity": "major",
+      "fix": "The `bento-card` hover state shadow (`box-shadow: 0 25px 50px rgba(157, 78, 221, 0.3), inset 0 0 20px rgba(199, 125, 255, 0.1);`) is overly dramatic and clashes with the established ethereal, magazine feel. Soften the lift effect by using `box-shadow: 0 15px 35px rgba(157, 78, 221, 0.2);` on hover to suggest depth rather than a pop.",
+      "count": 1,
+      "last_seen": "2026-04-14T04:46:47.802918"
+    },
+    "decoration:The overlapping divider (`bg-indigo-900/30 ... border-dashed": {
+      "area": "decoration",
+      "severity": "minor",
+      "fix": "The overlapping divider (`bg-indigo-900/30 ... border-dashed`) feels too overtly 'tech' or 'UX wireframe' and disrupts the 'Editorial Magazine' aesthetic. Replace it with a subtle, textured graphic element, perhaps a misaligned piece of thin, semi-transparent negative space or a small, serif-type ruled line accent drawn under the main title.",
+      "count": 1,
+      "last_seen": "2026-04-14T04:46:47.802920"
+    },
+    "animation:The fixed background grain overlay (`body::before`) at `opac": {
+      "area": "animation",
+      "severity": "minor",
+      "fix": "The fixed background grain overlay (`body::before`) at `opacity: 0.05` is acceptable but relentless. To achieve a more refined 'magazine' feel, consider making the grain effect conditional or tying its intensity to user scrolling (e.g., opacity increases slightly on scroll) rather than running constantly in a fixed loop.",
+      "count": 1,
+      "last_seen": "2026-04-14T04:46:47.802922"
+    },
+    "spacing:The vertical padding on the main container (`pt-16 pb-32`) i": {
+      "area": "spacing",
+      "severity": "minor",
+      "fix": "The vertical padding on the main container (`pt-16 pb-32`) is decent, but the spacing between the header and the main grid is too abrupt. Increase the margin below the header section (`mb-16`) to `mb-24` to give the title block more breathing room before the dense content grid begins.",
+      "count": 1,
+      "last_seen": "2026-04-14T04:46:47.802924"
+    },
+    "content:The Keynote Highlight card uses `from-[#1A0533] to-[#2A094A]": {
+      "area": "content",
+      "severity": "minor",
+      "fix": "The Keynote Highlight card uses `from-[#1A0533] to-[#2A094A]` gradient, which is nearly identical to the body background color. This creates a 'floating' effect that lacks visual anchor. Instead, use a deep, contrasting, near-black color (e.g., `#0F011F`) for the background of this dominant card to make the white/purple foreground content truly pop.",
+      "count": 1,
+      "last_seen": "2026-04-14T04:46:47.802925"
+    },
+    "depth:The contrast between the main content panel (white) and the ": {
+      "area": "depth",
+      "severity": "major",
+      "fix": "The contrast between the main content panel (white) and the data visualization panel (deep charcoal, #111827) is too abrupt. Soften the border separation between the two main vertical blocks, perhaps by applying a very light, semi-transparent shadow or a 1px border using --color-border-subtle to the main container wrapper element wrapping both columns.",
+      "count": 1,
+      "last_seen": "2026-04-14T04:53:55.219001"
+    },
+    "color:The accent color, --color-accent-muted (#88B4E7), feels gene": {
+      "area": "color",
+      "severity": "major",
+      "fix": "The accent color, --color-accent-muted (#88B4E7), feels generic and lacks the necessary 'authority' for a high-end technical piece. Replace it with a single, deep electric blue (e.g., #007AFF or a slightly desaturated neon blue) used consistently for all highlights, glows, and underlines to unify the 'data science' mood.",
+      "count": 1,
+      "last_seen": "2026-04-14T04:53:55.219012"
+    },
+    "typography:The interaction between the monumental H1 (Space Mono) and t": {
+      "area": "typography",
+      "severity": "major",
+      "fix": "The interaction between the monumental H1 (Space Mono) and the introductory paragraph (Inter) is unbalanced. Consider setting the introductory paragraph's font to 'Space Mono' as well, but using a very low weight (e.g., 200 or 300) and slightly increased letter-spacing to create a more cohesive, monolithic typographic statement.",
+      "count": 1,
+      "last_seen": "2026-04-14T04:53:55.219014"
+    },
+    "decoration:The 'data-node' glow box-shadow (`0 0 12px rgba(136, 180, 23": {
+      "area": "decoration",
+      "severity": "minor",
+      "fix": "The 'data-node' glow box-shadow (`0 0 12px rgba(136, 180, 231, 0.7)`) is slightly too diffuse. Tweak it to a tighter, more focused glow, like `0 0 8px var(--color-accent-muted)` to give it a more 'embedded' or physical circuit look rather than an atmospheric one.",
+      "count": 1,
+      "last_seen": "2026-04-14T04:53:55.219016"
+    },
+    "spacing:In the `metrics-block`, the `min-width: 150px` combined with": {
+      "area": "spacing",
+      "severity": "minor",
+      "fix": "In the `metrics-block`, the `min-width: 150px` combined with `flex-wrap: wrap` causes the spacing between the items on medium screens to look slightly uneven. Adjust the flex calculation to use `flex: 1 1 200px` and set the `gap` property directly on the container, removing the need for the complex `calc()` function to improve responsiveness predictability.",
+      "count": 1,
+      "last_seen": "2026-04-14T04:53:55.219018"
+    },
+    "animation:The use of multiple, staggered `animate-fade-in` instances f": {
+      "area": "animation",
+      "severity": "minor",
+      "fix": "The use of multiple, staggered `animate-fade-in` instances feels programmatic rather than experiential. For a premium feel, transition the animation delay to be sequential based on element *appearance* on scroll (Intersection Observer API) rather than fixed `animation-delay` values in the markup.",
+      "count": 1,
+      "last_seen": "2026-04-14T04:53:55.219019"
+    },
+    "content:The introductory paragraph border-left is good, but its text": {
+      "area": "content",
+      "severity": "minor",
+      "fix": "The introductory paragraph border-left is good, but its text size (`text-xl sm:text-2xl`) competes with the headline. Decrease the font size slightly or, better yet, wrap the entire text block into a single, dedicated 'System Log' component styled with a monospace font and a subtle background tint to visually group the descriptive text.",
+      "count": 1,
+      "last_seen": "2026-04-14T04:53:55.219021"
+    },
+    "spacing:Increase the vertical margin between the Hero Headline block": {
+      "area": "spacing",
+      "severity": "major",
+      "fix": "Increase the vertical margin between the Hero Headline block and the first Data Panel. Change 'mt-20 lg:mt-24' to 'mt-32 lg:mt-40' to give the primary visual anchor (H1) more breathing room relative to the content block.",
+      "count": 1,
+      "last_seen": "2026-04-14T05:06:50.217451"
+    },
+    "typography:The use of both `font-mono-heading` and `text-body-mono` on ": {
+      "area": "typography",
+      "severity": "major",
+      "fix": "The use of both `font-mono-heading` and `text-body-mono` on the same element (e.g., the `bleed-text`) is redundant and confusing. Standardize the bleed text to use the primary mono font (`IBM Plex Mono`) but reduce its letter-spacing on hover or interaction to draw the eye back to the main content.",
+      "count": 1,
+      "last_seen": "2026-04-14T05:06:50.217456"
+    },
+    "color:The accent color, `--color-accent-amber: #CCAA66;`, feels to": {
+      "area": "color",
+      "severity": "minor",
+      "fix": "The accent color, `--color-accent-amber: #CCAA66;`, feels too muted and academic for a high-impact portfolio. Consider shifting it to a more saturated, high-contrast, but still desaturated tone, such as a deep burnt orange or desaturated teal (e.g., `#D68E43` or `#5A7D72`) for immediate visual 'pop' against the deep blacks and grays.",
+      "count": 1,
+      "last_seen": "2026-04-14T05:06:50.217458"
+    },
+    "depth:The `data-panel` uses a solid 1px border and a noticeable bo": {
+      "area": "depth",
+      "severity": "minor",
+      "fix": "The `data-panel` uses a solid 1px border and a noticeable box-shadow. To achieve a more advanced 'terminal/HUD' depth, replace the solid border with a faint, inner glow effect: `border: none; box-shadow: 0 0 15px rgba(26, 26, 26, 0.1), inset 0 0 8px rgba(26, 26, 26, 0.05);`",
+      "count": 1,
+      "last_seen": "2026-04-14T05:06:50.217460"
+    },
+    "decoration:The `overlapping-element` pseudo-element (`::before`) uses a": {
+      "area": "decoration",
+      "severity": "minor",
+      "fix": "The `overlapping-element` pseudo-element (`::before`) uses a very subtle, barely visible black overlay. To enhance the 'digital glitch' or 'data bleed' aesthetic, increase its opacity slightly and adjust the transform to be more disruptive: `background-color: rgba(26, 26, 26, 0.1); transform: skewX(-5deg) translateY(3px);`",
+      "count": 1,
+      "last_seen": "2026-04-14T05:06:50.217461"
+    },
+    "content:The `count-up-value` relies entirely on JavaScript for its e": {
+      "area": "content",
+      "severity": "minor",
+      "fix": "The `count-up-value` relies entirely on JavaScript for its effect, but its static HTML structure needs a class that dictates the initial state *before* the JS kicks in, which is currently missing. Ensure the initial opacity transition is smoother, perhaps starting at `opacity: 0` and transitioning through a very rapid scale-up effect to sell the 'live reading' feel.",
+      "count": 1,
+      "last_seen": "2026-04-14T05:06:50.217463"
+    },
+    "animation:The `atmosphere-wash` is functional but purely aesthetic. To": {
+      "area": "animation",
+      "severity": "minor",
+      "fix": "The `atmosphere-wash` is functional but purely aesthetic. To elevate this, apply a subtle, very slow rotation transform combined with the gradient to give the whole viewport a sense of controlled, breathing instability: `background: radial-gradient(at 50% 10%, rgba(26, 26, 26, 0.03) 0%, transparent 40%); transform: rotate(0.1deg); animation: floatBackground 60s linear infinite;` (Requires defining a new keyframe for rotation).",
+      "count": 1,
+      "last_seen": "2026-04-14T05:06:50.217464"
+    },
+    "depth:The use of `shadow-md` on assets contradicts the goal of Jap": {
+      "area": "depth",
+      "severity": "major",
+      "fix": "The use of `shadow-md` on assets contradicts the goal of Japanese Minimalism (Ma). Replace all `shadow-md` usage with a very subtle border or no shadow at all. For example: Change `shadow-md` to `border: 1px solid var(--color-subtle-border)` on `.photo-asset`.",
+      "count": 1,
+      "last_seen": "2026-04-14T05:47:37.444665"
+    },
+    "typography:The pairing of 'Georgia' (serif) for headings with 'Inter' (": {
+      "area": "typography",
+      "severity": "minor",
+      "fix": "The pairing of 'Georgia' (serif) for headings with 'Inter' (geometric sans-serif) for body text is safe but lacks the sophisticated resonance needed for a winning piece. Consider pairing Georgia with a modern, refined serif like 'Lora' or a clean, highly spaced sans-serif for headings if maintaining the contrast is desired.",
+      "count": 1,
+      "last_seen": "2026-04-14T05:47:37.444884"
+    },
+    "color:The CTA button hover effect (`background-color: var(--color-": {
+      "area": "color",
+      "severity": "minor",
+      "fix": "The CTA button hover effect (`background-color: var(--color-light-blue); color: var(--color-deep-blue);`) is visually jarring. In a 'Ma' context, interaction should be quiet. Instead, apply a subtle color change on the border only, e.g., change `background-color` to `transparent` and `border-color` to `var(--color-mid-blue)`.",
+      "count": 1,
+      "last_seen": "2026-04-14T05:47:37.444886"
+    },
+    "decoration:The pseudo-background noise (`radial-gradient(...)`) is too ": {
+      "area": "decoration",
+      "severity": "minor",
+      "fix": "The pseudo-background noise (`radial-gradient(...)`) is too aggressive for true minimalism. Reduce the size and opacity significantly, or replace it with a single, near-invisible, textured overlay applied via a pseudo-element on the `body` element for better control.",
+      "count": 1,
+      "last_seen": "2026-04-14T05:47:37.444888"
+    },
+    "spacing:The gap between the primary components in the feature grid (": {
+      "area": "spacing",
+      "severity": "minor",
+      "fix": "The gap between the primary components in the feature grid (`gap: 3rem;`) is too large relative to the overall gentle pacing. Test reducing this to `gap: 2.5rem;` to increase perceived cohesion and reduce visual 'airiness' in a non-structural way.",
+      "count": 1,
+      "last_seen": "2026-04-14T05:47:37.444890"
+    },
+    "content:The filler text, while thematically strong, requires a consi": {
+      "area": "content",
+      "severity": "major",
+      "fix": "The filler text, while thematically strong, requires a consistent implementation of whitespace. Ensure the introductory paragraph's line-height is maintained across all major text blocks (e.g., setting `line-height: 1.7` for body copy generally, reserving lower values for poetic emphasis).",
+      "count": 1,
+      "last_seen": "2026-04-14T05:47:37.444891"
+    },
+    "typography:The heading text size scales aggressively (up to 8vw). While": {
+      "area": "typography",
+      "severity": "major",
+      "fix": "The heading text size scales aggressively (up to 8vw). While large scale is good, the difference between 5vw and 8vw is jarring. Constrain the maximum size, perhaps using `text-6xl lg:text-[80px] xl:text-[96px]` with a defined max, and ensure the `tracking-tighter` doesn't create too much horizontal tension on smaller screens.",
+      "count": 1,
+      "last_seen": "2026-04-14T05:50:33.486658"
+    },
+    "depth:The pseudo-3D effect using `clip-path: polygon(0 0, 100% 0, ": {
+      "area": "depth",
+      "severity": "major",
+      "fix": "The pseudo-3D effect using `clip-path: polygon(0 0, 100% 0, 100% 95%, 0% 100%);` is good, but it feels arbitrary. To elevate this, replace the hard border/shadow with a subtle, low-opacity background gradient overlay on the content card itself, simulating physical depth rather than a geometric cut. E.g., add a radial gradient `radial-gradient(circle at 50% 10%, rgba(255,255,255,0.6) 0%, transparent 50%)` to the card background.",
+      "count": 1,
+      "last_seen": "2026-04-14T05:50:33.486664"
+    },
+    "color:The color palette is very rich (mint, deep green, amber). To": {
+      "area": "color",
+      "severity": "minor",
+      "fix": "The color palette is very rich (mint, deep green, amber). To achieve a more 'Apple' minimalism, drastically reduce the number of distinct accent colors used in proximity. Limit accents to one primary (Emerald) and one secondary (Amber), using them only for CTAs and key underlines. The current mix feels over-designed for true minimalism.",
+      "count": 1,
+      "last_seen": "2026-04-14T05:50:33.486666"
+    },
+    "animation:The `animate-stagger` is applied to multiple elements, causi": {
+      "area": "animation",
+      "severity": "minor",
+      "fix": "The `animate-stagger` is applied to multiple elements, causing them to appear sequentially. While intentional, the animation timing (`animation-delay`) relies heavily on sequential delays. On desktop, consider grouping the initial 'splash' elements (H1 and subheading) and having them animate together, followed by the major blocks, for a more cohesive, less 'staccato' reveal.",
+      "count": 1,
+      "last_seen": "2026-04-14T05:50:33.486668"
+    },
+    "decoration:The `.noise-overlay` combined with the `.atmospheric-bg` is ": {
+      "area": "decoration",
+      "severity": "minor",
+      "fix": "The `.noise-overlay` combined with the `.atmospheric-bg` is too aggressive. It creates visual noise that pulls focus from the content. Either remove the noise overlay entirely for a pure white aesthetic, or replace it with a single, extremely subtle, full-screen, very low-opacity grain pattern (e.g., `opacity: 0.02` on a PNG noise texture, not an SVG pattern).",
+      "count": 1,
+      "last_seen": "2026-04-14T05:50:33.486669"
+    },
+    "spacing:The gap between the H1/Subheading and the Bento Grid (`mb-16": {
+      "area": "spacing",
+      "severity": "minor",
+      "fix": "The gap between the H1/Subheading and the Bento Grid (`mb-16` on header, `mb-20` on grid) feels slightly inconsistent. Review the vertical rhythm. If the header section feels dense, increase the space *after* the header slightly, perhaps to `mb-24` to give the initial visual breath before the grid hits.",
+      "count": 1,
+      "last_seen": "2026-04-14T05:50:33.486671"
+    },
+    "content:The 'Lorem Ipsum' placeholder content within the 'Lumen Engi": {
+      "area": "content",
+      "severity": "major",
+      "fix": "The 'Lorem Ipsum' placeholder content within the 'Lumen Engine' card is descriptive but lacks actionable structure. Instead of a generic paragraph, use a highly stylized, three-point list (using custom SVG icons or checkmarks) to summarize the service's benefits, making the technical copy immediately digestible for a high-end clientele.",
+      "count": 1,
+      "last_seen": "2026-04-14T05:50:33.486672"
+    },
+    "depth:The `glass-header` background `rgba(255, 255, 255, 0.03)` is": {
+      "area": "depth",
+      "severity": "minor",
+      "fix": "The `glass-header` background `rgba(255, 255, 255, 0.03)` is too uniform. Introduce a subtle radial gradient on the background-image property of the header element, e.g., `background-image: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);` to enhance the perceived light source and lift it off the background.",
+      "count": 1,
+      "last_seen": "2026-04-14T05:55:46.373019"
+    },
+    "typography:The combination of `Inter` for body copy and `IBM Plex Mono`": {
+      "area": "typography",
+      "severity": "minor",
+      "fix": "The combination of `Inter` for body copy and `IBM Plex Mono` for headings feels slightly disjointed. While monospace is good for 'tech', consider setting the primary body text font (for card content) to a geometric sans-serif like Poppins or Manrope at a slightly higher contrast weight (e.g., 400) to give the content body more 'readability elegance' while retaining the mono-style for structure.\n\nAlso, reduce the underline effect on `.project-name-mono` by using `text-decoration: none;` and instead using `border-bottom: 2px solid var(--color-secondary);` coupled with a slight text color shift on hover, which reads more deliberately 'engineered'.",
+      "count": 1,
+      "last_seen": "2026-04-14T05:55:46.373025"
+    },
+    "color:The sidebar background `bg-rgba(13, 2, 33, 0.7)` is inconsis": {
+      "area": "color",
+      "severity": "major",
+      "fix": "The sidebar background `bg-rgba(13, 2, 33, 0.7)` is inconsistent with the main background structure. For a true 'Linear Dark Mode Elegance', the primary containers (sidebar and main content wrapper) should share a deeper, near-black base color, perhaps `rgba(10, 5, 30, 0.8)` across the board, allowing the primary glow (`--color-primary`) to feel like an electric source reacting against a deeper void, rather than just a dark purple.\n\nFurthermore, the hover background `hover:bg-rgba(77, 97, 238, 0.2)` on navigation links is too saturated. Reduce it to `hover:bg-[rgba(77, 97, 238, 0.08)]` for a much more subtle, atmospheric interaction.",
+      "count": 1,
+      "last_seen": "2026-04-14T05:55:46.373027"
+    },
+    "animation:The `subtle-shimmer` animation is visually distracting due t": {
+      "area": "animation",
+      "severity": "minor",
+      "fix": "The `subtle-shimmer` animation is visually distracting due to its strong gradient contrast. Reduce the `opacity` from `0.4` to `0.15` and make the gradient itself less harsh, perhaps using `background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.02) 10%, rgba(255, 255, 255, 0.02) 90%, transparent 100%);` to achieve a ghosting effect rather than a noticeable streak.",
+      "count": 1,
+      "last_seen": "2026-04-14T05:55:46.373028"
+    },
+    "decoration:The background circuit paths (`repeating-linear-gradient`) a": {
+      "area": "decoration",
+      "severity": "minor",
+      "fix": "The background circuit paths (`repeating-linear-gradient`) are very low contrast. Instead of gradients, use very small, scattered, glowing dots or nodes implemented via pseudo-elements on the `body` with `box-shadow` applied at low opacity to suggest a complex, underlying network structure, which reads as more 'elegant' than repeating lines.",
+      "count": 1,
+      "last_seen": "2026-04-14T05:55:46.373029"
+    },
+    "spacing:The gap between the sidebar content block (H1/H2) and the ma": {
+      "area": "spacing",
+      "severity": "minor",
+      "fix": "The gap between the sidebar content block (H1/H2) and the main navigation links feels abrupt. Introduce a vertical spacer element or increase the margin/padding between the branding section and the subsequent `<nav>` element to create a more deliberate visual break, perhaps adding `mb-8` to the branding container.",
+      "count": 1,
+      "last_seen": "2026-04-14T05:55:46.373031"
+    },
+    "content:The Kanban board structure is incomplete in the provided sni": {
+      "area": "content",
+      "severity": "major",
+      "fix": "The Kanban board structure is incomplete in the provided snippet, but the placeholder structure is too rigid. For 'elegance', the content blocks (like the Card 1 placeholder) should not use fixed column widths. Instead, utilize responsive grid gaps and allow the content to dictate its required space, perhaps by grouping cards into logical 'Swimlanes' that span defined grid areas, making the overall layout feel fluid rather than columnar.",
+      "count": 1,
+      "last_seen": "2026-04-14T05:55:46.373033"
+    },
+    "depth:The ambient-card border-left effect is excellent, but the ac": {
+      "area": "depth",
+      "severity": "minor",
+      "fix": "The ambient-card border-left effect is excellent, but the accompanying `box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05)` on hover is too aggressive for pure Japanese Minimalism (Ma). Reduce the shadow opacity significantly, e.g., `box-shadow: 0 8px 16px rgba(0, 0, 0, 0.02)` to maintain breathability.",
+      "count": 1,
+      "last_seen": "2026-04-14T06:00:42.215106"
+    },
+    "decoration:The background wash animation (`subtleWash`) is conceptually": {
+      "area": "decoration",
+      "severity": "minor",
+      "fix": "The background wash animation (`subtleWash`) is conceptually strong for the aesthetic but the implementation (`background-size: 200% 200%;`) combined with the linear gradient blend is slightly predictable. Introduce a *second*, slower, more diffused gradient layer behind the main wash to add complexity without sacrificing calm.",
+      "count": 1,
+      "last_seen": "2026-04-14T06:00:42.215111"
+    },
+    "typography:The use of `text-7xl` on the main title is visually dominant": {
+      "area": "typography",
+      "severity": "minor",
+      "fix": "The use of `text-7xl` on the main title is visually dominant. While strong, consider reducing the vertical scale on mobile breakpoints (e.g., `text-5xl` for `sm:text-7xl`) or increasing the leading to give the weight more room to breathe, which is key to Ma.",
+      "count": 1,
+      "last_seen": "2026-04-14T06:00:42.215113"
+    },
+    "spacing:The vertical rhythm between the header section and the Bento": {
+      "area": "spacing",
+      "severity": "minor",
+      "fix": "The vertical rhythm between the header section and the Bento container is too compressed. Increase the gap between the final paragraph (`<p>...`) and the top of the `.grid` container. Currently, it feels like the content is immediately forced into the grid structure.",
+      "count": 1,
+      "last_seen": "2026-04-14T06:00:42.215114"
+    },
+    "content:The secondary call-to-action button in the main metric showc": {
+      "area": "content",
+      "severity": "minor",
+      "fix": "The secondary call-to-action button in the main metric showcase (`Visualize Timeline`) uses a solid, opaque background (`bg-[var(--color-accent)]`). For Ma, a solid fill reads too aggressively. Change this to an outlined button style: `border border-[var(--color-accent)] text-[var(--color-accent)] hover:bg-opacity-10`.",
+      "count": 1,
+      "last_seen": "2026-04-14T06:00:42.215116"
+    },
+    "depth:The division between the ambient cards and the background pl": {
+      "area": "depth",
+      "severity": "major",
+      "fix": "The division between the ambient cards and the background plane is too abrupt. Introduce a global, almost imperceptible padding or container background wash behind the entire grid structure (e.g., a `bg-wash-3` wrapper container) to ensure the content feels 'placed' rather than 'floating' on the primary background color.",
+      "count": 1,
+      "last_seen": "2026-04-14T06:00:42.215117"
+    },
+    "color:The contrast in the Node Details panel (`text-gray-500` labe": {
+      "area": "color",
+      "severity": "minor",
+      "fix": "The contrast in the Node Details panel (`text-gray-500` labels vs `text-[var(--color-dark)]` values) is functional but lacks refinement. Use a lighter, desaturated charcoal for the labels (e.g., `text-gray-400`) while maintaining the accent color for the data points to improve perceived harmony.",
+      "count": 1,
+      "last_seen": "2026-04-14T06:00:42.215119"
+    }
+  },
+  "style_stats": {
+    "Neumorphism Soft UI": {
+      "attempts": 2,
+      "total_score": 166,
+      "avg_score": 83
+    },
+    "Vibrant Gradient Pop": {
+      "attempts": 2,
+      "total_score": 156,
+      "avg_score": 78
+    },
+    "Retro 90s Memphis": {
+      "attempts": 1,
+      "total_score": 88,
+      "avg_score": 88
+    },
+    "Claymorphism Soft 3D": {
+      "attempts": 2,
+      "total_score": 128,
+      "avg_score": 64
+    },
+    "Editorial Magazine Layout": {
+      "attempts": 2,
+      "total_score": 128,
+      "avg_score": 64
+    },
+    "Monochrome Typographic": {
+      "attempts": 2,
+      "total_score": 156,
+      "avg_score": 78
+    },
+    "Vercel-style Dark Developer": {
+      "attempts": 2,
+      "total_score": 135,
+      "avg_score": 67
+    },
+    "Glassmorphism with Vivid Blobs": {
+      "attempts": 1,
+      "total_score": 50,
+      "avg_score": 50
+    },
+    "Japanese Minimalism (Ma)": {
+      "attempts": 2,
+      "total_score": 156,
+      "avg_score": 78
+    },
+    "Apple-inspired Minimal White": {
+      "attempts": 1,
+      "total_score": 78,
+      "avg_score": 78
+    },
+    "Linear Dark Mode Elegance": {
+      "attempts": 1,
+      "total_score": 78,
+      "avg_score": 78
+    }
+  }
+}
