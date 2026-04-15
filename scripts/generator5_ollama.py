@@ -377,6 +377,84 @@ def _get_top_lessons(n: int = LESSONS_TOP_N) -> str:
     return "\n".join(lines)
 
 
+# ── HTML 구조 검증 (Pass 2/4 후 자동 실행) ────────────────────────────────────
+
+def validate_html(html: str) -> tuple[bool, List[str]]:
+    """
+    생성된 HTML의 구조적 무결성을 검증.
+    Returns (is_valid, issues_list)
+    """
+    issues: List[str] = []
+    html_lower = html.lower()
+
+    # 1. Tailwind CDN 포함 여부
+    if "cdn.tailwindcss.com" not in html:
+        issues.append("MISSING_TAILWIND: <script src='https://cdn.tailwindcss.com'> not found")
+
+    # 2. 기본 HTML 구조
+    if "<html" not in html_lower:
+        issues.append("MISSING_HTML_TAG: no <html> tag found")
+    if "<head" not in html_lower:
+        issues.append("MISSING_HEAD_TAG: no <head> tag found")
+    if "<body" not in html_lower:
+        issues.append("MISSING_BODY_TAG: no <body> tag found")
+
+    # 3. 최소 콘텐츠 길이 (너무 짧으면 불완전)
+    if len(html) < 2000:
+        issues.append(f"TOO_SHORT: HTML is only {len(html)} chars (minimum 2000 expected)")
+
+    # 4. 섹션 수 확인 (최소 3개 섹션)
+    section_count = len(re.findall(r"<(?:section|main|article|footer|header|nav)\b", html, re.IGNORECASE))
+    if section_count < 3:
+        issues.append(f"FEW_SECTIONS: only {section_count} semantic sections found (minimum 3)")
+
+    # 5. 프리뷰 깨뜨리는 패턴 감지
+    broken_patterns = [
+        (r"min-h-screen", "FIXED_HEIGHT: min-h-screen found (breaks preview)"),
+        (r"h-screen", "FIXED_HEIGHT: h-screen found (breaks preview)"),
+        (r"height:\s*100vh", "FIXED_HEIGHT: height:100vh found (breaks preview)"),
+        (r"min-height:\s*100vh", "FIXED_HEIGHT: min-height:100vh found (breaks preview)"),
+        (r"position:\s*fixed", "FIXED_POSITION: position:fixed found (breaks iframe preview)"),
+    ]
+    for pattern, msg in broken_patterns:
+        if re.search(pattern, html, re.IGNORECASE):
+            issues.append(msg)
+
+    # 6. 닫히지 않은 태그 검사 (심각한 깨짐 원인)
+    open_tags = len(re.findall(r"<(?:div|section|main|article)\b", html, re.IGNORECASE))
+    close_tags = len(re.findall(r"</(?:div|section|main|article)>", html, re.IGNORECASE))
+    if open_tags > 0 and abs(open_tags - close_tags) > 3:
+        issues.append(f"UNCLOSED_TAGS: {open_tags} opening vs {close_tags} closing tags (diff > 3)")
+
+    # 7. Google Fonts 링크 확인
+    if "fonts.googleapis.com" not in html and "fonts.gstatic.com" not in html:
+        issues.append("MISSING_FONTS: no Google Fonts link found")
+
+    is_valid = len(issues) == 0
+    return is_valid, issues
+
+
+def fix_html_structure(html: str) -> str:
+    """
+    프리뷰 깨짐을 유발하는 CSS 패턴을 자동 수정.
+    LLM 재호출 없이 코드 레벨에서 즉시 처리.
+    """
+    # min-h-screen, h-screen → 자연 높이
+    html = re.sub(r'\bmin-h-screen\b', '', html)
+    html = re.sub(r'\bh-screen\b', '', html)
+    # 인라인 100vh 제거
+    html = re.sub(r'min-height:\s*100vh\s*;?', '', html)
+    html = re.sub(r'height:\s*100vh\s*;?', '', html)
+    # position: fixed → sticky (네비바 등)
+    html = re.sub(r'position:\s*fixed\s*;', 'position: sticky;', html)
+    # Tailwind CDN 보장
+    if "cdn.tailwindcss.com" not in html:
+        html = html.replace("<head>", '<head>\n<script src="https://cdn.tailwindcss.com"></script>', 1)
+        if "<head>" not in html.lower():
+            html = f'<script src="https://cdn.tailwindcss.com"></script>\n{html}'
+    return html
+
+
 def pick_design_dna() -> Dict[str, str]:
     """모든 다양성 차원을 조합해 고유한 디자인 DNA 생성 (히스토리 반복 방지)"""
     history = _load_history()
@@ -727,10 +805,12 @@ You are an elite frontend engineer who builds visually distinctive UIs.
 You can do ANY aesthetic — minimal, brutalist, dark luxury, editorial, retro, organic — and you commit fully to the chosen direction.
 
 HARD RULES:
-- Include <script src="https://cdn.tailwindcss.com"></script> in <head>
-- Include Google Fonts <link> for the specified fonts
+- Start with <!DOCTYPE html><html lang="en"><head>...</head><body>...</body></html>
+- Include <script src="https://cdn.tailwindcss.com"></script> as the FIRST element in <head>
+- Include Google Fonts <link> for the specified fonts in <head>
 - Use REAL content only — zero lorem ipsum, zero "placeholder text", zero "Image here"
-- Outermost wrapper must NOT use min-h-screen — size naturally to content
+- NEVER use min-h-screen, h-screen, 100vh, or position:fixed — these BREAK the preview iframe
+- Use min-h-0 or auto height instead — let content determine page height naturally
 - Respond with ONLY the raw HTML — no explanation, no ```fences```
 
 STRUCTURAL DIVERSITY RULES (read carefully):
@@ -833,7 +913,7 @@ Build a complete {category} UI. Read EVERY constraint before writing a single li
 ━━ DESIGN SYSTEM (injected — use var(--color-*) throughout) ━━
 The <style> block below contains your complete CSS variable system. USE IT.
 Do NOT hardcode hex colors — reference var(--color-bg), var(--color-primary), etc.
-{css_system[:3000] if css_system else "No CSS system provided — define your own CSS variables in <style>."}
+{css_system if css_system else "No CSS system provided — define your own CSS variables in <style>."}
 
 ━━ LAYOUT ARCHETYPE (MANDATORY — structural, not decorative) ━━
 {layout_arch}
@@ -1067,19 +1147,28 @@ async def capture_screenshot(browser: Browser, html: str) -> bytes:
     page = await browser.new_page(viewport={"width": 1400, "height": 900})
     try:
         await page.set_content(html, wait_until="networkidle")
-        # 폰트 로딩 대기
+        # Tailwind CDN + Google Fonts 로딩 대기
         await page.evaluate("document.fonts.ready")
-        await page.wait_for_timeout(1500)
-        # vh 단위를 px로 클린업
+        await page.wait_for_timeout(3000)
+        # 프리뷰 깨짐 방지: vh 단위 + fixed 포지션 + h-screen 클래스 제거
         await page.evaluate("""
             document.querySelectorAll('*').forEach(el => {
                 const s = window.getComputedStyle(el);
                 ['height', 'min-height', 'max-height'].forEach(prop => {
                     const v = s.getPropertyValue(prop);
-                    if (v && v.includes('vh')) el.style[prop] = 'auto';
+                    if (v && (v.includes('vh') || v === '100%' && prop === 'height' && el.tagName !== 'HTML'))
+                        el.style[prop] = 'auto';
                 });
+                if (s.position === 'fixed') el.style.position = 'sticky';
+            });
+            // Tailwind의 h-screen, min-h-screen 클래스 제거
+            document.querySelectorAll('.h-screen, .min-h-screen').forEach(el => {
+                el.classList.remove('h-screen', 'min-h-screen');
+                el.style.height = 'auto';
+                el.style.minHeight = 'auto';
             });
         """)
+        await page.wait_for_timeout(500)
         screenshot = await page.screenshot(type="png", full_page=True)
         return screenshot
     finally:
@@ -1172,6 +1261,17 @@ async def generate_one_design(
             log.error("[pass2] HTML 초안 비어있음")
             return False, None, 0, {}
 
+        # Pass 2.5: 구조 검증 + 자동 수정
+        is_valid, html_issues = validate_html(html_current)
+        if html_issues:
+            log.warning("[validate] HTML 구조 이슈 %d개: %s", len(html_issues), " | ".join(html_issues[:3]))
+        html_current = fix_html_structure(html_current)
+        if not is_valid:
+            # 재검증
+            is_valid2, remaining = validate_html(html_current)
+            if remaining:
+                log.warning("[validate] 자동 수정 후에도 남은 이슈: %s", " | ".join(remaining[:2]))
+
         # 품질 개선 루프
         score = 0
         last_review: Dict = {}
@@ -1200,11 +1300,17 @@ async def generate_one_design(
 
             refined = await pass4_refined_html(html_current, review, brief, category, style, css_system=css_system)
             if refined.strip():
-                html_current = refined
+                refined = fix_html_structure(refined)
+                # 개선 버전이 원본보다 너무 짧으면 폐기 (섹션 삭제 방지)
+                if len(refined) < len(html_current) * 0.6:
+                    log.warning("%s 개선 HTML이 원본의 60%% 미만 (%d→%d chars) — 원본 유지",
+                                round_label, len(html_current), len(refined))
+                else:
+                    html_current = refined
             else:
                 log.warning("%s 개선 HTML 비어있음 — 이전 버전 유지", round_label)
 
-        html_final = html_current
+        html_final = fix_html_structure(html_current)
 
         # 스크린샷
         log.info("[screenshot] 캡처 중...")

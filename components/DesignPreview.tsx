@@ -13,7 +13,8 @@ interface DesignPreviewProps {
 const TAILWIND_CDN = 'https://cdn.tailwindcss.com';
 const PREVIEW_BASE_WIDTH = 1400;
 const PREVIEW_BASE_HEIGHT = Math.round((PREVIEW_BASE_WIDTH * 2) / 3);
-const PREVIEW_MAX_HEIGHT = 900;
+// 컨테이너 최대 높이 — 길이가 긴 디자인도 잘리지 않도록 충분히 크게 설정
+const PREVIEW_MAX_HEIGHT = 2400;
 
 function injectHeadMarkup(html: string) {
   const hasTailwind = /cdn\.tailwindcss\.com/.test(html);
@@ -27,8 +28,12 @@ function injectHeadMarkup(html: string) {
     !hasTailwind ? `<script src="${TAILWIND_CDN}"></script>` : null,
     `<style>
       *,*::before,*::after{box-sizing:border-box;}
-      html,body{margin:0;padding:0;width:${PREVIEW_BASE_WIDTH}px;background:white;min-height:auto;height:auto;}
+      html,body{margin:0;padding:0;width:${PREVIEW_BASE_WIDTH}px;background:white;min-height:auto;height:auto;overflow-x:hidden;}
       .min-h-screen,.h-screen,.min-h-\\[100vh\\],.h-\\[100vh\\]{min-height:auto!important;height:auto!important;}
+      [class*="h-screen"]{height:auto!important;}
+      [style*="100vh"]{min-height:auto!important;height:auto!important;}
+      [style*="position: fixed"],[style*="position:fixed"]{position:sticky!important;}
+      .fixed{position:sticky!important;}
     </style>`,
   ]
     .filter(Boolean)
@@ -57,16 +62,13 @@ export default function DesignPreview({ imageUrl, title, colors, htmlCode }: Des
   const DESIGN_HEIGHT = PREVIEW_BASE_HEIGHT; // keep 3:2 aspect
   const [contentSize, setContentSize] = useState({ width: DESIGN_WIDTH, height: DESIGN_HEIGHT });
 
-  // Calculate the scale based on the current container width
+  // Calculate the scale based on the current container width only
+  // (height-based constraint is removed — tall pages should not be shrunk further)
   useEffect(() => {
     const updateScale = () => {
       if (containerRef.current) {
-        const containerWidth = containerRef.current.clientWidth;
-        // Leave a small margin so the preview always fits inside
-        const safeWidth = containerWidth - 2;
-        const widthScale = safeWidth / contentSize.width;
-        const heightScale = PREVIEW_MAX_HEIGHT / contentSize.height;
-        const nextScale = Math.min(Math.max(Math.min(widthScale, heightScale), 0.05), 1);
+        const safeWidth = containerRef.current.clientWidth - 2;
+        const nextScale = Math.min(Math.max(safeWidth / contentSize.width, 0.05), 1);
         setScale(nextScale);
       }
     };
@@ -77,7 +79,7 @@ export default function DesignPreview({ imageUrl, title, colors, htmlCode }: Des
       resizeObserver.observe(containerRef.current);
     }
     window.addEventListener('resize', updateScale);
-    
+
     return () => {
       resizeObserver.disconnect();
       window.removeEventListener('resize', updateScale);
@@ -106,7 +108,8 @@ export default function DesignPreview({ imageUrl, title, colors, htmlCode }: Des
       };
 
       iframeRef.current.onload = measure;
-      const timeouts = [80, 240, 720, 1400].map((delay) => window.setTimeout(measure, delay));
+      // Tailwind CDN + Google Fonts 로딩 대기를 위한 측정 간격 확대
+      const timeouts = [100, 500, 1200, 2500, 4000].map((delay) => window.setTimeout(measure, delay));
       return () => {
         timeouts.forEach((id) => window.clearTimeout(id));
       };
@@ -115,6 +118,7 @@ export default function DesignPreview({ imageUrl, title, colors, htmlCode }: Des
 
   const hasLivePreview = htmlCode && htmlCode.trim().length > 0;
   const previewHeight = Math.min(contentSize.height * scale, PREVIEW_MAX_HEIGHT);
+  // PREVIEW_MAX_HEIGHT는 2400으로 설정되어 있어 대부분의 디자인이 잘리지 않음
 
   return (
     <div
