@@ -8,6 +8,9 @@ export async function GET() {
     'Allow: /',
     'Disallow: /api/',
     'Disallow: /admin/',
+    'Disallow: /saved/',
+    'Disallow: /search/',
+    '',
     `Sitemap: ${SITE_URL}/sitemap.xml`,
   ].join('\n');
 

@@ -28,10 +28,12 @@ function toAbsolute(path: string): string {
   return `${SITE_URL}${path.startsWith('/') ? path : `/${path}`}`;
 }
 
-function buildUrlEntry(url: string, lastModified?: string): string {
+function buildUrlEntry(url: string, lastModified?: string, changefreq?: string, priority?: string): string {
   const safeUrl = xmlEscape(url);
   const safeLastmod = lastModified ? `<lastmod>${xmlEscape(lastModified)}</lastmod>` : '';
-  return `<url><loc>${safeUrl}</loc>${safeLastmod}</url>`;
+  const safeChangefreq = changefreq ? `<changefreq>${changefreq}</changefreq>` : '';
+  const safePriority = priority ? `<priority>${priority}</priority>` : '';
+  return `<url><loc>${safeUrl}</loc>${safeLastmod}${safeChangefreq}${safePriority}</url>`;
 }
 
 function buildSitemapXml(entries: string[]): string {
@@ -54,9 +56,12 @@ export async function GET() {
     ]);
 
     const nowIso = new Date().toISOString();
-    const staticEntries = STATIC_PATHS.map((path) => buildUrlEntry(toAbsolute(path), nowIso));
-    const collectionEntries = COLLECTION_SLUGS.map((slug) => buildUrlEntry(toAbsolute(`/collections/${slug}`), nowIso));
-    const playbookEntries = pillarTopics.map((topic) => buildUrlEntry(toAbsolute(`/playbooks/${topic.slug}`), nowIso));
+    const staticEntries = STATIC_PATHS.map((path) => {
+      const isHome = path === '/';
+      return buildUrlEntry(toAbsolute(path), nowIso, isHome ? 'daily' : 'weekly', isHome ? '1.0' : '0.7');
+    });
+    const collectionEntries = COLLECTION_SLUGS.map((slug) => buildUrlEntry(toAbsolute(`/collections/${slug}`), nowIso, 'weekly', '0.8'));
+    const playbookEntries = pillarTopics.map((topic) => buildUrlEntry(toAbsolute(`/playbooks/${topic.slug}`), nowIso, 'monthly', '0.8'));
 
     const designRows = (designRes.data ?? []) as DesignSitemapRow[];
     const postRows = (postRes.data ?? []) as BlogSitemapRow[];
@@ -64,7 +69,9 @@ export async function GET() {
     const designEntries = designRows.map((design) =>
       buildUrlEntry(
         toAbsolute(`/design/${design.slug || createDesignSlug(design.title, design.id)}`),
-        design.updated_at ? new Date(design.updated_at).toISOString() : nowIso
+        design.updated_at ? new Date(design.updated_at).toISOString() : nowIso,
+        'monthly',
+        '0.6'
       )
     );
 
@@ -73,7 +80,9 @@ export async function GET() {
       .map((post) =>
         buildUrlEntry(
           toAbsolute(`/blog/${post.slug}`),
-          post.published_at ? new Date(post.published_at).toISOString() : nowIso
+          post.published_at ? new Date(post.published_at).toISOString() : nowIso,
+          'monthly',
+          '0.7'
         )
       );
 

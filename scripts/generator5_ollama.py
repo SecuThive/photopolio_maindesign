@@ -1,15 +1,20 @@
 #!/usr/bin/env python3
 """
-UI-Syntax Design Generator — v5.1 (Ollama Local Multi-Pass + Score Loop Edition)
+UI-Syntax Design Generator — v6.0 (6-Pass Structured Workflow)
 
 전략:
-  Pass 1 : 디자인 브리프 — 카테고리/스타일/구조/컬러/타이포 결정
-  Pass 2 : HTML 초안 생성
+  Pass 0 : CSS 디자인 시스템 — 토큰/변수 먼저 확정 (일관성 보장)
+  Pass 1 : 섹션별 구조 브리프 — 각 섹션의 내용·레이아웃·컴포넌트 명세
+  Pass 2 : HTML 생성 — Pass0 CSS + Pass1 브리프 기반, 섹션 순서 보장
   [Loop, 최대 --max-refine 회]
-    Pass N-review : 자가 리뷰 — 점수 + 개선점 목록 추출
+    Pass 3 : 심층 리뷰 — 5개 기준 각각 세부 점수화, critical 이슈 우선
     score >= --min-score 이면 종료
-    Pass N-refine : 개선점 반영 HTML 재생성
+    Pass 4 : 집중 수정 — critical 이슈 2개만 타깃, 전체 재생성 최소화
+  Pass 5 : 최종 검증 — 빠른 스코어 확인 (optional, target_score 근접 시)
   → 스크린샷 → Supabase 저장
+
+모델 권장: qwen2.5-coder:32b (HTML/CSS 생성 최상, Tailwind 정확도 높음)
+          devstral:24b (코딩 에이전트 특화, 구조적 출력 강함)
 """
 
 from __future__ import annotations
@@ -62,11 +67,28 @@ STORAGE_BUCKET  = os.getenv("SUPABASE_DESIGNS_BUCKET", "designs-bucket")
 STORAGE_FOLDER  = os.getenv("SUPABASE_DESIGNS_FOLDER", "designs")
 
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
-OLLAMA_MODEL    = os.getenv("OLLAMA_MODEL", "gemma4:e4b")
-OLLAMA_TIMEOUT  = int(os.getenv("OLLAMA_TIMEOUT", "300"))  # 초
+OLLAMA_TIMEOUT  = int(os.getenv("OLLAMA_TIMEOUT", "600"))
+
+# ── Pass별 전문 모델 설정 ─────────────────────────────────────────────────────
+# 각 Pass는 역할이 다르므로 최적 모델을 분리 적용
+#
+#   CODER  모델: HTML/CSS/JS 코딩 특화  → qwen2.5-coder:7b  (Pass 0, 2, 4)
+#   BRIEF  모델: 창의적 기획/디자인 감각 → gemma4:e4b        (Pass 1)
+#   REVIEW 모델: 추론/분석 특화          → deepseek-r1:14b   (Pass 3)
+#
+# 환경변수로 개별 오버라이드 가능:
+#   OLLAMA_MODEL_CODER=qwen2.5-coder:7b
+#   OLLAMA_MODEL_BRIEF=gemma4:e4b
+#   OLLAMA_MODEL_REVIEW=deepseek-r1:14b
+#   OLLAMA_MODEL=<fallback for all>  (설정 안 하면 각 기본값 사용)
+_FALLBACK_MODEL = os.getenv("OLLAMA_MODEL", "")
+
+MODEL_CODER  = os.getenv("OLLAMA_MODEL_CODER",  _FALLBACK_MODEL or "qwen2.5-coder:7b")
+MODEL_BRIEF  = os.getenv("OLLAMA_MODEL_BRIEF",  _FALLBACK_MODEL or "gemma4:e4b")
+MODEL_REVIEW = os.getenv("OLLAMA_MODEL_REVIEW", _FALLBACK_MODEL or "deepseek-r1:14b")
 
 # 품질 루프 기본값 (CLI 인자로 덮어쓸 수 있음)
-DEFAULT_MIN_SCORE  = 0    # 0 = 루프 없이 기존 4-pass 동작
+DEFAULT_MIN_SCORE  = 75   # 75점 이상 도달할 때까지 개선 루프 반복
 DEFAULT_MAX_REFINE = 3    # 최대 추가 개선 횟수
 
 # ── 유효성 검사 ───────────────────────────────────────────────────────────────
@@ -80,6 +102,9 @@ if _missing:
     raise SystemExit(1)
 
 log.info("[env] Supabase: %s", SUPABASE_URL)
+log.info("[model] CODER  (pass0/2/4): %s", MODEL_CODER)
+log.info("[model] BRIEF  (pass1):     %s", MODEL_BRIEF)
+log.info("[model] REVIEW (pass3):     %s", MODEL_REVIEW)
 
 # ── Supabase 클라이언트 ───────────────────────────────────────────────────────
 _supabase_client: Optional[Client] = None
@@ -418,18 +443,37 @@ def unique_slug(base: str) -> str:
         suffix += 1
 
 # ── Ollama API 호출 ───────────────────────────────────────────────────────────
-async def ollama_chat(messages: List[Dict[str, str]], *, model: str = OLLAMA_MODEL) -> str:
-    """Ollama /api/chat 호출 (스트리밍 없이 전체 응답 반환)"""
+async def ollama_chat(
+    messages: List[Dict[str, str]],
+    *,
+    model: str,
+    temperature: float = 0.85,
+    num_ctx: int = 32768,
+) -> str:
+    """Ollama /api/chat 호출 (스트리밍 없이 전체 응답 반환)
+
+    model 은 반드시 명시적으로 전달 — Pass별 전문 모델을 쓰기 위해 기본값 없음.
+      Pass 0, 2, 4 → MODEL_CODER  (qwen2.5-coder:32b  — HTML/CSS 코딩 최강)
+      Pass 1       → MODEL_BRIEF  (gemma4:e4b          — 창의적 기획/디자인 감각)
+      Pass 3       → MODEL_REVIEW (deepseek-r1:14b     — 추론/채점 특화)
+
+    temperature 가이드:
+      - CSS 시스템/브리프 (창의적): 0.7~0.9
+      - HTML 생성 (구조 중요):      0.75~0.8
+      - 리뷰/검증 (정확성 중요):    0.2~0.3
+      - 수정 (지시 준수):           0.6~0.7
+    """
     url = f"{OLLAMA_BASE_URL}/api/chat"
     payload = {
         "model": model,
         "messages": messages,
         "stream": False,
         "options": {
-            "temperature": 0.9,   # 더 창의적인 결과 (0.8 → 0.9)
+            "temperature": temperature,
             "top_p": 0.95,
-            "top_k": 50,
-            "num_ctx": 20480,     # 컨텍스트 창 확장 (더 긴 HTML 처리)
+            "top_k": 40,
+            "num_ctx": num_ctx,        # 32k 컨텍스트 (긴 HTML 전체 처리)
+            "repeat_penalty": 1.1,     # 반복 억제
         },
     }
     async with httpx.AsyncClient(timeout=OLLAMA_TIMEOUT) as client:
@@ -456,6 +500,118 @@ def extract_html(text: str) -> str:
     if m2:
         return m2.group(1).strip()
     return text.strip()
+
+# ── Pass 0: CSS 디자인 시스템 ────────────────────────────────────────────────
+CSS_SYSTEM_PROMPT = """\
+You are a senior design systems engineer. Your job is to create a complete CSS design token system.
+Output ONLY a raw <style> block — no explanation, no markdown fences, no HTML wrapper.
+The style block must start with <style> and end with </style>."""
+
+async def pass0_css_system(dna: Dict[str, str]) -> str:
+    """
+    디자인 DNA를 받아 일관된 CSS 변수 시스템을 생성.
+    이후 모든 패스가 이 시스템을 참조해 색상·타이포·그림자 일관성을 유지.
+    """
+    color_mood  = dna.get("color_mood", "")
+    style       = dna.get("style", "")
+    animation   = dna.get("animation", "")
+
+    prompt = f"""\
+Create a complete CSS design token system for a "{style}" UI design.
+
+Color palette source (extract hex values from this):
+{color_mood}
+
+Output a single <style> block containing:
+
+1. :root {{ }} with ALL these CSS variables:
+   /* Core colors */
+   --color-bg:          /* main page background */
+   --color-bg-alt:      /* alternating section bg (MUST differ from --color-bg) */
+   --color-bg-card:     /* card/panel background */
+   --color-bg-nav:      /* navbar background */
+   --color-border:      /* default border color */
+   --color-border-strong: /* emphasized border */
+
+   /* Text */
+   --color-text:        /* primary body text */
+   --color-text-muted:  /* secondary/helper text */
+   --color-text-heading:/* headline color */
+
+   /* Brand */
+   --color-primary:     /* primary action/CTA color */
+   --color-primary-hover: /* CTA hover state (lighten or darken 10%) */
+   --color-secondary:   /* secondary accent */
+   --color-accent:      /* highlight/decorative accent */
+
+   /* Semantic */
+   --color-success:     #22c55e;
+   --color-warning:     #f59e0b;
+
+   /* Typography */
+   --font-heading: /* Google Font name, fallback */
+   --font-body:    /* Google Font name, fallback */
+   --font-mono:    /* monospace stack */
+
+   /* Scale */
+   --text-xs:   0.75rem;
+   --text-sm:   0.875rem;
+   --text-base: 1rem;
+   --text-lg:   1.125rem;
+   --text-xl:   1.25rem;
+   --text-2xl:  1.5rem;
+   --text-3xl:  1.875rem;
+   --text-4xl:  2.25rem;
+   --text-5xl:  3rem;
+   --text-6xl:  3.75rem;
+
+   /* Spacing */
+   --space-section: 5rem;
+   --space-gap:     1.5rem;
+
+   /* Radius */
+   --radius-sm:  4px;
+   --radius-md:  8px;
+   --radius-lg:  16px;
+   --radius-xl:  24px;
+   --radius-full: 9999px;
+
+   /* Shadows */
+   --shadow-sm:  /* subtle shadow matching the color scheme */
+   --shadow-md:  /* medium shadow */
+   --shadow-lg:  /* strong shadow for floating elements */
+   --shadow-glow: /* colored glow using --color-primary at low opacity */
+
+2. Base styles:
+   *, *::before, *::after {{ box-sizing: border-box; }}
+   html, body {{ margin: 0; padding: 0; background: var(--color-bg); color: var(--color-text); font-family: var(--font-body); }}
+
+3. @keyframes for "{animation}":
+   Name it appropriately (e.g., @keyframes stagger-reveal, @keyframes neon-pulse).
+   Write the complete keyframe — not a placeholder.
+
+4. Utility classes using these variables:
+   .btn-primary    {{ background: var(--color-primary); color: #fff or contrast color; ... }}
+   .btn-secondary  {{ border: 1px solid var(--color-primary); color: var(--color-primary); ... }}
+   .card           {{ background: var(--color-bg-card); border: 1px solid var(--color-border); border-radius: var(--radius-lg); }}
+   .badge          {{ ... }}
+   .section-alt    {{ background: var(--color-bg-alt); }}
+   .text-gradient  {{ background: linear-gradient(...); -webkit-background-clip: text; ... }}
+
+All hex values MUST come from the color palette above. Do NOT use default browser colors.
+Output the <style> block only — nothing else."""
+
+    log.info("[pass0] CSS 디자인 시스템 생성 중... model=%s style=%s", MODEL_CODER, style[:40])
+    return await ollama_chat(
+        [
+            {"role": "system", "content": CSS_SYSTEM_PROMPT},
+            {"role": "user",   "content": prompt},
+        ],
+        model=MODEL_CODER,
+        temperature=0.7,   # 변수 생성은 일관성 중요 → 낮은 temperature
+        num_ctx=16384,
+    )
+
 
 # ── Pass 1: 디자인 브리프 ─────────────────────────────────────────────────────
 BRIEF_SYSTEM = """\
@@ -486,24 +642,83 @@ MANDATORY CONSTRAINTS — you MUST follow these exactly, no exceptions:
 DIVERSITY MANDATE: This design must be structurally and visually DIFFERENT from a typical SaaS landing page.
 Push the layout to extremes — if the archetype says asymmetric, make it dramatically asymmetric.
 If it says brutalist, make it genuinely rough and raw. Commit to the direction fully.
-{trend_context}
+{trend_context if trend_context else ""}
+━━ YOUR TASK ━━
 Return JSON with these exact keys:
 {{
   "title": "evocative product/brand name (3-6 words, NOT generic like 'Nexus Flow' or 'Spark Pro')",
   "concept": "2 vivid sentences: emotional feel + the ONE visual choice that makes this unforgettable",
   "color_palette": ["#hex1", "#hex2", "#hex3", "#hex4", "#hex5"],
+  "color_roles": {{
+    "body_bg": "#hex — page/body background",
+    "nav_bg": "#hex — navbar/header background (can differ from body_bg)",
+    "nav_text": "#hex — navbar links and logo color",
+    "hero_bg": "#hex — hero section background",
+    "hero_text": "#hex — hero headline color",
+    "section_alt_bg": "#hex — alternating section background (must differ from body_bg)",
+    "card_bg": "#hex — card/tile background",
+    "card_border": "#hex — card border or divider color",
+    "btn_primary_bg": "#hex — primary CTA button background",
+    "btn_primary_text": "#hex — primary button label",
+    "btn_secondary_bg": "#hex — secondary/ghost button color",
+    "input_bg": "#hex — form input field background",
+    "input_border": "#hex — form input border",
+    "badge_bg": "#hex — tag/badge/chip background",
+    "badge_text": "#hex — tag/badge label",
+    "icon_fill": "#hex — icon and decorative element color",
+    "footer_bg": "#hex — footer background",
+    "footer_text": "#hex — footer body text"
+  }},
   "typography": "specific Google Font pairing: heading font + body font, size/weight notes — must MATCH the mood (e.g. serif for editorial, monospace for terminal)",
   "visual_details": "3 specific visual treatments — name exact CSS techniques: e.g. 'backdrop-filter:blur(20px) on nav', 'repeating-linear-gradient noise texture', 'border: 3px solid black with 6px offset shadow'",
   "content_strategy": "specific realistic content — real brand names, actual product copy, real stats (NO lorem ipsum, NO 'placeholder', NO 'Image here')",
-  "animation_hints": "implement {animation or 'the chosen animation'} with exact CSS property names and values"
+  "animation_hints": "implement {animation or 'the chosen animation'} with exact CSS property names and values",
+  "sections": [
+    {{
+      "id": "nav",
+      "type": "navbar",
+      "content": "logo name + 3-4 nav links + CTA button — actual text, NOT placeholder",
+      "style_note": "use nav_bg color, sticky position, backdrop-blur"
+    }},
+    {{
+      "id": "hero",
+      "type": "hero",
+      "layout_note": "follow the layout archetype above STRICTLY",
+      "content": "headline (max 8 words, bold claim) + subheadline + CTA — real copy",
+      "style_note": "hero_bg color, hero_text for headline, decorative elements"
+    }},
+    {{
+      "id": "section-2",
+      "type": "features or stats or showcase",
+      "content": "3-4 items with real metrics/names/descriptions",
+      "style_note": "section_alt_bg, card_bg for cards"
+    }},
+    {{
+      "id": "section-3",
+      "type": "testimonials or pricing or gallery",
+      "content": "real names, real quotes or realistic pricing tiers",
+      "style_note": "vary background from section-2"
+    }},
+    {{
+      "id": "footer",
+      "type": "footer",
+      "content": "brand name + 3 columns of links + copyright",
+      "style_note": "footer_bg, footer_text colors"
+    }}
+  ]
 }}"""
 
-    log.info("[pass1] 브리프 생성 중... style=%s | layout=%s",
-             style, (layout_arch or "free")[:40])
-    text = await ollama_chat([
-        {"role": "system", "content": BRIEF_SYSTEM},
-        {"role": "user", "content": prompt},
-    ])
+    log.info("[pass1] 브리프 생성 중... model=%s style=%s | layout=%s",
+             MODEL_BRIEF, style, (layout_arch or "free")[:40])
+    text = await ollama_chat(
+        [
+            {"role": "system", "content": BRIEF_SYSTEM},
+            {"role": "user",   "content": prompt},
+        ],
+        model=MODEL_BRIEF,
+        temperature=0.88,   # 창의적 기획 → 높은 다양성
+        num_ctx=16384,
+    )
     return extract_json(text)
 
 # ── Pass 2: HTML 초안 ─────────────────────────────────────────────────────────
@@ -533,73 +748,152 @@ VISUAL QUALITY RULES:
 - All interactive elements need hover states (transition: all 0.25s)
 - Add at least 2 decorative CSS elements: geometric shapes, patterns, blobs, lines — as `::before`/`::after` or divs
 
+COMPONENT COLOR RULES (mandatory — apply color_roles to every element):
+- body / page wrapper → body_bg color (set as background-color on body or outermost div)
+- navbar / header → nav_bg background, nav_text for links and logo
+- hero section → hero_bg background, hero_text for the main headline
+- alternating sections → use section_alt_bg (must visually differ from body_bg)
+- cards / panels / tiles → card_bg background, card_border as border or box-shadow base color
+- primary CTA buttons → btn_primary_bg fill, btn_primary_text label; darken ~10% on :hover
+- secondary / ghost buttons → btn_secondary_bg as outline or subtle fill
+- form inputs (input, textarea, select) → input_bg background, input_border border color
+- tags / badges / chips → badge_bg background, badge_text label color
+- icons and inline decorative shapes → icon_fill color
+- footer → footer_bg background, footer_text for all footer copy and links
+- NEVER leave a major UI component at the browser default white/black when a color_role is provided
+
+MOBILE & RESPONSIVE:
+- Use responsive Tailwind breakpoints (sm:, md:, lg:) — NOT desktop-only widths
+- Grid columns must collapse: lg:grid-cols-3 → md:grid-cols-2 → grid-cols-1
+- Text sizes must scale: hero text-4xl on mobile → text-6xl on lg
+- Touch targets: all clickable elements min 44px height on mobile
+- Images must use max-w-full and responsive widths
+
+CONTENT QUALITY (critical for user engagement):
+- Write REAL product copy that sounds like a funded startup — not generic placeholder
+- Use specific numbers: "$2.4M ARR", "99.97% uptime", "14-day free trial"
+- Include real-sounding testimonials with full names, titles, and companies
+- Pricing tiers should have specific features and realistic prices ($29/$79/$199)
+- Navigation should feel complete: Logo, 4-5 links, CTA button
+
 FORBIDDEN:
 - Standard hero with centered text + subtitle + two buttons as the only layout idea
 - All-blue or all-purple color scheme unless explicitly specified
 - Flat cards with no border, shadow, or background distinction
 - The same card layout repeating for every section
-- Walls of same-size text with no typographic contrast"""
+- Walls of same-size text with no typographic contrast
+- Generic copy like "Welcome to our platform" or "Get started today"
+- Placeholder images or "Image here" text"""
 
 async def pass2_html_draft(brief: Dict[str, Any], category: str, style: str, structure: str,
-                           dna: Optional[Dict[str, str]] = None) -> str:
-    colors = " | ".join(brief.get("color_palette", []))
+                           dna: Optional[Dict[str, str]] = None,
+                           trend_context: str = "",
+                           css_system: str = "") -> str:
+    colors      = " | ".join(brief.get("color_palette", []))
     layout_arch = dna.get("layout_arch", structure) if dna else structure
     animation   = dna.get("animation", "hover lifts") if dna else "hover lifts"
 
-    # 자기학습 교훈 주입
-    top_lessons = _get_top_lessons()
-    lessons_block = ""
-    if top_lessons:
-        lessons_block = f"""
-━━ PREEMPTIVE FIXES (learned from past low-scoring designs — apply from the start) ━━
-{top_lessons}
-→ These mistakes caused low scores in previous generations. Do NOT repeat them.
-→ Solve each one BEFORE writing the HTML, not after.
+    # 컴포넌트별 색상 역할 포맷
+    color_roles = brief.get("color_roles", {})
+    role_lines  = "\n".join(f"  {r}: {c}" for r, c in color_roles.items()) if color_roles else ""
+    color_roles_block = f"""
+━━ COMPONENT COLOR MAP (apply EXACTLY — no browser defaults) ━━
+{role_lines}
+→ Use CSS variables from the injected <style> block (var(--color-*)) wherever possible.
+→ Where Tailwind can't express a custom hex, use inline style or the var() reference.
+""" if role_lines else ""
+
+    # 섹션 명세 (Pass1에서 생성된 구조 활용)
+    sections = brief.get("sections", [])
+    sections_block = ""
+    if sections:
+        sec_lines = "\n".join(
+            f"  [{s.get('id','?')}] type={s.get('type','?')} | {s.get('layout_note') or s.get('style_note','')}\n"
+            f"    content: {s.get('content','')}"
+            for s in sections
+        )
+        sections_block = f"""
+━━ REQUIRED SECTIONS (build in this order) ━━
+{sec_lines}
+→ Every section above MUST appear in the final HTML.
+→ Apply the correct background color to each section as specified.
 """
 
-    prompt = f"""\
-Build a {category} UI. Read ALL constraints before writing a single line of HTML.
+    # 자기학습 교훈 주입
+    top_lessons = _get_top_lessons()
+    lessons_block = f"""
+━━ PREEMPTIVE FIXES (learned from {_load_lessons()["stats"].get("attempts",0)} past attempts) ━━
+{top_lessons}
+→ These issues caused low scores before. Solve them BEFORE writing HTML.
+""" if top_lessons else ""
 
-━━ LAYOUT ARCHETYPE (MANDATORY) ━━
+    prompt = f"""\
+Build a complete {category} UI. Read EVERY constraint before writing a single line.
+
+━━ DESIGN SYSTEM (injected — use var(--color-*) throughout) ━━
+The <style> block below contains your complete CSS variable system. USE IT.
+Do NOT hardcode hex colors — reference var(--color-bg), var(--color-primary), etc.
+{css_system[:3000] if css_system else "No CSS system provided — define your own CSS variables in <style>."}
+
+━━ LAYOUT ARCHETYPE (MANDATORY — structural, not decorative) ━━
 {layout_arch}
-→ Your layout MUST follow this archetype structurally, not just visually.
-→ If this says "asymmetric", allocate dramatically unequal column widths.
-→ If this says "brutalist", use thick borders, NO rounded corners, offset shadows.
-→ Do NOT produce a standard centered hero + feature grid — that is explicitly forbidden here.
+→ If "asymmetric" → one side is 60%+ of width, the other 40%-.
+→ If "brutalist" → thick borders (3px+), zero border-radius, hard offset shadows.
+→ If "bento" → at least 6 cells, varying sizes (span-2, span-3 mixed).
+→ If "editorial" → elements intentionally overlap columns, break the grid.
+→ FORBIDDEN: standard centered hero + subtitle + 3-column cards. That is the default everyone does.
 
 ━━ VISUAL STYLE ━━
 Style: {style}
 Structure variant: {structure}
 
-━━ COLORS (USE EXACTLY — no substitutions) ━━
+━━ COLORS ━━
 Palette: {colors}
-These are mandatory. Do NOT add Tailwind blue-500 or gray defaults not in this palette.
-
-━━ ANIMATION (IMPLEMENT IN CSS) ━━
+{color_roles_block}
+━━ ANIMATION ━━
 {animation}
-→ Write the exact @keyframes or transition in your <style> block.
+→ The @keyframes is already in the injected <style>. Use the class names you defined.
 
 ━━ CONTENT & BRAND ━━
 Brand: {brief.get("title")}
 Concept: {brief.get("concept")}
-Typography: {brief.get("typography")}
-Visual treatments: {brief.get("visual_details", "rich shadows, depth")}
-Content: {brief.get("content_strategy")}
+Typography: {brief.get("typography")} — load from Google Fonts
+Visual treatments: {brief.get("visual_details", "")}
+Content strategy: {brief.get("content_strategy")}
+Animation hints: {brief.get("animation_hints", "")}
+{sections_block}
+{trend_context if trend_context else ""}
 {lessons_block}
-━━ DIVERSITY CHECKLIST (before you write) ━━
-□ Is my layout following the archetype, not a default hero-cta-features?
-□ Are ALL colors from the palette above?
-□ Does the animation from above appear in my <style> block?
-□ Are different sections visually distinct (different bg, spacing, layout)?
-□ Is the typography pairing actually used with the right font weights?
+━━ HARD RULES ━━
+1. <head> must include Tailwind CDN + Google Fonts link
+2. Inject the CSS system <style> block at the top of <head>
+3. body background = var(--color-bg)
+4. Each section uses its designated background — never the same bg twice in a row
+5. Every button must have a hover state
+6. Add ≥2 decorative elements (::before/::after or empty divs with CSS shapes)
+7. Real content only — NO lorem ipsum, NO "placeholder", NO "coming soon" filler
+8. Outermost element must NOT have min-h-screen
 
-Write the complete HTML now."""
+━━ PRE-WRITE CHECKLIST ━━
+□ Layout matches the archetype (not a default hero-grid)?
+□ CSS variables used instead of hardcoded hex?
+□ Every section has its correct background color?
+□ Buttons use var(--color-primary) for fill?
+□ Animation class is applied to at least one element?
+□ All 5+ sections from the list above are present?
 
-    log.info("[pass2] HTML 초안 생성 중...")
-    text = await ollama_chat([
-        {"role": "system", "content": HTML_SYSTEM},
-        {"role": "user", "content": prompt},
-    ])
+Write the COMPLETE HTML now — all sections, no truncation."""
+
+    log.info("[pass2] HTML 초안 생성 중... model=%s (css_system=%d chars)", MODEL_CODER, len(css_system))
+    text = await ollama_chat(
+        [
+            {"role": "system", "content": HTML_SYSTEM},
+            {"role": "user",   "content": prompt},
+        ],
+        model=MODEL_CODER,
+        temperature=0.78,   # HTML 생성: 구조 일관성 > 창의성
+        num_ctx=32768,
+    )
     return extract_html(text)
 
 # ── Pass 3: 자가 리뷰 ─────────────────────────────────────────────────────────
@@ -615,89 +909,157 @@ Critically review this {category} UI (target style: {style}) as an Awwwards judg
 
 HTML to review:
 ```html
-{html[:7000]}
+{html[:12000]}
 ```
 
 Score it STRICTLY on visual beauty and design quality. Be harsh — a score of 75+ means genuinely stunning.
 
 Scoring criteria:
-- Visual depth & layering (shadows, gradients, glassmorphism): 0-20 pts
-- Typography hierarchy & font pairing quality: 0-20 pts
-- Color harmony & intentional palette use: 0-20 pts
-- Animation & micro-interactions (CSS): 0-15 pts
-- Decorative richness (backgrounds, shapes, accents): 0-15 pts
-- Content realism & spacing generosity: 0-10 pts
+- Visual depth & layering (shadows, gradients, glassmorphism): 0-15 pts
+- Typography hierarchy & font pairing quality: 0-15 pts
+- Color harmony & component color consistency (navbar, cards, buttons, inputs, footer each with distinct intentional colors — NOT all the same bg): 0-15 pts
+- Animation & micro-interactions (CSS): 0-10 pts
+- Decorative richness (backgrounds, shapes, accents): 0-10 pts
+- Content realism & copy quality (real product names, specific numbers, compelling headlines — NOT generic placeholder copy): 0-15 pts
+- Responsive design (Tailwind breakpoints, mobile-friendly grids, scalable text): 0-10 pts
+- Overall polish & "would I screenshot this?" factor: 0-10 pts
 
-Return JSON:
+Score each criterion SEPARATELY, then sum for total:
 {{
-  "score": <integer 1-100>,
-  "issues": [
+  "scores": {{
+    "visual_depth":   <0-15>,  // shadows, gradients, layering, glassmorphism
+    "typography":     <0-15>,  // hierarchy, font pairing, size contrast
+    "color_system":   <0-15>,  // palette harmony, component color consistency, no defaults
+    "animation":      <0-10>,  // CSS animations present and working, micro-interactions
+    "decoration":     <0-10>,  // backgrounds, shapes, accents, visual richness
+    "content_quality":<0-15>,  // realistic copy, specific numbers, compelling headlines, NO lorem ipsum
+    "responsiveness": <0-10>,  // Tailwind responsive breakpoints, mobile-friendly layout
+    "polish":         <0-10>   // overall "wow factor", screenshot-worthy, cohesive feel
+  }},
+  "score": <sum of all scores above, integer>,
+  "critical_issues": [
     {{
       "area": "depth|typography|color|animation|decoration|spacing|content",
-      "severity": "critical|major|minor",
-      "fix": "very specific CSS/HTML fix with exact values — e.g. 'Add box-shadow: 0 20px 60px rgba(0,0,0,0.3) to .card elements'"
+      "problem": "exact element or CSS rule that is wrong",
+      "fix": "specific CSS/HTML fix with exact property names and values",
+      "impact": <estimated score gain 1-8>
     }}
   ],
-  "strengths": ["specific strength 1", "specific strength 2"]
+  "minor_issues": [
+    {{
+      "area": "...",
+      "fix": "specific fix"
+    }}
+  ],
+  "strengths": ["what specifically works well — be concrete"]
 }}
 
-List up to 7 issues, prioritized by severity. Be specific — no vague advice."""
+List at most 3 critical_issues and 3 minor_issues. Order by impact descending.
+Be HARSH — a real 80+ score means it could be featured on Awwwards. Most designs score 50-70."""
 
-    log.info("[pass3] 자가 리뷰 중...")
-    text = await ollama_chat([
-        {"role": "system", "content": REVIEW_SYSTEM},
-        {"role": "user", "content": prompt},
-    ])
+    log.info("[pass3] 심층 리뷰 중... model=%s", MODEL_REVIEW)
+    text = await ollama_chat(
+        [
+            {"role": "system", "content": REVIEW_SYSTEM},
+            {"role": "user",   "content": prompt},
+        ],
+        model=MODEL_REVIEW,
+        temperature=0.25,   # 리뷰는 일관성/정확성 최우선 → 낮은 temperature
+        num_ctx=32768,
+    )
+    # deepseek-r1 등 추론 모델은 <think>...</think> 블록 출력 후 JSON 제공
+    # → <think> 블록을 제거하고 JSON만 추출
+    text = re.sub(r"<think>[\s\S]*?</think>", "", text, flags=re.IGNORECASE).strip()
     try:
-        return extract_json(text)
+        result = extract_json(text)
+        # 하위 호환: critical_issues → issues 로 통합
+        if "critical_issues" in result and "issues" not in result:
+            result["issues"] = result["critical_issues"] + result.get("minor_issues", [])
+        # scores 합산이 score와 불일치 시 보정
+        if "scores" in result:
+            computed = sum(result["scores"].values())
+            if abs(computed - result.get("score", 0)) > 5:
+                result["score"] = computed
+                log.debug("[pass3] score 보정: %d → %d (합산)", result.get("score", 0), computed)
+        return result
     except Exception:
-        return {"score": 50, "issues": [], "strengths": []}
+        return {"score": 50, "issues": [], "strengths": [], "scores": {}}
 
-# ── Pass 4: 개선된 최종 HTML ──────────────────────────────────────────────────
+# ── 컴포넌트 색상 역할 포맷 (pass4 재사용) ────────────────────────────────────
+def _format_color_roles_for_refinement(color_roles: Dict[str, str]) -> str:
+    if not color_roles:
+        return ""
+    lines = "\n".join(f"  {role}: {color}" for role, color in color_roles.items())
+    return f"""
+Component color map (verify every component matches):
+{lines}
+"""
+
+# ── Pass 4: Critical 이슈 집중 수정 ──────────────────────────────────────────
 async def pass4_refined_html(html: str, review: Dict[str, Any], brief: Dict[str, Any],
-                              category: str, style: str) -> str:
-    issues = review.get("issues", [])
-    if not issues:
-        log.info("[pass4] 개선 사항 없음 — 초안 사용")
+                              category: str, style: str, css_system: str = "") -> str:
+    # critical_issues 우선, 없으면 issues에서 상위 3개
+    critical = review.get("critical_issues", [])
+    if not critical:
+        all_issues = review.get("issues", [])
+        severity_order = {"critical": 0, "major": 1, "minor": 2}
+        critical = sorted(all_issues, key=lambda i: severity_order.get(i.get("severity", "minor"), 2))[:3]
+
+    if not critical:
+        log.info("[pass4] 수정할 이슈 없음 — 초안 유지")
         return html
 
-    # critical/major 우선 정렬
-    severity_order = {"critical": 0, "major": 1, "minor": 2}
-    sorted_issues = sorted(issues, key=lambda i: severity_order.get(i.get("severity", "minor"), 2))
-    fixes = "\n".join(
-        f"- [{i['area'].upper()}] ({i.get('severity','minor')}) {i['fix']}"
-        for i in sorted_issues
+    # impact 기준으로 상위 3개만 처리 (너무 많으면 다른 곳 망가짐)
+    top_fixes = sorted(critical, key=lambda i: -i.get("impact", 5))[:3]
+    fix_lines = "\n".join(
+        f"{idx+1}. [{f.get('area','?').upper()}] {f.get('problem', '')} → {f.get('fix', f.get('fix',''))}"
+        for idx, f in enumerate(top_fixes)
     )
+    score_detail = ""
+    if "scores" in review:
+        score_detail = "Current sub-scores: " + ", ".join(
+            f"{k}={v}" for k, v in review["scores"].items()
+        )
+
+    css_block = f"\nCSS Design System (use var() references):\n{css_system}\n" if css_system else ""
 
     prompt = f"""\
-You are refining a {category} UI to make it visually stunning (target style: {style}).
-Apply ALL the following design improvements — be thorough and precise:
+You are surgically fixing a {category} UI (style: {style}).
+Apply ONLY these {len(top_fixes)} targeted fixes — do NOT change anything else:
 
-{fixes}
+{fix_lines}
 
-Current HTML:
+{score_detail}
+{css_block}
+Current HTML (FULL):
 ```html
-{html[:9000]}
+{html}
 ```
 
 Design reference:
 - Brand: {brief.get("title")}
-- Colors: {" | ".join(brief.get("color_palette", []))}
+- Color palette: {" | ".join(brief.get("color_palette", []))}
 - Visual details: {brief.get("visual_details", "")}
-- Animation hints: {brief.get("animation_hints", "")}
+- Animation: {brief.get("animation_hints", "")}
+{_format_color_roles_for_refinement(brief.get("color_roles", {}))}
+RULES:
+- Apply the {len(top_fixes)} fixes above with surgical precision
+- Keep ALL existing content, structure, sections unchanged
+- If fix requires adding CSS → add it to the existing <style> block
+- If fix requires changing a class → change only that element
+- Do NOT simplify or remove sections to make the job easier
+- Return ONLY the complete corrected HTML — no explanation, no fences"""
 
-IMPORTANT:
-- Apply every single fix listed above
-- Maintain all existing content — only improve visuals
-- Add CSS in a <style> block for anything Tailwind can't express
-- The result must look significantly more polished than the input
-- Return ONLY the complete improved HTML — no explanation"""
-
-    log.info("[pass4] 개선된 HTML 생성 중... (%d개 수정사항)", len(issues))
-    text = await ollama_chat([
-        {"role": "system", "content": HTML_SYSTEM},
-        {"role": "user", "content": prompt},
-    ])
+    log.info("[pass4] Critical %d개 이슈 집중 수정 중... model=%s", len(top_fixes), MODEL_CODER)
+    text = await ollama_chat(
+        [
+            {"role": "system", "content": HTML_SYSTEM},
+            {"role": "user", "content": prompt},
+        ],
+        model=MODEL_CODER,
+        temperature=0.65,
+        num_ctx=32768,
+    )
     return extract_html(text)
 
 # ── 스크린샷 촬영 ─────────────────────────────────────────────────────────────
@@ -791,16 +1153,24 @@ async def generate_one_design(
     log.info("[config] min_score=%d | max_refine=%d", min_score, max_refine)
 
     try:
+        # Pass 0: CSS 디자인 시스템 (토큰/변수 먼저 확정)
+        log.info("[pass0] CSS 디자인 시스템 생성 중...")
+        css_system = await pass0_css_system(dna)
+        log.info("[pass0] CSS 시스템 생성 완료 (%d chars)", len(css_system))
+
         # Pass 1: 브리프 (DNA + 트렌드 전달)
         brief = await pass1_brief(category, style, structure, dna=dna, trend_context=trend_context)
         title = brief.get("title", "Untitled Design")
         log.info("[brief] 제목: %s", title)
 
-        # Pass 2: HTML 초안 (DNA 전달 — 색상/레이아웃 강제)
-        html_current = await pass2_html_draft(brief, category, style, structure, dna=dna)
+        # Pass 2: HTML 초안 (DNA + 트렌드 전달 — 색상/레이아웃/트렌드 강제)
+        html_current = await pass2_html_draft(
+            brief, category, style, structure, dna=dna, trend_context=trend_context,
+            css_system=css_system,
+        )
         if not html_current.strip():
             log.error("[pass2] HTML 초안 비어있음")
-            return False, None, 0
+            return False, None, 0, {}
 
         # 품질 개선 루프
         score = 0
@@ -828,7 +1198,7 @@ async def generate_one_design(
                     log.info("%s 이슈 없음 — 현재 HTML 사용", round_label)
                 break
 
-            refined = await pass4_refined_html(html_current, review, brief, category, style)
+            refined = await pass4_refined_html(html_current, review, brief, category, style, css_system=css_system)
             if refined.strip():
                 html_current = refined
             else:
@@ -922,8 +1292,8 @@ async def run_batch(
     refresh_trends_cache: True = 기존 캐시 무시하고 강제 갱신
     """
     log.info(
-        "[system] Ollama(%s) | 목표 %d개 | min_score=%d | max_refine=%d | target_score=%d | max_attempts=%d | trends=%s",
-        OLLAMA_MODEL, count, min_score, max_refine, target_score, max_attempts,
+        "[system] Ollama(CODER=%s / BRIEF=%s / REVIEW=%s) | 목표 %d개 | min_score=%d | max_refine=%d | target_score=%d | max_attempts=%d | trends=%s",
+        MODEL_CODER, MODEL_BRIEF, MODEL_REVIEW, count, min_score, max_refine, target_score, max_attempts,
         "on" if use_trends else "off",
     )
 
@@ -933,8 +1303,9 @@ async def run_batch(
             r = await client.get(f"{OLLAMA_BASE_URL}/api/tags")
             models = [m["name"] for m in r.json().get("models", [])]
             log.info("[ollama] 사용 가능한 모델: %s", models)
-            if OLLAMA_MODEL not in models:
-                log.warning("[ollama] %s 모델이 목록에 없습니다. 그래도 시도합니다.", OLLAMA_MODEL)
+            for _m in {MODEL_CODER, MODEL_BRIEF, MODEL_REVIEW}:
+                if _m not in models:
+                    log.warning("[ollama] %s 모델이 목록에 없습니다. 그래도 시도합니다.", _m)
     except Exception as exc:
         log.error("[ollama] 연결 실패: %s — Ollama가 실행 중인지 확인하세요", exc)
         return
@@ -952,7 +1323,7 @@ async def run_batch(
     if use_trends:
         log.info("[trend] 트렌드 데이터 로드 중...")
         try:
-            trends = await get_trends(OLLAMA_BASE_URL, OLLAMA_MODEL, force_refresh=refresh_trends_cache)
+            trends = await get_trends(OLLAMA_BASE_URL, MODEL_CODER, force_refresh=refresh_trends_cache)
             trend_context = format_trend_prompt_block(trends)
             if trend_context:
                 log.info("[trend] 트렌드 컨텍스트 준비 완료 (%d chars)", len(trend_context))
@@ -970,9 +1341,11 @@ async def run_batch(
 
             if target_score > 0:
                 # ── target_score 달성할 때까지 새 디자인 반복 생성 ──────────
-                # 90점 미달 디자인은 저장하지 않고 폐기
                 attempt = 0
                 best_score = 0
+                best_data: Optional[DesignData]  = None
+                best_review: Dict                = {}
+
                 while attempt < max_attempts:
                     attempt += 1
                     log.info("  [시도 %d/%d] 새 디자인 생성 중... (목표: score >= %d)",
@@ -981,8 +1354,12 @@ async def run_batch(
                         browser, min_score=min_score, max_refine=max_refine,
                         trend_context=trend_context,
                     )
-                    if score > best_score:
-                        best_score = score
+
+                    # 이번 시도가 지금까지 최고점이면 백업
+                    if ok and design_data and score > best_score:
+                        best_score  = score
+                        best_data   = design_data
+                        best_review = last_review
 
                     if ok and score >= target_score:
                         log.info("  [✓] 목표 달성! score=%d >= %d (시도 %d회) — 저장 중...",
@@ -998,7 +1375,7 @@ async def run_batch(
                         successes += 1
                         break
                     elif ok:
-                        log.info("  [✗] score=%d < %d — 저장 안 함, 폐기 후 재시도 (최고: %d)",
+                        log.info("  [✗] score=%d < %d — 폐기 후 재시도 (현재 최고: %d)",
                                  score, target_score, best_score)
                         _record_result(
                             last_review.get("issues", []),
@@ -1013,10 +1390,27 @@ async def run_batch(
                     if attempt < max_attempts:
                         await asyncio.sleep(2)
                 else:
-                    log.warning(
-                        "  [포기] %d회 시도했지만 목표(%d점) 미달. 최고 점수: %d — 저장 안 함",
-                        max_attempts, target_score, best_score,
-                    )
+                    # ── 모든 시도 소진 — 최고점 디자인 폴백 저장 ─────────────
+                    fallback_threshold = max(target_score - 10, min_score, 60)
+                    if best_data and best_score >= fallback_threshold:
+                        log.warning(
+                            "  [폴백] %d회 시도 후 목표(%d점) 미달. 최고 %d점 디자인 저장 (임계값: %d)",
+                            max_attempts, target_score, best_score, fallback_threshold,
+                        )
+                        _record_result(
+                            best_review.get("issues", []),
+                            best_score,
+                            best_data.get("dna", {}),
+                            success=False,   # 학습: 목표 미달이므로 실패로 기록
+                        )
+                        slug = await asyncio.to_thread(publish_design, best_data)
+                        log.info("  [폴백 저장] https://ui-syntax.com/design/%s", slug)
+                        successes += 1
+                    else:
+                        log.warning(
+                            "  [포기] %d회 시도 후 목표(%d점) 미달. 최고 점수=%d < 폴백 임계값=%d — 저장 안 함",
+                            max_attempts, target_score, best_score, fallback_threshold,
+                        )
             else:
                 # ── 기존 단순 생성 (target_score 없으면 무조건 저장) ──────────
                 ok, design_data, score, last_review = await generate_one_design(
@@ -1045,8 +1439,8 @@ async def run_batch(
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="UI-Syntax Design Generator v5.1 (Ollama)")
     parser.add_argument("--count",      type=int, default=1,              help="생성할 디자인 수")
-    parser.add_argument("--model",      type=str, default=OLLAMA_MODEL,   help="Ollama 모델 이름")
-    parser.add_argument("--ollama",     type=str, default=OLLAMA_BASE_URL, help="Ollama 서버 URL")
+    parser.add_argument("--model",      type=str, default=_FALLBACK_MODEL, help="모든 패스에 적용할 단일 Ollama 모델 (미지정 시 패스별 기본 모델 사용)")
+    parser.add_argument("--ollama",     type=str, default=OLLAMA_BASE_URL,  help="Ollama 서버 URL")
     parser.add_argument("--min-score",    type=int, default=DEFAULT_MIN_SCORE,
                         help="단일 디자인 내 개선 반복 기준 점수 (0=비활성화, 권장: 75-85)")
     parser.add_argument("--max-refine",   type=int, default=DEFAULT_MAX_REFINE,
@@ -1061,7 +1455,11 @@ if __name__ == "__main__":
                         help="트렌드 캐시 무시하고 강제 갱신")
     args = parser.parse_args()
 
-    OLLAMA_MODEL    = args.model
+    # --model 인자가 지정되면 모든 패스를 해당 모델로 통일
+    if args.model:
+        MODEL_CODER  = args.model
+        MODEL_BRIEF  = args.model
+        MODEL_REVIEW = args.model
     OLLAMA_BASE_URL = args.ollama
 
     asyncio.run(run_batch(

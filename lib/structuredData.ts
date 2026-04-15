@@ -95,7 +95,13 @@ export function buildDesignCreativeWorkSchema(design: DesignSchemaInput) {
     name: design.title,
     description: design.description ?? undefined,
     url: canonical,
-    image: design.imageUrl,
+    image: {
+      '@type': 'ImageObject',
+      url: design.imageUrl,
+      name: design.title,
+      caption: design.description ?? `${design.title} — AI-generated web design`,
+    },
+    thumbnailUrl: design.imageUrl,
     datePublished: design.createdAt,
     dateModified: design.updatedAt,
     inLanguage: 'en-US',
@@ -103,6 +109,11 @@ export function buildDesignCreativeWorkSchema(design: DesignSchemaInput) {
     keywords: keywords.length ? keywords.join(', ') : undefined,
     isPartOf: hierarchy.length ? hierarchy : undefined,
     author: {
+      '@type': 'Organization',
+      name: SITE_NAME,
+      url: SITE_URL,
+    },
+    provider: {
       '@type': 'Organization',
       name: SITE_NAME,
       url: SITE_URL,
