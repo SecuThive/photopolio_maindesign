@@ -306,7 +306,7 @@ export default function DesignGallery({ initialDesigns, initialCategory }: Desig
           <button
             onClick={loadMore}
             disabled={loading}
-            className="flex items-center gap-3 px-10 py-3 bg-black text-white text-sm tracking-widest uppercase font-light hover:bg-gray-900 transition-all duration-300 border border-black hover:shadow-lg disabled:opacity-50"
+            className="flex items-center gap-3 rounded-full bg-gray-900 px-10 py-3 text-xs font-semibold uppercase tracking-[0.3em] text-white transition-all duration-300 hover:bg-black hover:shadow-lg disabled:opacity-50"
           >
             {loading ? (
               <>

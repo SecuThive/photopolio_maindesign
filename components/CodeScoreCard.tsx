@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { DesignMetrics } from '@/lib/designAnalysis';
 
 type CodeScoreCardProps = {
@@ -62,42 +62,43 @@ export default function CodeScoreCard({ metrics, matchCount, bestMatchScore }: C
   const cardRef = useRef<HTMLDivElement>(null);
   const scores = calculateScores(metrics);
   const overallGrade = getGrade(scores.overall);
+  const [shareStatus, setShareStatus] = useState<'idle' | 'copied' | 'shared' | 'error'>('idle');
 
   const handleShareCard = async () => {
     const message = `My Code Quality Score: ${scores.overall}/100 (${overallGrade.grade})
 
-🎯 Accessibility: ${scores.accessibility}/100
-⚡ Performance: ${scores.performance}/100
-🎨 Design Quality: ${scores.designQuality}/100
-✨ Modern Patterns: ${scores.modernPatterns}/100
+Accessibility: ${scores.accessibility}/100
+Performance: ${scores.performance}/100
+Design Quality: ${scores.designQuality}/100
+Modern Patterns: ${scores.modernPatterns}/100
 
 Found ${matchCount} matching UI designs on UI Syntax!
 Try it: ${window.location.origin}/code-match`;
 
     try {
-      // Try Web Share API first (mobile & modern browsers)
       if (navigator.share) {
         await navigator.share({
           title: 'My Code Quality Score',
           text: message,
           url: `${window.location.origin}/code-match`,
         });
+        setShareStatus('shared');
       } else {
-        // Fallback to clipboard copy
         await navigator.clipboard.writeText(message);
-        alert('Score card copied to clipboard! Share it on social media.');
+        setShareStatus('copied');
       }
     } catch (err) {
-      // If user cancels share or clipboard fails, try clipboard as fallback
       if (err instanceof Error && err.name !== 'AbortError') {
         try {
           await navigator.clipboard.writeText(message);
-          alert('Score card copied to clipboard! Share it on social media.');
+          setShareStatus('copied');
         } catch (clipboardErr) {
           console.error('Failed to share or copy:', clipboardErr);
-          alert('Unable to share. Please try again.');
+          setShareStatus('error');
         }
       }
+    } finally {
+      setTimeout(() => setShareStatus('idle'), 2500);
     }
   };
 
@@ -141,16 +142,16 @@ Try it: ${window.location.origin}/code-match`;
 
           {/* Score breakdown */}
           <div className="grid grid-cols-2 gap-5">
-            <ScoreItem label="Accessibility" score={scores.accessibility} icon="🎯" />
-            <ScoreItem label="Performance" score={scores.performance} icon="⚡" />
-            <ScoreItem label="Design Quality" score={scores.designQuality} icon="🎨" />
-            <ScoreItem label="Modern Patterns" score={scores.modernPatterns} icon="✨" />
+            <ScoreItem label="Accessibility" score={scores.accessibility} icon={<AccessibilityIcon />} />
+            <ScoreItem label="Performance" score={scores.performance} icon={<PerformanceIcon />} />
+            <ScoreItem label="Design Quality" score={scores.designQuality} icon={<DesignIcon />} />
+            <ScoreItem label="Modern Patterns" score={scores.modernPatterns} icon={<PatternIcon />} />
           </div>
 
           {/* Match info */}
           <div className="rounded-[32px] border-2 border-white/20 bg-gradient-to-br from-white/15 to-white/5 backdrop-blur-xl p-8 text-center">
-            <div className="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-gradient-to-br from-emerald-400 to-cyan-400 text-4xl mb-4 shadow-xl">
-              🎯
+            <div className="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-gradient-to-br from-emerald-400 to-cyan-400 mb-4 shadow-xl">
+              <svg className="h-8 w-8 text-gray-900" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><circle cx="12" cy="12" r="10" /><path d="M12 8v4l3 3" /></svg>
             </div>
             <p className="text-4xl font-black text-white mb-2">{matchCount}</p>
             <p className="text-sm uppercase tracking-[0.35em] text-gray-300 font-semibold">Matching Designs</p>
@@ -178,15 +179,17 @@ Try it: ${window.location.origin}/code-match`;
           <svg className="h-6 w-6 group-hover:rotate-12 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
           </svg>
-          <span className="tracking-wide">Share Your Score</span>
+          <span className="tracking-wide">
+            {shareStatus === 'copied' ? 'Copied to clipboard' : shareStatus === 'shared' ? 'Shared successfully' : shareStatus === 'error' ? 'Unable to share' : 'Share Your Score'}
+          </span>
         </button>
       </div>
 
       {/* Tips section */}
       <div className="rounded-[36px] border-2 border-gray-200 bg-gradient-to-br from-gray-50 to-white p-8">
         <div className="flex items-center gap-3 mb-5">
-          <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-yellow-400 to-orange-400 flex items-center justify-center text-2xl shadow-lg">
-            💡
+          <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-yellow-400 to-orange-400 flex items-center justify-center shadow-lg">
+            <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>
           </div>
           <h4 className="text-lg font-black text-gray-900 uppercase tracking-wide">Improve Your Score</h4>
         </div>
@@ -197,7 +200,7 @@ Try it: ${window.location.origin}/code-match`;
                 →
               </div>
               <div className="flex-1">
-                <p className="font-semibold text-gray-900 mb-1">🎯 Accessibility</p>
+                <p className="font-semibold text-gray-900 mb-1">Accessibility</p>
                 <p className="text-sm text-gray-700">Use semantic HTML tags like <code className="bg-gray-200 px-2 py-1 rounded font-mono text-xs">&lt;section&gt;</code>, <code className="bg-gray-200 px-2 py-1 rounded font-mono text-xs">&lt;article&gt;</code>, <code className="bg-gray-200 px-2 py-1 rounded font-mono text-xs">&lt;nav&gt;</code></p>
               </div>
             </li>
@@ -208,7 +211,7 @@ Try it: ${window.location.origin}/code-match`;
                 →
               </div>
               <div className="flex-1">
-                <p className="font-semibold text-gray-900 mb-1">⚡ Performance</p>
+                <p className="font-semibold text-gray-900 mb-1">Performance</p>
                 <p className="text-sm text-gray-700">Simplify your structure - aim for 3-8 main sections</p>
               </div>
             </li>
@@ -219,7 +222,7 @@ Try it: ${window.location.origin}/code-match`;
                 →
               </div>
               <div className="flex-1">
-                <p className="font-semibold text-gray-900 mb-1">✨ Modern Patterns</p>
+                <p className="font-semibold text-gray-900 mb-1">Modern Patterns</p>
                 <p className="text-sm text-gray-700">Use modern CSS like Flexbox or Grid, and add responsive breakpoints</p>
               </div>
             </li>
@@ -230,7 +233,7 @@ Try it: ${window.location.origin}/code-match`;
                 →
               </div>
               <div className="flex-1">
-                <p className="font-semibold text-gray-900 mb-1">🎨 Design Quality</p>
+                <p className="font-semibold text-gray-900 mb-1">Design Quality</p>
                 <p className="text-sm text-gray-700">Balance your CTAs (1-8 buttons), add images, and use a color palette (2-6 colors)</p>
               </div>
             </li>
@@ -241,14 +244,14 @@ Try it: ${window.location.origin}/code-match`;
   );
 }
 
-function ScoreItem({ label, score, icon }: { label: string; score: number; icon: string }) {
+function ScoreItem({ label, score, icon }: { label: string; score: number; icon: React.ReactNode }) {
   const percentage = Math.min(100, score);
   const grade = getGrade(score);
 
   return (
     <div className="group rounded-[32px] border-2 border-white/30 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl p-6 hover:border-white/40 hover:bg-white/15 transition-all duration-300">
       <div className="flex items-center justify-between mb-3">
-        <span className="text-3xl group-hover:scale-110 transition-transform">{icon}</span>
+        <span className="group-hover:scale-110 transition-transform">{icon}</span>
         <span className={`text-3xl font-black ${grade.color} drop-shadow-lg`}>{score}</span>
       </div>
       <p className="text-xs uppercase tracking-[0.35em] text-gray-200 font-semibold mb-4">{label}</p>
@@ -259,5 +262,38 @@ function ScoreItem({ label, score, icon }: { label: string; score: number; icon:
         />
       </div>
     </div>
+  );
+}
+
+function AccessibilityIcon() {
+  return (
+    <svg className="h-7 w-7 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+    </svg>
+  );
+}
+
+function PerformanceIcon() {
+  return (
+    <svg className="h-7 w-7 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+    </svg>
+  );
+}
+
+function DesignIcon() {
+  return (
+    <svg className="h-7 w-7 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+    </svg>
+  );
+}
+
+function PatternIcon() {
+  return (
+    <svg className="h-7 w-7 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+    </svg>
   );
 }

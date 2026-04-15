@@ -61,7 +61,7 @@ maindesign/
 ├── components/                 # Shared UI
 │   ├── Header.tsx              # Header + filters
 │   ├── DesignCard.tsx          # Gallery card
-│   └── DesignModal.tsx         # Detail modal
+│   └── DesignDetailCustomizer.tsx # Design preview + code
 ├── lib/supabase                # Client & server helpers
 ├── types/database.ts           # Generated Supabase types
 ├── automation/                 # Python + Ollama tooling

@@ -154,7 +154,7 @@ export default function Footer() {
                 { href: '/feed.xml', label: 'RSS Feed', external: true },
               ].map((item) => (
                 <li key={item.href}>
-                  {item.external ? (
+                  {(item as any).external ? (
                     <a href={item.href} className="text-sm text-gray-500 hover:text-gray-900 transition-colors">
                       {item.label}
                     </a>
@@ -170,7 +170,7 @@ export default function Footer() {
           <div>
             <h4 className="text-sm font-medium text-gray-900 mb-4">UI Syntax</h4>
             <p className="text-sm text-gray-500 leading-relaxed">
-              AI-generated web design inspiration with copy-paste code. Free for commercial use.
+              A curated library of AI-generated web designs for product teams that ship fast. Browse landing pages, dashboards, and e-commerce layouts — each with copy-ready HTML and React code.
             </p>
           </div>
         </div>

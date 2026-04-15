@@ -3,7 +3,6 @@
 import { CSSProperties, MouseEvent, useMemo, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { DesignWithSlug } from '@/types/database';
 import LikeButton from './LikeButton';
 
@@ -29,7 +28,6 @@ export default function DesignCard({
   style,
 }: DesignCardProps) {
   const [copied, setCopied] = useState(false);
-  const router = useRouter();
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -86,14 +84,8 @@ export default function DesignCard({
           {/* Overlay on hover */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-          {/* Actions — visible on hover */}
-          <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <LikeButton
-              likes={likes}
-              liked={liked}
-              onToggle={onToggleLike}
-              disabled={likeDisabled || !onToggleLike}
-            />
+          {/* Copy button — visible on hover */}
+          <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             <button
               type="button"
               onClick={handleCopyHtml}
@@ -135,9 +127,18 @@ export default function DesignCard({
             <span className="inline-flex items-center rounded-md bg-gray-100 px-2 py-0.5 text-[11px] font-medium text-gray-600">
               {design.category || 'General'}
             </span>
-            <time className="text-[11px] text-gray-400" dateTime={design.created_at} suppressHydrationWarning>
-              {formatDate(design.created_at)}
-            </time>
+            <div className="flex items-center gap-2">
+              <time className="text-[11px] text-gray-400" dateTime={design.created_at} suppressHydrationWarning>
+                {formatDate(design.created_at)}
+              </time>
+              <LikeButton
+                likes={likes}
+                liked={liked}
+                onToggle={onToggleLike}
+                disabled={likeDisabled || !onToggleLike}
+                variant="card"
+              />
+            </div>
           </div>
         </div>
       </article>

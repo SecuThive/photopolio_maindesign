@@ -79,8 +79,9 @@ function PopularMatchCard({ match }: { match: PopularMatch }) {
       className="group relative overflow-hidden rounded-[32px] border border-gray-200 bg-gradient-to-br from-white to-gray-50 p-6 shadow-[0_20px_60px_rgba(15,23,42,0.06)] transition hover:-translate-y-1 hover:shadow-[0_35px_90px_rgba(15,23,42,0.12)]"
     >
       {/* Trending badge */}
-      <div className="absolute top-4 right-4 rounded-full bg-gradient-to-r from-emerald-400 to-cyan-400 px-3 py-1 text-xs font-semibold text-gray-900">
-        🔥 {views} views
+      <div className="absolute top-4 right-4 inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-emerald-400 to-cyan-400 px-3 py-1 text-xs font-semibold text-gray-900">
+        <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+        {views} views
       </div>
 
       <div className="space-y-4 mt-8">
