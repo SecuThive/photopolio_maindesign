@@ -79,7 +79,7 @@ function SearchContent() {
 
 export default function SearchPage() {
   return (
-    <div className="min-h-screen bg-luxury-white flex flex-col">
+    <div className="min-h-screen bg-white flex flex-col">
       <Header />
       <main className="flex-grow">
         <Suspense fallback={<div className="p-8 text-center">Loading...</div>}>

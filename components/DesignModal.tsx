@@ -268,7 +268,7 @@ export default function DesignModal({ design, onClose, likes, liked, onToggleLik
         <div className="p-12">
           <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
             <div className="flex-1 min-w-[240px]">
-              <h2 className="font-display text-4xl font-semibold text-black mb-3 tracking-tight">
+              <h2 className="text-4xl font-bold text-black mb-3 tracking-tight">
                 {design.title}
               </h2>
               

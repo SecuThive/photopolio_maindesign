@@ -12,71 +12,71 @@ export default function Header() {
   };
 
   return (
-    <header className="relative bg-black border-b border-gray-900 sticky top-0 z-40 backdrop-blur-sm bg-opacity-95">
+    <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-gray-200/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-wrap items-center justify-between gap-4 py-6">
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl md:text-3xl font-display font-semibold text-white tracking-tight">
-              <Link href="/" className="hover:opacity-80 transition-opacity">
-                UI SYNTAX
+        <div className="flex items-center justify-between h-16">
+          <div className="flex items-center gap-8">
+            <Link href="/" className="flex items-center gap-2 group">
+              <span className="text-xl font-bold text-gray-900 tracking-tight">
+                UI Syntax
+              </span>
+              <span className="hidden sm:inline rounded-full bg-gray-900 px-2 py-0.5 text-[10px] font-medium text-white">
+                Gallery
+              </span>
+            </Link>
+
+            <nav className="hidden lg:flex items-center gap-1">
+              {[
+                { href: '/playbooks', label: 'Playbooks' },
+                { href: '/collections', label: 'Collections' },
+                { href: '/blog', label: 'Blog' },
+                { href: '/code-match', label: 'Code Match', isNew: true },
+              ].map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="relative px-3 py-2 text-sm text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  {item.label}
+                  {item.isNew && (
+                    <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-[8px] font-bold text-white">
+                      N
+                    </span>
+                  )}
+                </Link>
+              ))}
+              <Link
+                href="/request-design"
+                className="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                Request
               </Link>
-            </h1>
-            <span className="hidden sm:inline text-xs text-gray-500 font-light tracking-[0.3em] uppercase">
-              AI Design Gallery
-            </span>
+            </nav>
           </div>
 
-          <nav className="hidden lg:flex items-center gap-8 text-sm text-gray-400">
-            <Link href="/about" className="hover:text-white transition-colors">
-              About
-            </Link>
-            <Link href="/contact" className="hover:text-white transition-colors">
-              Contact
-            </Link>
-            <Link href="/playbooks" className="hover:text-white transition-colors">
-              Playbooks
-            </Link>
-            <Link href="/collections" className="hover:text-white transition-colors">
-              Collections
-            </Link>
-            <Link href="/blog" className="hover:text-white transition-colors">
-              Blog
-            </Link>
-            <Link href="/changelog" className="hover:text-white transition-colors">
-              Changelog
-            </Link>
-            <Link href="/request-design" className="hover:text-white transition-colors">
-              Request
-            </Link>
-            <Link
-              href="/code-match"
-              className="inline-flex items-center gap-2 rounded-full bg-white/95 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.35em] text-gray-900 transition hover:bg-white"
-            >
-              <span>Code Match</span>
-              <span className="text-[9px] font-bold text-emerald-600">NEW</span>
-            </Link>
+          <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={openCommandPalette}
-              className="group inline-flex items-center gap-2 rounded-full border border-gray-800 px-4 py-2 text-xs uppercase tracking-[0.3em] text-gray-300 transition-colors hover:border-gray-600 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+              className="hidden sm:inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-1.5 text-sm text-gray-500 transition-colors hover:border-gray-300 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-900/20"
               aria-label="Open search"
             >
-              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="11" cy="11" r="7" />
                 <line x1="16.65" y1="16.65" x2="21" y2="21" />
               </svg>
-              <span>Search</span>
-              <span className="rounded border border-gray-700 px-1 py-0.5 text-[10px] text-gray-400">⌘K</span>
+              <span>Search designs...</span>
+              <kbd className="hidden md:inline rounded border border-gray-300 bg-white px-1.5 py-0.5 text-[11px] font-medium text-gray-400">
+                /
+              </kbd>
             </button>
-          </nav>
 
-          <div className="flex items-center gap-3 lg:hidden">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="text-white p-2 bg-gray-900 hover:bg-gray-800 rounded transition-colors"
+              className="lg:hidden p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
               aria-label="Toggle menu"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 {mobileMenuOpen ? (
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 ) : (
@@ -88,110 +88,42 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Mobile Dropdown Menu */}
       {mobileMenuOpen && (
-        <>
-          {/* Dropdown Menu - slide-down animation */}
-          <div className="lg:hidden bg-gray-950 border-t border-gray-800 shadow-lg animate-slideDown">
-            <nav className="space-y-1 px-4 py-6 max-w-7xl mx-auto">
-              {/* Search Button in Mobile Menu */}
-              <button
-                type="button"
-                onClick={() => {
-                  openCommandPalette();
-                  setMobileMenuOpen(false);
-                }}
-                className="mb-3 flex w-full items-center gap-3 rounded-lg border border-gray-800 px-4 py-3 text-sm text-gray-200 hover:bg-gray-900 transition-colors"
-              >
-                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="11" cy="11" r="7" />
-                  <line x1="16.65" y1="16.65" x2="21" y2="21" />
-                </svg>
-                <span className="flex-1 text-left font-medium">Search Designs</span>
-                <span className="text-xs text-gray-500">⌘K</span>
-              </button>
-
-              <Link 
-                href="/" 
-                className="block text-gray-300 hover:text-white hover:bg-gray-900 transition-colors py-3 px-4 rounded text-base"
+        <div className="lg:hidden border-t border-gray-200 bg-white animate-slideDown">
+          <nav className="max-w-7xl mx-auto px-4 py-3 space-y-1">
+            <button
+              type="button"
+              onClick={() => { openCommandPalette(); setMobileMenuOpen(false); }}
+              className="mb-2 flex w-full items-center gap-3 rounded-lg bg-gray-50 border border-gray-200 px-4 py-3 text-sm text-gray-600"
+            >
+              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="7" />
+                <line x1="16.65" y1="16.65" x2="21" y2="21" />
+              </svg>
+              <span className="flex-1 text-left">Search designs...</span>
+            </button>
+            {[
+              { href: '/', label: 'Home' },
+              { href: '/playbooks', label: 'Playbooks' },
+              { href: '/collections', label: 'Collections' },
+              { href: '/blog', label: 'Blog' },
+              { href: '/code-match', label: 'Code Match' },
+              { href: '/request-design', label: 'Request Design' },
+              { href: '/about', label: 'About' },
+              { href: '/changelog', label: 'Changelog' },
+              { href: '/contact', label: 'Contact' },
+            ].map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="block px-4 py-2.5 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Home
+                {item.label}
               </Link>
-              <Link 
-                href="/about" 
-                className="block text-gray-300 hover:text-white hover:bg-gray-900 transition-colors py-3 px-4 rounded text-base"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                About
-              </Link>
-              <Link 
-                href="/contact" 
-                className="block text-gray-300 hover:text-white hover:bg-gray-900 transition-colors py-3 px-4 rounded text-base"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Contact
-              </Link>
-              <Link 
-                href="/playbooks" 
-                className="block text-gray-300 hover:text-white hover:bg-gray-900 transition-colors py-3 px-4 rounded text-base"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Playbooks
-              </Link>
-              <Link 
-                href="/collections" 
-                className="block text-gray-300 hover:text-white hover:bg-gray-900 transition-colors py-3 px-4 rounded text-base"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Collections
-              </Link>
-              <Link 
-                href="/blog" 
-                className="block text-gray-300 hover:text-white hover:bg-gray-900 transition-colors py-3 px-4 rounded text-base"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Blog
-              </Link>
-              <Link 
-                href="/changelog" 
-                className="block text-gray-300 hover:text-white hover:bg-gray-900 transition-colors py-3 px-4 rounded text-base"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Changelog
-              </Link>
-              <Link 
-                href="/request-design" 
-                className="block text-gray-300 hover:text-white hover:bg-gray-900 transition-colors py-3 px-4 rounded text-base"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Request Design
-              </Link>
-              <Link 
-                href="/code-match" 
-                className="block text-gray-200 bg-gradient-to-r from-emerald-500/80 to-cyan-500/80 hover:from-emerald-400 hover:to-cyan-400 transition-[colors,transform] py-3 px-4 rounded-xl text-sm font-semibold tracking-[0.3em] uppercase"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Code Match
-              </Link>
-              <Link 
-                href="/privacy-policy" 
-                className="block text-gray-300 hover:text-white hover:bg-gray-900 transition-colors py-3 px-4 rounded text-base"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Privacy Policy
-              </Link>
-              <a 
-                href="/feed.xml" 
-                className="block text-gray-300 hover:text-white hover:bg-gray-900 transition-colors py-3 px-4 rounded text-base"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                RSS Feed
-              </a>
-            </nav>
-          </div>
-        </>
+            ))}
+          </nav>
+        </div>
       )}
     </header>
   );

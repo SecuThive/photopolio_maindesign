@@ -27,7 +27,7 @@ const typeStyle: Record<string, string> = {
 
 export default function ChangelogPage() {
   return (
-    <div className="min-h-screen bg-luxury-white">
+    <div className="min-h-screen bg-white">
       <Header />
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-10">

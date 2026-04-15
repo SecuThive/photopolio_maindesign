@@ -3,8 +3,12 @@
 @tailwind utilities;
 
 :root {
-  --background: #FAFAFA;
-  --foreground: #0A0A0A;
+  --background: #FFFFFF;
+  --foreground: #111827;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
@@ -16,36 +20,43 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+::selection {
+  background: #111827;
+  color: #ffffff;
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
-  
-  .luxury-gradient {
-    background: linear-gradient(135deg, #FFFFFF 0%, #F5F5F5 100%);
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
-  
-  .luxury-shadow {
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
   }
-  
-  .luxury-shadow-lg {
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
-  }
-  
+
   .animate-slideDown {
-    animation: slideDown 0.3s ease-out;
+    animation: slideDown 0.2s ease-out;
   }
-  
+
   @keyframes slideDown {
     from {
       opacity: 0;
-      transform: translateY(-10px);
+      transform: translateY(-4px);
     }
     to {
       opacity: 1;
       transform: translateY(0);
     }
+  }
+
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(400%); }
   }
 }
 
@@ -61,11 +72,11 @@ body {
   }
 
   .blog-body h2 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.75rem;
-    font-weight: 600;
-    color: #0a0a0a;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
     margin-bottom: 0.75rem;
+    letter-spacing: -0.025em;
   }
 
   .blog-body p {
@@ -88,30 +99,36 @@ body {
     color: #111827;
     text-decoration: underline;
     text-underline-offset: 4px;
+    text-decoration-color: #d1d5db;
+  }
+
+  .blog-body a:hover {
+    text-decoration-color: #111827;
   }
 
   .blog-body blockquote {
     margin: 1.75rem 0;
     padding: 1.25rem 1.5rem;
-    border-left: 4px solid #111827;
-    background: #f3f4f6;
+    border-left: 3px solid #111827;
+    background: #f9fafb;
     color: #374151;
     font-style: italic;
+    border-radius: 0 8px 8px 0;
   }
 
   .blog-body pre {
     margin: 1.75rem 0;
     padding: 1.5rem;
-    border-radius: 16px;
-    background: #0a0a0a;
+    border-radius: 12px;
+    background: #111827;
     color: #f9fafb;
     overflow-x: auto;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     line-height: 1.7;
   }
 
   .blog-body code {
-    font-family: 'SFMono-Regular', Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+    font-family: 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
   }
 
   .blog-body pre code {
@@ -125,6 +142,6 @@ body {
     color: #111827;
     padding: 0.2rem 0.4rem;
     border-radius: 6px;
-    font-size: 0.95em;
+    font-size: 0.9em;
   }
 }

@@ -39,7 +39,7 @@ export default async function AboutPage() {
   };
 
   return (
-    <div className="min-h-screen bg-luxury-white">
+    <div className="min-h-screen bg-white">
       <Header />
 
       <script

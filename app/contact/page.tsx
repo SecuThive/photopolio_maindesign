@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 export default function ContactPage() {
   const placementIds = getPlacementIds('NEXT_PUBLIC_EZOIC_PLACEMENTS_CONTACT');
   return (
-    <div className="min-h-screen bg-luxury-white">
+    <div className="min-h-screen bg-white">
       <Header />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">

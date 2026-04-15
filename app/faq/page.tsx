@@ -168,7 +168,7 @@ export default function FAQPage() {
   const faqSchema = buildFAQSchema(faqSchemaData);
 
   return (
-    <div className="min-h-screen bg-luxury-white flex flex-col">
+    <div className="min-h-screen bg-white flex flex-col">
       {/* FAQ Schema for Rich Snippets */}
       <script
         type="application/ld+json"

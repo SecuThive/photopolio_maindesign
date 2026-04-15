@@ -18,15 +18,6 @@ interface DesignCardProps {
   style?: CSSProperties;
 }
 
-const categoryGlyphs: Record<string, string> = {
-  'Landing Page': 'LP',
-  'Dashboard': 'DB',
-  'E-commerce': 'EC',
-  'Portfolio': 'PF',
-  'Blog': 'BG',
-  'Components': 'CP',
-};
-
 export default function DesignCard({
   design,
   likes,
@@ -43,7 +34,6 @@ export default function DesignCard({
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
-      year: 'numeric',
       month: 'short',
       day: 'numeric',
     });
@@ -58,10 +48,9 @@ export default function DesignCard({
       .map((segment) => segment.trim())
       .filter(Boolean);
     const preview = sentences.slice(0, 2).join(' ') || trimmed;
-    return preview.length > 160 ? `${preview.slice(0, 160)}…` : preview;
+    return preview.length > 120 ? `${preview.slice(0, 120)}...` : preview;
   }, [design.description]);
 
-  const glyph = design.category ? categoryGlyphs[design.category] ?? 'ALL' : 'ALL';
   const href = `/design/${design.slug}`;
 
   const handleCopyHtml = async (event: MouseEvent<HTMLButtonElement>) => {
@@ -78,85 +67,78 @@ export default function DesignCard({
     }
   };
 
-  const handleViewDetail = (event: MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    event.stopPropagation();
-    router.push(href);
-  };
-
-  const cardClassName = ['group block h-full cursor-pointer', className]
-    .filter(Boolean)
-    .join(' ');
+  const cardClassName = ['group block h-full', className].filter(Boolean).join(' ');
 
   return (
-    <Link
-      href={href}
-      className={cardClassName}
-      style={style}
-      aria-label={`${design.title} design details`}
-    >
-      <article className="flex h-full flex-col overflow-hidden rounded-[32px] border border-gray-100 bg-white/95 shadow-[0_12px_35px_rgba(15,23,42,0.08)] transition-transform duration-500 hover:-translate-y-1 hover:shadow-[0_35px_90px_rgba(15,23,42,0.14)]">
-        <div className="relative h-64 w-full overflow-hidden bg-gray-100">
+    <Link href={href} className={cardClassName} style={style} aria-label={`${design.title} — view details`}>
+      <article className="flex h-full flex-col overflow-hidden rounded-xl border border-gray-200 bg-white transition-all duration-300 hover:border-gray-300 hover:shadow-lg">
+        {/* Image */}
+        <div className="relative aspect-[16/10] w-full overflow-hidden bg-gray-100">
           <Image
             src={design.image_url}
             alt={design.title}
             fill
             priority={priority}
             loading={priority ? 'eager' : 'lazy'}
-            className="h-full w-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+            className="object-cover object-top transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           />
-          <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/70 to-transparent" aria-hidden />
-          <LikeButton
-            likes={likes}
-            liked={liked}
-            onToggle={onToggleLike}
-            disabled={likeDisabled || !onToggleLike}
-          />
-          <button
-            type="button"
-            onClick={handleCopyHtml}
-            disabled={!design.code}
-            className={`absolute bottom-4 right-3 inline-flex items-center gap-2 rounded-full border border-white/60 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-white transition-colors ${
-              copied ? 'bg-emerald-500/90 border-emerald-300 text-white' : 'bg-black/60 hover:bg-black'
-            } disabled:opacity-40`}
-          >
-            {copied ? 'Copied' : 'Copy HTML'}
-          </button>
+          {/* Overlay on hover */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+          {/* Actions — visible on hover */}
+          <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <LikeButton
+              likes={likes}
+              liked={liked}
+              onToggle={onToggleLike}
+              disabled={likeDisabled || !onToggleLike}
+            />
+            <button
+              type="button"
+              onClick={handleCopyHtml}
+              disabled={!design.code}
+              className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors backdrop-blur-sm ${
+                copied
+                  ? 'bg-emerald-500 text-white'
+                  : 'bg-white/90 text-gray-900 hover:bg-white'
+              } disabled:opacity-40`}
+            >
+              {copied ? (
+                <>
+                  <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6 9 17l-5-5" /></svg>
+                  Copied
+                </>
+              ) : (
+                <>
+                  <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect width="14" height="14" x="8" y="8" rx="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></svg>
+                  Copy HTML
+                </>
+              )}
+            </button>
+          </div>
         </div>
 
-        <div className="flex flex-1 flex-col gap-4 p-6">
-          <h3 className="font-display text-lg font-semibold text-gray-900 line-clamp-1 tracking-tight">
+        {/* Content */}
+        <div className="flex flex-1 flex-col gap-2 p-4">
+          <h3 className="text-sm font-semibold text-gray-900 leading-snug line-clamp-1">
             {design.title}
           </h3>
 
           {buildSnippet && (
-            <p className="text-sm text-gray-500 leading-relaxed line-clamp-2">
+            <p className="text-xs text-gray-500 leading-relaxed line-clamp-2">
               {buildSnippet}
             </p>
           )}
 
-          <div className="mt-auto flex items-center justify-between text-xs font-medium text-gray-500">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold tracking-[0.25em] text-gray-600" aria-hidden>
-                {glyph}
-              </span>
-              <span className="uppercase tracking-[0.25em] text-gray-400">
-                {design.category || 'General'}
-              </span>
-            </div>
-            <time className="tracking-wide" dateTime={design.created_at} suppressHydrationWarning>
+          <div className="mt-auto flex items-center justify-between pt-2">
+            <span className="inline-flex items-center rounded-md bg-gray-100 px-2 py-0.5 text-[11px] font-medium text-gray-600">
+              {design.category || 'General'}
+            </span>
+            <time className="text-[11px] text-gray-400" dateTime={design.created_at} suppressHydrationWarning>
               {formatDate(design.created_at)}
             </time>
           </div>
-
-          <button
-            type="button"
-            onClick={handleViewDetail}
-            className="inline-flex items-center justify-center rounded-full border border-gray-200 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-700 transition-colors hover:border-black hover:text-black"
-          >
-            View Detail
-          </button>
         </div>
       </article>
     </Link>

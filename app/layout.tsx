@@ -150,23 +150,16 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
         
-        {/* Google Fonts with display=optional - more aggressive fallback */}
-        <link 
-          href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=optional" 
+        {/* Google Fonts with display=optional */}
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=optional"
           rel="stylesheet"
         />
         
-        {/* Critical CSS - optimize above-the-fold rendering */}
+        {/* Critical CSS - above-the-fold */}
         <style dangerouslySetInnerHTML={{ __html: `
-          body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+          body{margin:0;font-family:'Inter',system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
           .min-h-screen{min-height:100vh}
-          .bg-luxury-white{background-color:#fafafa}
-          .text-4xl{font-size:2.25rem;line-height:2.5rem}
-          .md\\:text-5xl{font-size:3rem;line-height:1}
-          .font-semibold{font-weight:600}
-          .text-gray-900{color:rgb(17 24 39)}
-          .tracking-tight{letter-spacing:-0.025em}
-          @media(min-width:768px){.md\\:text-5xl{font-size:3rem;line-height:1}}
         ` }} />
         
         {/* AdSense - keep async to avoid blocking */}
@@ -190,9 +183,6 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <div className="bg-black/95 text-[12px] uppercase tracking-[0.25em] text-gray-200 text-center py-2 px-4 border-b border-white/10">
-          Every design detail page now includes both clean HTML and auto-generated React code for instant developer handoff.
-        </div>
         {children}
         <CommandPalette />
         <Analytics />

@@ -50,7 +50,7 @@ export default async function BlogPage() {
   const blogListSchema = buildBlogItemListSchema(publishedPosts);
 
   return (
-    <div className="min-h-screen bg-luxury-white">
+    <div className="min-h-screen bg-white">
       <Header />
 
       <main className="relative overflow-hidden">
@@ -64,7 +64,7 @@ export default async function BlogPage() {
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <section className="mb-16 space-y-5">
             <p className="text-xs uppercase tracking-[0.35em] text-gray-500">Engineering Notes</p>
-            <h1 className="text-4xl md:text-6xl font-display font-semibold text-gray-900 tracking-tight">
+            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 tracking-tight">
               UI Syntax Journal
             </h1>
             <p className="text-lg text-gray-600 max-w-3xl leading-relaxed">

@@ -516,7 +516,7 @@ export default async function DesignDetailPage({ params }: PageProps) {
           dangerouslySetInnerHTML={{ __html: serializeLdJson(payload) }}
         />
       ))}
-      <div className="min-h-screen bg-luxury-white overflow-x-hidden w-full">
+      <div className="min-h-screen bg-white overflow-x-hidden w-full">
         <Header />
         <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 space-y-8 sm:space-y-10 w-full overflow-hidden">
         {/* Hero Section with Background */}

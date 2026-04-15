@@ -77,7 +77,7 @@ export default async function BlogPostPage({ params }: PageProps) {
   const blogPostingSchema = buildBlogPostingSchema(post);
 
   return (
-    <div className="min-h-screen bg-luxury-white">
+    <div className="min-h-screen bg-white">
       <Header />
 
       <main className="relative overflow-hidden">
@@ -111,7 +111,7 @@ export default async function BlogPostPage({ params }: PageProps) {
               <span className="h-1 w-1 rounded-full bg-gray-400" aria-hidden />
               <span>{readingTime}</span>
             </div>
-            <h1 className="mt-4 text-3xl md:text-5xl font-display font-semibold text-gray-900 tracking-tight text-balance">
+            <h1 className="mt-4 text-3xl md:text-5xl font-bold text-gray-900 tracking-tight text-balance">
               {post.title}
             </h1>
             <div className="mt-6 flex flex-wrap items-center gap-4">

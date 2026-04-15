@@ -198,7 +198,7 @@ export default async function CategoryHubPage({ params }: CategoryPageProps) {
   const otherCategories = CATEGORY_SLUGS.filter((slug) => slug !== definition.slug);
 
   return (
-    <div className="min-h-screen bg-luxury-white">
+    <div className="min-h-screen bg-white">
       <Header />
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
         <section className="space-y-4">
