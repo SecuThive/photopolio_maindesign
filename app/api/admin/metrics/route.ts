@@ -82,12 +82,34 @@ export async function GET(request: NextRequest) {
 
     const categoryCounts = await Promise.all(
       CATEGORIES.map(async (category) => {
-        const { count } = await supabaseAdmin
-          .from('designs')
-          .select('id', { count: 'exact', head: true })
-          .eq('category', category)
-          .eq('status', 'published');
-        return { category, count: count ?? 0 };
+        const [countRes, scoreRes] = await Promise.all([
+          supabaseAdmin
+            .from('designs')
+            .select('id', { count: 'exact', head: true })
+            .eq('category', category)
+            .eq('status', 'published'),
+          supabaseAdmin
+            .from('designs')
+            .select('quality_score, views')
+            .eq('category', category)
+            .eq('status', 'published')
+            .not('quality_score', 'is', null),
+        ]);
+        const scores = (scoreRes.data ?? []) as { quality_score: number; views: number }[];
+        const avgScore =
+          scores.length > 0
+            ? scores.reduce((s, d) => s + (d.quality_score ?? 0), 0) / scores.length
+            : null;
+        const totalViews = (scoreRes.data ?? []).reduce(
+          (s: number, d: any) => s + (d.views ?? 0),
+          0
+        );
+        return {
+          category,
+          count: countRes.count ?? 0,
+          avgScore: avgScore !== null ? parseFloat(avgScore.toFixed(2)) : null,
+          totalViews,
+        };
       })
     );
 
@@ -124,12 +146,22 @@ export async function GET(request: NextRequest) {
 
     const dailyViews = Object.entries(dailyMap).map(([date, count]) => ({ date, count }));
 
+    // 품질 점수 상위 디자인 (최대 10개)
+    const { data: topDesigns } = await supabaseAdmin
+      .from('designs')
+      .select('id, title, category, quality_score, views, slug')
+      .eq('status', 'published')
+      .not('quality_score', 'is', null)
+      .order('quality_score', { ascending: false })
+      .limit(10);
+
     return NextResponse.json({
       totalDesigns: totalDesignRes.count ?? 0,
       totalViews,
       todayViews,
       categoryCounts,
       dailyViews,
+      topDesigns: topDesigns ?? [],
     });
   } catch (error) {
     // 🧪 Debug: emit detailed error context for troubleshooting

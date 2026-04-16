@@ -11,8 +11,21 @@ interface MetricsSummary {
   totalDesigns: number;
   totalViews: number;
   todayViews: number;
-  categoryCounts: { category: string; count: number }[];
+  categoryCounts: {
+    category: string;
+    count: number;
+    avgScore: number | null;
+    totalViews: number;
+  }[];
   dailyViews: { date: string; count: number }[];
+  topDesigns: {
+    id: string;
+    title: string;
+    category: string | null;
+    quality_score: number | null;
+    views: number;
+    slug: string | null;
+  }[];
 }
 
 const NOTE_FIELD_CONFIG = [
@@ -397,19 +410,76 @@ export default function AdminDashboardPage() {
                   ))}
                 </div>
               ) : (
-                <div className="mt-4 space-y-3">
+                <div className="mt-4 space-y-2">
                   {(metrics?.categoryCounts ?? []).map((item) => (
-                    <div key={item.category} className="flex items-center justify-between">
-                      <span className="text-sm text-gray-700">{item.category}</span>
-                      <span className="text-sm font-semibold text-gray-900">
-                        {formatNumber(item.count)}
-                      </span>
+                    <div key={item.category} className="flex items-center justify-between gap-2 text-sm">
+                      <span className="text-gray-700 truncate">{item.category}</span>
+                      <div className="flex items-center gap-3 shrink-0">
+                        {item.avgScore !== null && (
+                          <span className="text-xs text-blue-600 font-medium">
+                            ★ {item.avgScore.toFixed(1)}
+                          </span>
+                        )}
+                        <span className="font-semibold text-gray-900">
+                          {formatNumber(item.count)}
+                        </span>
+                      </div>
                     </div>
                   ))}
                 </div>
               )}
             </div>
           </div>
+
+          {/* Top Designs by Quality Score */}
+          {!metricsLoading && (metrics?.topDesigns ?? []).length > 0 && (
+            <div className="mt-6 bg-white rounded-lg shadow p-6 border border-gray-100">
+              <h3 className="text-base font-semibold text-gray-900 mb-4">
+                Top designs by quality score
+              </h3>
+              <div className="overflow-x-auto">
+                <table className="min-w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-gray-200">
+                      <th className="pb-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                      <th className="pb-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                      <th className="pb-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Score</th>
+                      <th className="pb-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Views</th>
+                      <th className="pb-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {(metrics?.topDesigns ?? []).map((d) => (
+                      <tr key={d.id} className="hover:bg-gray-50">
+                        <td className="py-2 pr-4 text-gray-900 max-w-xs truncate">{d.title}</td>
+                        <td className="py-2 pr-4">
+                          <span className="px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-700">
+                            {d.category ?? '-'}
+                          </span>
+                        </td>
+                        <td className="py-2 pr-4 font-semibold text-blue-600">
+                          {d.quality_score?.toFixed(1) ?? '-'}
+                        </td>
+                        <td className="py-2 pr-4 text-gray-500">{formatNumber(d.views)}</td>
+                        <td className="py-2">
+                          {d.slug && (
+                            <a
+                              href={`/design/${d.slug}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-xs text-blue-600 hover:text-blue-700"
+                            >
+                              View →
+                            </a>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Upload Form */}
